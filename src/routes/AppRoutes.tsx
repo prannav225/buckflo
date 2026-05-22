@@ -38,11 +38,13 @@ export function AppRoutes() {
         if (deltaX < 0) {
           // Swiped left -> next tab
           if (currentIndex < mainTabs.length - 1) {
+            if (navigator.vibrate) navigator.vibrate(15);
             navigate(mainTabs[currentIndex + 1]);
           }
         } else {
           // Swiped right -> previous tab
           if (currentIndex > 0) {
+            if (navigator.vibrate) navigator.vibrate(15);
             navigate(mainTabs[currentIndex - 1]);
           }
         }
