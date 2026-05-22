@@ -120,7 +120,7 @@ export function SavingsView() {
           Savings Transactions
         </h3>
         {transactions.length === 0 ? (
-          <div className="glass-card empty-state">
+          <div className="glass-card empty-state mt-3">
             <PiggyBank size={32} className="empty-state-icon" />
             <p className="empty-state-title">No savings activity</p>
             <p className="empty-state-desc">

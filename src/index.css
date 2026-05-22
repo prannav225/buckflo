@@ -499,11 +499,17 @@ input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; }
    This prevents the FAB from ever floating over page content. */
 .nav-wrapper {
   position: fixed;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(110px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--bg) 15%, transparent 100%);
   z-index: 100;
   pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
 .nav-pill {

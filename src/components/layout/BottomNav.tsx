@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Calendar, PiggyBank } from 'lucide-react';
+import { Calendar, PiggyBank, Home } from 'lucide-react';
 
 export function BottomNav() {
   return (
@@ -14,9 +14,9 @@ export function BottomNav() {
           aria-label="Home"
           id="nav-home"
         >
-          <LayoutDashboard />
-          <span>Home</span>
-        </NavLink>
+          <Home />
+          {/* <span>Home</span> */}
+         </NavLink>
 
         {/* Monthly */}
         <NavLink
@@ -26,7 +26,7 @@ export function BottomNav() {
           id="nav-monthly"
         >
           <Calendar />
-          <span>Monthly</span>
+          {/* <span>Monthly</span> */}
         </NavLink>
 
         {/* Savings */}
@@ -37,7 +37,7 @@ export function BottomNav() {
           id="nav-savings"
         >
           <PiggyBank />
-          <span>Savings</span>
+          {/* <span>Savings</span> */}
         </NavLink>
       </nav>
     </div>
