@@ -68,8 +68,13 @@ export function useRecentTransactions(accountId?: number, limit = 5): Transactio
       return queryPromise.then((txs) => {
         return txs
           .sort((a, b) => {
-            const timeB = b.createdAt || (b.date ? new Date(b.date).getTime() : 0) || (b.id || 0);
-            const timeA = a.createdAt || (a.date ? new Date(a.date).getTime() : 0) || (a.id || 0);
+            // Sort by spent date descending
+            if (b.date !== a.date) {
+              return b.date.localeCompare(a.date);
+            }
+            // Fallback to createdAt descending
+            const timeB = b.createdAt || 0;
+            const timeA = a.createdAt || 0;
             return timeB - timeA;
           })
           .slice(0, limit);

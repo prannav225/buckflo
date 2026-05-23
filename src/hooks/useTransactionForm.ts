@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { Dispatch, SetStateAction, FormEvent } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { addTransaction, updateTransaction, deleteTransaction, db } from '../db/database';
 import { useAccounts } from '../db/hooks';
 import { todayISO } from '../utils/dateUtils';
@@ -31,9 +31,22 @@ export interface TransactionFormState {
 export function useTransactionForm(): TransactionFormState {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const accounts = useAccounts();
 
   const isEdit = id !== undefined;
+
+  // Populate from URL search params (presets) in add mode
+  useEffect(() => {
+    if (isEdit) return;
+    const descParam = searchParams.get('desc');
+    const catParam = searchParams.get('cat');
+    const amtParam = searchParams.get('amt');
+
+    if (descParam) setDescription(descParam);
+    if (catParam) setCategory(catParam);
+    if (amtParam) setAmount(amtParam);
+  }, [searchParams, isEdit]);
 
   const [date,        setDate]        = useState(todayISO());
   const [description, setDescription] = useState('');
@@ -75,6 +88,26 @@ export function useTransactionForm(): TransactionFormState {
       })
       .finally(() => setFetching(false));
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Smart category guessing: search for a previous transaction matching the description
+  useEffect(() => {
+    if (!description.trim() || isEdit || category !== '') return;
+
+    const guessCategory = async () => {
+      const match = await db.transactions
+        .where('description')
+        .equalsIgnoreCase(description.trim())
+        .reverse()
+        .first();
+
+      if (match && match.category) {
+        setCategory(match.category);
+      }
+    };
+
+    const timeout = setTimeout(guessCategory, 250); // debounce database lookup
+    return () => clearTimeout(timeout);
+  }, [description, isEdit, category]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

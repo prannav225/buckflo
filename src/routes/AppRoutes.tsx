@@ -85,11 +85,11 @@ export function AppRoutes() {
   return (
     <AppShell>
       <Routes>
-        <Route path="/"        element={<Dashboard />} />
-        <Route path="/monthly" element={<MonthlyView />} />
-        <Route path="/savings" element={<SavingsView />} />
-        <Route path="/add"     element={<AddEditTransaction />} />
-        <Route path="/edit/:id" element={<AddEditTransaction />} />
+        <Route path="/"        element={<div className="page-transition-tab"><Dashboard /></div>} />
+        <Route path="/monthly" element={<div className="page-transition-tab"><MonthlyView /></div>} />
+        <Route path="/savings" element={<div className="page-transition-tab"><SavingsView /></div>} />
+        <Route path="/add"     element={<div className="page-transition-sheet"><AddEditTransaction /></div>} />
+        <Route path="/edit/:id" element={<div className="page-transition-sheet"><AddEditTransaction /></div>} />
         <Route path="*"        element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>

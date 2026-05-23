@@ -126,6 +126,39 @@ function TransferSheetContent({ onClose, savingsBalance }: Omit<TransferSheetPro
                 }}
               />
             </div>
+            {/* Quick Topup Presets */}
+            <div style={{ 
+              display: 'flex', 
+              gap: 8, 
+              marginTop: 10, 
+              overflowX: 'auto', 
+              paddingBottom: 4, 
+              width: '100%', 
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+            }}>
+              {[100, 500, 1000, 2000, 5000].map(val => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setAmount(val.toString())}
+                  style={{
+                    flexShrink: 0,
+                    padding: '8px 14px',
+                    borderRadius: 'var(--r-pill)',
+                    background: parsedAmt === val ? 'var(--accent)' : 'var(--border)',
+                    border: '1px solid transparent',
+                    color: parsedAmt === val ? '#fff' : 'var(--text-secondary)',
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '0.8125rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  ₹{val}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Note */}

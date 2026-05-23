@@ -55,39 +55,16 @@ export function TransactionCard({
       <div className="tx-desc">
         <div className="tx-desc-title">{tx.description}</div>
         <div className="tx-desc-sub">
-          <span>{formatDate(tx.date)}</span>
+          <span className="tx-date">{formatDate(tx.date)}</span>
           {tx.category && (
-            <>
-              <span style={{ opacity: 0.35 }}>·</span>
-              <span
-                className="pill"
-                style={{
-                  background: 'rgba(0,0,0,0.06)',
-                  color: 'var(--text-muted)',
-                  padding: '1px 7px',
-                  fontSize: '0.625rem',
-                }}
-              >
-                {tx.category}
-              </span>
-            </>
+            <span className="tx-pill tx-pill-cat">
+              {tx.category}
+            </span>
           )}
           {showAccount && account && (
-            <>
-              <span style={{ opacity: 0.35 }}>·</span>
-              <span
-                className="pill"
-                style={{
-                  background: account.type === 'savings' ? 'rgba(90,158,111,0.12)' : 'rgba(217,119,87,0.12)',
-                  color: account.type === 'savings' ? 'var(--credit)' : 'var(--accent)',
-                  padding: '1px 7px',
-                  fontSize: '0.625rem',
-                  fontWeight: 500,
-                }}
-              >
-                {account.type === 'savings' ? 'Savings' : 'Expenditure'}
-              </span>
-            </>
+            <span className={`tx-pill ${account.type === 'savings' ? 'tx-pill-savings' : 'tx-pill-expenditure'}`}>
+              {account.type === 'savings' ? 'Savings' : 'Expenditure'}
+            </span>
           )}
         </div>
       </div>
