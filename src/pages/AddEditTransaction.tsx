@@ -206,7 +206,6 @@ export function AddEditTransaction() {
               id="page-tx-date"
               value={date}
               onChange={setDate}
-              required
             />
           </div>
         </div>

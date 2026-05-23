@@ -6,7 +6,6 @@ interface CustomDatePickerProps {
   id?: string;
   value: string; // "YYYY-MM-DD"
   onChange: (val: string) => void;
-  required?: boolean;
 }
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -15,12 +14,12 @@ const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-export function CustomDatePicker({ id, value, onChange, required = false }: CustomDatePickerProps) {
+export function CustomDatePicker({ id, value, onChange }: CustomDatePickerProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Parse current value
-  const [y, m, d] = (value || todayISO()).split('-').map(Number);
+  const [y, m] = (value || todayISO()).split('-').map(Number);
   const [viewYear, setViewYear] = useState(y);
   const [viewMonth, setViewMonth] = useState(m - 1); // 0-indexed
 
