@@ -18,19 +18,23 @@ export function CustomDatePicker({ id, value, onChange }: CustomDatePickerProps)
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Parse current value
-  const [y, m] = (value || todayISO()).split('-').map(Number);
-  const [viewYear, setViewYear] = useState(y);
-  const [viewMonth, setViewMonth] = useState(m - 1); // 0-indexed
+  // Parse current value and manage render-time prop synchronization
+  const [prevValue, setPrevValue] = useState(value);
+  const [viewYear, setViewYear] = useState(() => {
+    const parts = (value || todayISO()).split('-').map(Number);
+    return parts[0];
+  });
+  const [viewMonth, setViewMonth] = useState(() => {
+    const parts = (value || todayISO()).split('-').map(Number);
+    return parts[1] - 1;
+  });
 
-  // Sync view to selected value when value changes externally
-  useEffect(() => {
-    if (value) {
-      const [ny, nm] = value.split('-').map(Number);
-      setViewYear(ny);
-      setViewMonth(nm - 1);
-    }
-  }, [value]);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    const parts = (value || todayISO()).split('-').map(Number);
+    setViewYear(parts[0]);
+    setViewMonth(parts[1] - 1);
+  }
 
   // Click outside to close
   useEffect(() => {
