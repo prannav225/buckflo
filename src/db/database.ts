@@ -29,12 +29,21 @@ export interface Transaction {
   transferId?: number;
 }
 
+export interface SavingGoal {
+  id?: number;
+  name: string;
+  targetAmount: number;
+  currentAllocated: number;
+  deadline?: string; // "YYYY-MM-DD"
+}
+
 // ─── Database Class ──────────────────────────────────────────────────────────
 
 export class FloDB extends Dexie {
   accounts!: Table<Account, number>;
   monthSetups!: Table<MonthSetup, number>;
   transactions!: Table<Transaction, number>;
+  savingGoals!: Table<SavingGoal, number>;
 
   constructor() {
     super('PocketLedgerDB');
@@ -43,6 +52,13 @@ export class FloDB extends Dexie {
       accounts: '++id, type',
       monthSetups: '++id, monthYear, accountId, [accountId+monthYear]',
       transactions: '++id, date, accountId, type, [accountId+date]',
+    });
+
+    this.version(2).stores({
+      accounts: '++id, type',
+      monthSetups: '++id, monthYear, accountId, [accountId+monthYear]',
+      transactions: '++id, date, accountId, type, [accountId+date]',
+      savingGoals: '++id, name, targetAmount, currentAllocated, deadline',
     });
 
     // Seed default accounts on first install
@@ -199,5 +215,22 @@ export async function deleteTransaction(id: number): Promise<void> {
       await db.transactions.delete(id);
     }
   });
+}
+
+// ─── Saving Goals ────────────────────────────────────────────────────────────
+
+/** Add a saving goal */
+export async function addSavingGoal(goal: Omit<SavingGoal, 'id'>): Promise<number> {
+  return db.savingGoals.add(goal) as Promise<number>;
+}
+
+/** Update a saving goal (either allocation or attributes) */
+export async function updateSavingGoal(id: number, goal: Partial<SavingGoal>): Promise<void> {
+  await db.savingGoals.update(id, goal);
+}
+
+/** Delete a saving goal */
+export async function deleteSavingGoal(id: number): Promise<void> {
+  await db.savingGoals.delete(id);
 }
 

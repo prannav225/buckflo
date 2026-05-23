@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Check, Trash2, ArrowDownLeft, ArrowUpRight, CreditCard, PiggyBank } from 'lucide-react';
 import { useTransactionForm } from '../hooks/useTransactionForm';
+import { useConfirm } from '../hooks/useConfirm';
 import { formatINR } from '../utils/currency';
 import { CustomDatePicker } from '../components/CustomDatePicker';
 
@@ -10,6 +11,7 @@ const CATEGORIES = [
 ];
 
 export function AddEditTransaction() {
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const {
     date, setDate,
     description, setDescription,
@@ -57,7 +59,12 @@ export function AddEditTransaction() {
           <button
             type="button"
             className="btn-ghost"
-            onClick={handleDelete}
+            onClick={() => handleDelete(() => confirm({
+              title: 'Delete Entry',
+              message: 'Are you sure you want to delete this entry? This action cannot be undone.',
+              confirmLabel: 'Delete',
+              variant: 'danger',
+            }))}
             style={{ color: 'var(--debit)', display: 'flex', alignItems: 'center', gap: 6 }}
             id="delete-entry-btn"
           >
@@ -234,6 +241,7 @@ export function AddEditTransaction() {
           </button>
         </div>
       </form>
+      {confirmDialog}
     </>
   );
 }
