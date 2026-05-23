@@ -28,8 +28,8 @@ export function AppRoutes() {
       const deltaX = touchEndX - touchStartX;
       const deltaY = touchEndY - touchStartY;
       
-      // Trigger horizontal swipe if movement > 50px and mostly horizontal
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      // Trigger horizontal swipe if movement > 80px and mostly horizontal
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 80) {
         const mainTabs = ['/', '/monthly', '/savings'];
         const currentIndex = mainTabs.indexOf(location.pathname);
         

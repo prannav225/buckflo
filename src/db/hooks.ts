@@ -44,7 +44,7 @@ export function useTransactions(accountId: number | undefined, monthYear: string
       const [year, month] = monthYear.split('-').map(Number);
       const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
       const endDay = new Date(year, month, 0).getDate();
-      const endDate = `${year}-${String(month).padStart(2, '0')}-${endDay}`;
+      const endDate = `${year}-${String(month).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`;
 
       return db.transactions
         .where('[accountId+date]')

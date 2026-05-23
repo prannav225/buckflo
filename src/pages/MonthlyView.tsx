@@ -185,11 +185,19 @@ export function MonthlyView() {
 
       {/* ── Transaction List ──────────────────────────────────────────────── */}
       <div className="fade-in-up delay-3">
-        <h3 className="text-[13px] font-semibold tracking-[0.04em] uppercase text-(--text-muted) pl-1">
+        <h3 style={{
+          fontSize: '13px',
+          fontWeight: 600,
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          color: 'var(--text-muted)',
+          paddingLeft: '4px',
+          marginBottom: '10px'
+        }}>
           Expenditure Transactions
         </h3> 
         {transactions.length === 0 ? (
-          <div className="glass-card empty-state mt-3">
+          <div className="glass-card empty-state" style={{ marginTop: 12 }}>
             <Calendar size={32} className="empty-state-icon" />
             <p className="empty-state-title">No expenses yet this month</p>
             <p className="empty-state-desc">

@@ -152,7 +152,7 @@ export async function updateTransaction(
     await adjustBalance(updated.accountId, newDelta);
 
     // 3. Update the transaction record
-    await db.transactions.update(id, updated);
+    await db.transactions.update(id, { ...updated, createdAt: oldTx.createdAt });
   });
 }
 
@@ -173,7 +173,11 @@ export async function deleteTransaction(id: number): Promise<void> {
     } else if (tx.category === 'transfer' || tx.category === 'opening-transfer') {
       // Fallback for historical transfers: find a sibling created around the same time with opposite type
       const sibling = await db.transactions
-        .filter(t => t.id !== tx.id && t.amount === tx.amount && t.type !== tx.type && Math.abs(t.createdAt - tx.createdAt) <= 5000)
+        .filter(t => t.id !== tx.id 
+          && t.amount === tx.amount 
+          && t.type !== tx.type 
+          && (t.category === 'transfer' || t.category === 'opening-transfer')
+          && Math.abs(t.createdAt - tx.createdAt) <= 5000)
         .first();
 
       // Delete the current transaction

@@ -9,10 +9,11 @@ export function exportTransactionsCSV(
   transactions: Transaction[],
   filename = 'flo-export.csv',
 ): void {
-  const header = ['Date', 'Description', 'Amount', 'Type'];
+  const header = ['Date', 'Description', 'Category', 'Amount', 'Type'];
   const rows = transactions.map((tx) => [
     formatDate(tx.date),
     `"${tx.description.replace(/"/g, '""')}"`, // escape double quotes
+    `"${(tx.category || '').replace(/"/g, '""')}"`, // escape double quotes in category
     tx.type === 'debit' ? `-${tx.amount.toFixed(2)}` : tx.amount.toFixed(2),
     tx.type,
   ]);

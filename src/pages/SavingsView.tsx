@@ -11,6 +11,7 @@ import { exportTransactionsCSV } from '../utils/csvExport';
 
 export function SavingsView() {
   const [monthYear, setMonthYear] = useState(getCurrentMonthYear());
+  const isCurrentMonth = monthYear === getCurrentMonthYear();
 
   const savingsAcc  = useAccount('savings');
   const transactions = useTransactions(savingsAcc?.id, monthYear);
@@ -81,7 +82,7 @@ export function SavingsView() {
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
           }}>
-            Savings Balance
+            {isCurrentMonth ? 'Savings Balance' : 'Savings Closing Balance'}
           </span>
         </div>
 
@@ -89,7 +90,7 @@ export function SavingsView() {
           className="amount-display"
           style={{ fontSize: 'clamp(2.25rem, 10vw, 3rem)', color: '#fff' }}
         >
-          {formatINR(savingsAcc?.currentBalance ?? 0)}
+          {formatINR(isCurrentMonth ? (savingsAcc?.currentBalance ?? 0) : summary.closingBalance)}
         </div>
       </div>
 
@@ -116,11 +117,19 @@ export function SavingsView() {
 
       {/* ── Transaction List ──────────────────────────────────────────────── */}
       <div className="fade-in-up delay-3">
-        <h3 className="text-[13px] font-semibold tracking-[0.04em] uppercase text-(--text-muted) mb-[10px] pl-1">
+        <h3 style={{
+          fontSize: '13px',
+          fontWeight: 600,
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          color: 'var(--text-muted)',
+          marginBottom: '10px',
+          paddingLeft: '4px'
+        }}>
           Savings Transactions
         </h3>
         {transactions.length === 0 ? (
-          <div className="glass-card empty-state mt-3">
+          <div className="glass-card empty-state" style={{ marginTop: 12 }}>
             <PiggyBank size={32} className="empty-state-icon" />
             <p className="empty-state-title">No savings activity</p>
             <p className="empty-state-desc">

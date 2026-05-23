@@ -40,7 +40,7 @@ export function Dashboard() {
       ) : (
         <>
           <DashboardHeroCard
-            expendAcc={expendAcc}
+            balance={summary.closingBalance}
             monthSetup={monthSetup}
             monthYear={monthYear}
             daysLeft={daysLeft}
@@ -75,7 +75,7 @@ export function Dashboard() {
             {recentTxs.length === 0 ? (
               <div className="glass-card empty-state">
                 <Wallet size={32} className="empty-state-icon" />
-                <p className="empty-state-title">No transactions this month yet</p>
+                <p className="empty-state-title">No transactions logged yet</p>
                 <p className="empty-state-desc">Tap <strong>+</strong> in the header to log your first entry.</p>
               </div>
             ) : (

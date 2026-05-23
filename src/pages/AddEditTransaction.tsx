@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Check, Trash2, ArrowDownLeft, ArrowUpRight, CreditCard, PiggyBank } from 'lucide-react';
 import { useTransactionForm } from '../hooks/useTransactionForm';
 import { formatINR } from '../utils/currency';
+import { CustomDatePicker } from '../components/CustomDatePicker';
 
 const CATEGORIES = [
   'Food', 'Transport', 'Bills', 'Shopping',
@@ -201,12 +202,10 @@ export function AddEditTransaction() {
           {/* Date */}
           <div className="form-group" style={{ margin: 0 }}>
             <label className="label" htmlFor="page-tx-date">Date</label>
-            <input
+            <CustomDatePicker
               id="page-tx-date"
-              type="date"
               value={date}
-              onChange={e => setDate(e.target.value)}
-              className="input-field"
+              onChange={setDate}
               required
             />
           </div>

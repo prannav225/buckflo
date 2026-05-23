@@ -1,10 +1,10 @@
 import { Calendar, PiggyBank, TrendingDown, ChevronRight } from 'lucide-react';
 import { formatINR } from '../utils/currency';
 import { formatMonthYear } from '../utils/dateUtils';
-import type { Account, MonthSetup } from '../db/database';
+import type { MonthSetup } from '../db/database';
 
 interface DashboardHeroCardProps {
-  expendAcc: Account | undefined;
+  balance: number;
   monthSetup: MonthSetup | null;
   monthYear: string;
   daysLeft: number;
@@ -18,7 +18,7 @@ interface DashboardHeroCardProps {
 }
 
 export function DashboardHeroCard({
-  expendAcc, monthSetup, monthYear, daysLeft,
+  balance, monthSetup, monthYear, daysLeft,
   spent, budget, remaining, spentPct, overBudget, dailyRemaining,
   onTopUp,
 }: DashboardHeroCardProps) {
@@ -39,7 +39,7 @@ export function DashboardHeroCard({
 
       {/* Balance amount */}
       <div className="amount-display" style={{ fontSize: 'clamp(2.25rem, 10vw, 3rem)', color: '#fff', marginBottom: 20 }}>
-        {formatINR(expendAcc?.currentBalance ?? 0)}
+        {formatINR(balance)}
       </div>
 
       {/* Budget progress */}

@@ -105,6 +105,18 @@ function MonthInitContent({ onClose, monthYear, onSaved, isEdit }: ContentProps)
       } else {
         await db.accounts.update(expendAcc.id, { currentBalance: expBal });
         if (!isNaN(savBal) && savBal >= 0) {
+          const diff = savBal - savingsAcc.currentBalance;
+          if (diff !== 0) {
+            await db.transactions.add({
+              date: todayISO(),
+              description: 'Savings balance adjustment',
+              amount: Math.abs(diff),
+              type: diff > 0 ? 'credit' : 'debit',
+              accountId: savingsAcc.id,
+              category: 'adjustment',
+              createdAt: Date.now(),
+            });
+          }
           await db.accounts.update(savingsAcc.id, { currentBalance: savBal });
         }
 
