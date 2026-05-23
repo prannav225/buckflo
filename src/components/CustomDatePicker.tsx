@@ -166,7 +166,7 @@ export function CustomDatePicker({ id, value, onChange }: CustomDatePickerProps)
           className="glass-card-strong pop-in"
           style={{
             position: 'absolute',
-            top: 'calc(100% + 8px)',
+            bottom: 'calc(100% + 8px)',
             left: 0,
             right: 0,
             zIndex: 900,

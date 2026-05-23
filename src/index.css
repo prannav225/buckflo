@@ -21,7 +21,7 @@
   --bg:              #eeeae4;
   --bg-glass:        rgba(255, 255, 255, 0.68);
   --bg-glass-strong: rgba(255, 255, 255, 0.88);
-  --bg-surface:      rgba(250, 249, 246, 0.97);
+  --bg-surface:      #ffffff;
 
   /* Glass system */
   --glass-blur:      blur(24px) saturate(180%);
@@ -59,7 +59,7 @@
     --bg:              #0d0c0b;
     --bg-glass:        rgba(32, 30, 27, 0.80);
     --bg-glass-strong: rgba(28, 26, 24, 0.95);
-    --bg-surface:      rgba(20, 19, 17, 0.97);
+    --bg-surface:      #141311;
 
     --glass-border:    1px solid rgba(255, 255, 255, 0.09);
     --glass-shadow:    0 2px 12px rgba(0,0,0,0.50), 0 1px 3px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);
@@ -77,7 +77,7 @@
   --bg:              #0d0c0b;
   --bg-glass:        rgba(32, 30, 27, 0.80);
   --bg-glass-strong: rgba(28, 26, 24, 0.95);
-  --bg-surface:      rgba(20, 19, 17, 0.97);
+  --bg-surface:      #141311;
 
   --glass-border:    1px solid rgba(255, 255, 255, 0.09);
   --glass-shadow:    0 2px 12px rgba(0,0,0,0.50), 0 1px 3px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);
