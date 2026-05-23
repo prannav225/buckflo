@@ -190,32 +190,34 @@ export function CustomDatePicker({ id, value, onChange }: CustomDatePickerProps)
             <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text)' }}>
               {MONTH_NAMES[viewMonth]} {viewYear}
             </span>
-            <div style={{ display: 'flex', gap: 4 }}>
+            <div style={{ display: 'flex', gap: 6 }}>
               <button
                 type="button"
                 onClick={handlePrevMonth}
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  width: 28, height: 28, borderRadius: 'var(--r-sm)', border: 'none',
+                  width: 36, height: 36, borderRadius: 'var(--r-sm)', border: 'none',
                   background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer',
-                  transition: 'background 0.15s'
+                  transition: 'background 0.15s', padding: 0
                 }}
                 className="btn-ghost"
+                aria-label="Previous Month"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={20} />
               </button>
               <button
                 type="button"
                 onClick={handleNextMonth}
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  width: 28, height: 28, borderRadius: 'var(--r-sm)', border: 'none',
+                  width: 36, height: 36, borderRadius: 'var(--r-sm)', border: 'none',
                   background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer',
-                  transition: 'background 0.15s'
+                  transition: 'background 0.15s', padding: 0
                 }}
                 className="btn-ghost"
+                aria-label="Next Month"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={20} />
               </button>
             </div>
           </div>
