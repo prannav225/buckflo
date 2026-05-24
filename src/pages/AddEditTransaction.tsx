@@ -1,16 +1,15 @@
 import { useEffect, useRef } from 'react';
-import { Check, Trash2, ArrowDownLeft, ArrowUpRight, CreditCard, PiggyBank } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Check, Trash2, ArrowDownLeft, ArrowUpRight, CreditCard, PiggyBank, ArrowLeft } from 'lucide-react';
 import { useTransactionForm } from '../hooks/useTransactionForm';
 import { useConfirm } from '../hooks/useConfirm';
 import { formatINR } from '../utils/currency';
 import { CustomDatePicker } from '../components/CustomDatePicker';
 
-const CATEGORIES = [
-  'Food', 'Transport', 'Bills', 'Shopping',
-  'Healthcare', 'Entertainment', 'Rent', 'Transfer', 'Other',
-];
+import { CATEGORIES } from '../utils/categories';
 
 export function AddEditTransaction() {
+  const navigate = useNavigate();
   const { confirm, dialog: confirmDialog } = useConfirm();
   const {
     date, setDate,
@@ -53,8 +52,20 @@ export function AddEditTransaction() {
   return (
     <>
       {/* ── Page Header ─────────────────────────────────────────────────── */}
-      <div className="sub-header fade-in-up">
-        <h2 className="sub-header-title">{isEdit ? 'Edit Entry' : 'Add Entry'}</h2>
+      <div className="sub-header fade-in-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={() => navigate(-1)}
+            style={{ padding: '6px', borderRadius: '50%', minHeight: 'unset', height: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="Back"
+            id="btn-back"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <h2 className="sub-header-title" style={{ margin: 0 }}>{isEdit ? 'Edit Entry' : 'Add Entry'}</h2>
+        </div>
         {isEdit && (
           <button
             type="button"
@@ -84,10 +95,10 @@ export function AddEditTransaction() {
       >
         {/* Transaction Type Toggle */}
         <div className="seg-control fade-in-up" style={{ marginBottom: 4 }}>
-          <button type="button" className={`seg-option${type === 'debit' ? ' seg-debit' : ''}`} onClick={() => setType('debit')} id="page-type-debit">
+          <button type="button" className={`seg-option${type === 'debit' ? ' active' : ''}`} onClick={() => setType('debit')} id="page-type-debit">
             <ArrowDownLeft size={16} strokeWidth={2.5} /> Expense
           </button>
-          <button type="button" className={`seg-option${type === 'credit' ? ' seg-credit' : ''}`} onClick={() => setType('credit')} id="page-type-credit">
+          <button type="button" className={`seg-option${type === 'credit' ? ' active' : ''}`} onClick={() => setType('credit')} id="page-type-credit">
             <ArrowUpRight size={16} strokeWidth={2.5} /> Income
           </button>
         </div>

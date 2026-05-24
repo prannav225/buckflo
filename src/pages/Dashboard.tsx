@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Wallet, TrendingUp, TrendingDown, Clock } from 'lucide-react';
+import { ChevronRight, Wallet } from 'lucide-react';
 import { useAccount, useMonthSetup, useRecentTransactions, useMonthSummary, useTransactions } from '../db/hooks';
 import { TransactionCard } from '../components/TransactionRow';
 import { TransferSheet } from '../components/TransferSheet';
@@ -8,11 +8,30 @@ import { MonthInitModal } from '../components/MonthInitModal';
 import { DashboardHeroCard, SavingsQuickCard } from '../components/DashboardCards';
 import { getCurrentMonthYear, getDaysRemainingInMonth } from '../utils/dateUtils';
 import { formatINR } from '../utils/currency';
-import { useBurnRate, useSubscriptionAlerts, useWeekOverWeek, useFrequentPresets } from '../hooks/useAnalytics';
+import { useFrequentPresets } from '../hooks/useAnalytics';
 
 export function Dashboard() {
   const navigate = useNavigate();
   const [showTransfer, setShowTransfer] = useState(false);
+  const [transferConfig, setTransferConfig] = useState<{
+    direction: 'savings_to_expenditure' | 'expenditure_to_savings';
+    amount: string;
+    note: string;
+  }>({
+    direction: 'savings_to_expenditure',
+    amount: '',
+    note: '',
+  });
+
+  const handleTopUp = () => {
+    setTransferConfig({
+      direction: 'savings_to_expenditure',
+      amount: '',
+      note: 'Transfer to Expenditure',
+    });
+    setShowTransfer(true);
+  };
+
   const monthYear = getCurrentMonthYear();
 
   const expendAcc   = useAccount('expenditure');
@@ -32,9 +51,6 @@ export function Dashboard() {
 
   // Analytics hooks
   const presets = useFrequentPresets(4);
-  const burnRate = useBurnRate(budget, spent);
-  const wow = useWeekOverWeek();
-  const subscriptions = useSubscriptionAlerts();
 
   const handlePresetClick = (preset: typeof presets[number]) => {
     navigate(`/add?desc=${encodeURIComponent(preset.description)}&cat=${encodeURIComponent(preset.category)}&amt=${preset.amount}`);
@@ -62,7 +78,7 @@ export function Dashboard() {
             spentPct={spentPct}
             overBudget={overBudget}
             dailyRemaining={dailyRemaining}
-            onTopUp={() => setShowTransfer(true)}
+            onTopUp={handleTopUp}
           />
 
           <SavingsQuickCard
@@ -70,12 +86,16 @@ export function Dashboard() {
             onClick={() => navigate('/savings')}
           />
 
+
+
           {/* Quick Presets */}
           {presets.length > 0 && (
-            <div className="fade-in-up delay-1" style={{ marginBottom: 20 }}>
-              <h2 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, paddingLeft: 4 }}>
-                Quick Presets
-              </h2>
+            <div className="fade-in-up delay-1" style={{ marginBottom: 20, marginTop: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <h2 style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+                  Quick Presets
+                </h2>
+              </div>
               <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, width: '100%', WebkitOverflowScrolling: 'touch' }}>
                 {presets.map((preset, idx) => (
                   <button
@@ -110,109 +130,21 @@ export function Dashboard() {
             </div>
           )}
 
-          {/* Smart Insights */}
-          {(burnRate.isOverrunProjected || wow.lastWeekTotal > 0) && (
-            <div className="fade-in-up delay-1" style={{ marginBottom: 20 }}>
-              <h2 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, paddingLeft: 4 }}>
-                Smart Insights
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {/* Burn Rate warning */}
-                {burnRate.isOverrunProjected && burnRate.dayOfExhaustion !== null && (
-                  <div className="insight-card insight-card-danger">
-                    <div className="insight-icon-container">
-                      <TrendingDown size={20} />
-                    </div>
-                    <div className="insight-content">
-                      <div className="insight-title">Budget Exhaustion Warning</div>
-                      <div className="insight-desc">
-                        At your current daily spend of <span>{formatINR(burnRate.avgDailySpend)}</span>, your budget is projected to run out around day <span>{burnRate.dayOfExhaustion}</span> of this month.
-                      </div>
-                    </div>
-                  </div>
-                )}
 
-                {/* WoW card */}
-                {wow.lastWeekTotal > 0 && (
-                  <div className={`insight-card ${wow.percentChange <= 0 ? 'insight-card-success' : 'insight-card-danger'}`}>
-                    <div className="insight-icon-container">
-                      {wow.percentChange <= 0 ? (
-                        <TrendingUp size={20} style={{ transform: 'rotate(90deg)' }} />
-                      ) : (
-                        <TrendingUp size={20} />
-                      )}
-                    </div>
-                    <div className="insight-content">
-                      <div className="insight-title">Weekly Spending Trend</div>
-                      <div className="insight-desc">
-                        {wow.percentChange <= 0 ? (
-                          <>
-                            You've spent <span style={{ color: 'var(--credit)' }}>{Math.abs(wow.percentChange)}% less</span> this week (<span>{formatINR(wow.thisWeekTotal)}</span>) compared to last week (<span>{formatINR(wow.lastWeekTotal)}</span>).
-                          </>
-                        ) : (
-                          <>
-                            Your spending is up by <span style={{ color: 'var(--debit)' }}>{wow.percentChange}%</span> this week (<span>{formatINR(wow.thisWeekTotal)}</span>) compared to last week (<span>{formatINR(wow.lastWeekTotal)}</span>).
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
-          {/* Subscriptions */}
-          {subscriptions.length > 0 && (
-            <div className="fade-in-up delay-1" style={{ marginBottom: 20 }}>
-              <h2 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, paddingLeft: 4 }}>
-                Upcoming Bills & Subscriptions
-              </h2>
-              <div className="glass-card" style={{ padding: '8px 12px' }}>
-                {subscriptions.map((sub, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '10px 6px',
-                      borderBottom: idx < subscriptions.length - 1 ? '1px solid var(--border)' : 'none'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{
-                        width: 28, height: 28, borderRadius: 6,
-                        background: 'rgba(0,0,0,0.04)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                      }}>
-                        <Clock size={14} color="var(--text-muted)" />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text)' }}>
-                          {sub.description}
-                        </div>
-                        <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: 1 }}>
-                          Due in {sub.daysLeft} day{sub.daysLeft !== 1 ? 's' : ''} ({sub.nextDueDate})
-                        </div>
-                      </div>
-                    </div>
-                    <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--text)' }}>
-                      {formatINR(sub.amount)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+
 
           {/* Recent Transactions */}
-          <div className="fade-in-up delay-2">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, paddingLeft: 4 }}>
-              <h2 style={{ fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.02em' }}>Recent Transactions</h2>
+          <div className="fade-in-up delay-2" style={{ marginTop: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h2 style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+                  Recent Transactions
+                </h2>
+              </div>
               <button
                 className="btn-ghost"
-                onClick={() => navigate('/monthly')}
+                onClick={() => navigate(`/monthly/transactions?month=${monthYear}`)}
                 style={{ fontSize: '0.8125rem', padding: '4px 8px', gap: 2 }}
                 id="btn-view-all"
               >
@@ -227,7 +159,7 @@ export function Dashboard() {
                 <p className="empty-state-desc">Tap <strong>+</strong> in the header to log your first entry.</p>
               </div>
             ) : (
-              <div className="glass-card" style={{ padding: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {recentTxs.map(tx => (
                   <TransactionCard key={tx.id} transaction={tx} showAccount={true} />
                 ))}
@@ -235,10 +167,14 @@ export function Dashboard() {
             )}
           </div>
 
+
           <TransferSheet
             isOpen={showTransfer}
             onClose={() => setShowTransfer(false)}
             savingsBalance={savingsAcc?.currentBalance ?? 0}
+            defaultDirection={transferConfig.direction}
+            defaultAmount={transferConfig.amount}
+            defaultNote={transferConfig.note}
           />
 
           <MonthInitModal

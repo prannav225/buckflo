@@ -5,9 +5,10 @@ interface MonthPickerProps {
   monthYear: string;
   onChange: (nextMonthYear: string) => void;
   isSavings?: boolean;
+  compact?: boolean;
 }
 
-export function MonthPicker({ monthYear, onChange, isSavings = false }: MonthPickerProps) {
+export function MonthPicker({ monthYear, onChange, isSavings = false, compact = false }: MonthPickerProps) {
   const currentMonthYear = getCurrentMonthYear();
   const isCurrentMonth = monthYear === currentMonthYear;
 
@@ -23,6 +24,69 @@ export function MonthPicker({ monthYear, onChange, isSavings = false }: MonthPic
   const pillColor = isSavings ? 'var(--credit)' : 'var(--accent)';
   const prevId = isSavings ? 'savings-btn-prev-month' : 'btn-prev-month';
   const nextId = isSavings ? 'savings-btn-next-month' : 'btn-next-month';
+
+  if (compact) {
+    return (
+      <div className="month-picker-compact" style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        background: 'var(--bg-glass)',
+        border: 'var(--glass-border)',
+        borderRadius: 'var(--r-pill)',
+        padding: '2px 4px',
+        boxShadow: 'var(--glass-shadow)',
+        backdropFilter: 'var(--glass-blur)',
+        WebkitBackdropFilter: 'var(--glass-blur)',
+      }}>
+        <button 
+          onClick={goToPrev} 
+          id={prevId}
+          type="button"
+          style={{
+            width: 24, height: 24, border: 'none', background: 'transparent',
+            color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', padding: 0
+          }}
+        >
+          <ChevronLeft size={14} />
+        </button>
+        <span style={{ 
+          fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text)', 
+          padding: '0 6px', display: 'flex', alignItems: 'center', gap: 4,
+          whiteSpace: 'nowrap'
+        }}>
+          {formatMonthYear(monthYear)}
+          {isCurrentMonth && (
+            <span style={{
+              background: pillBackground,
+              color: pillColor,
+              borderRadius: 999,
+              padding: '1px 5px',
+              fontSize: '0.5625rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
+            }}>
+              Now
+            </span>
+          )}
+        </span>
+        <button 
+          onClick={goToNext} 
+          disabled={isCurrentMonth} 
+          id={nextId}
+          type="button"
+          style={{
+            width: 24, height: 24, border: 'none', background: 'transparent',
+            color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', padding: 0, opacity: isCurrentMonth ? 0.25 : 1
+          }}
+        >
+          <ChevronRight size={14} />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="month-picker">
@@ -53,3 +117,4 @@ export function MonthPicker({ monthYear, onChange, isSavings = false }: MonthPic
     </div>
   );
 }
+

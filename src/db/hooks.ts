@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type Account, type MonthSetup, type Transaction } from './database';
+import { db, type Account, type MonthSetup, type Transaction, type Subscription } from './database';
 import { getCurrentMonthYear } from '../utils/dateUtils';
 
 // ─── Accounts ────────────────────────────────────────────────────────────────
@@ -120,4 +120,10 @@ export function useMonthSummary(
 
   const closingBalance = +(openingBalance - totalDebited + totalCredited).toFixed(2);
   return { totalDebited: +totalDebited.toFixed(2), totalCredited: +totalCredited.toFixed(2), closingBalance };
+}
+
+// ─── Subscriptions ───────────────────────────────────────────────────────────
+
+export function useSubscriptions(): Subscription[] {
+  return useLiveQuery(() => db.subscriptions.toArray(), [], []);
 }

@@ -1,5 +1,7 @@
 import { useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, Trash2 } from 'lucide-react';
+import { updateSheetOpenState } from '../utils/modalHelper';
 
 // ─── Shared Types (imported by useConfirm.ts) ─────────────────────────────────
 
@@ -25,6 +27,14 @@ interface ConfirmDialogProps {
 
 export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
   const cancelRef = useRef<HTMLButtonElement>(null);
+
+  // Handle active overlay body class for inactive background visual dimming
+  useEffect(() => {
+    updateSheetOpenState();
+    return () => {
+      setTimeout(updateSheetOpenState, 0);
+    };
+  }, [state]);
 
   // Focus Cancel on open for accessibility
   useEffect(() => {
@@ -65,7 +75,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
     if (e.target === e.currentTarget) handleCancel();
   };
 
-  return (
+  return createPortal(
     <div
       role="alertdialog"
       aria-modal="true"
@@ -188,6 +198,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

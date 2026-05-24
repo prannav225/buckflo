@@ -15,6 +15,7 @@ export interface MonthSetup {
   openingBalance: number;
   monthlyBudget: number;
   accountId: number;
+  categoryBudgets?: Record<string, number>;
 }
 
 export interface Transaction {
@@ -37,6 +38,18 @@ export interface SavingGoal {
   deadline?: string; // "YYYY-MM-DD"
 }
 
+export interface Subscription {
+  id?: number;
+  name: string;
+  amount: number;
+  frequency: 'weekly' | 'monthly' | 'yearly';
+  nextDueDate: string; // YYYY-MM-DD
+  category: string;
+  status: 'active' | 'cancelled' | 'paused';
+  autoDetected: boolean;
+  notes?: string;
+}
+
 // ─── Database Class ──────────────────────────────────────────────────────────
 
 export class FloDB extends Dexie {
@@ -44,6 +57,7 @@ export class FloDB extends Dexie {
   monthSetups!: Table<MonthSetup, number>;
   transactions!: Table<Transaction, number>;
   savingGoals!: Table<SavingGoal, number>;
+  subscriptions!: Table<Subscription, number>;
 
   constructor() {
     super('PocketLedgerDB');
@@ -59,6 +73,14 @@ export class FloDB extends Dexie {
       monthSetups: '++id, monthYear, accountId, [accountId+monthYear]',
       transactions: '++id, date, accountId, type, [accountId+date]',
       savingGoals: '++id, name, targetAmount, currentAllocated, deadline',
+    });
+
+    this.version(3).stores({
+      accounts: '++id, type',
+      monthSetups: '++id, monthYear, accountId, [accountId+monthYear]',
+      transactions: '++id, date, accountId, type, [accountId+date]',
+      savingGoals: '++id, name, targetAmount, currentAllocated, deadline',
+      subscriptions: '++id, name, frequency, status, nextDueDate',
     });
 
     // Seed default accounts on first install
@@ -100,14 +122,21 @@ export async function addTransaction(tx: Omit<Transaction, 'id' | 'createdAt'>):
   return id as number;
 }
 
-/**
- * Record a transfer from savings → expenditure.
- * Creates a debit in savings and a credit in expenditure.
- */
 export async function recordTransfer(
   amount: number,
   date: string,
   note = 'Transfer to Expenditure',
+  category = 'transfer',
+): Promise<void> {
+  await recordTransferBidirectional(amount, date, 'savings', 'expenditure', note, category);
+}
+
+export async function recordTransferBidirectional(
+  amount: number,
+  date: string,
+  fromType: 'expenditure' | 'savings',
+  toType: 'expenditure' | 'savings',
+  note = 'Transfer',
   category = 'transfer',
 ): Promise<void> {
   const [savingsAcc, expendAcc] = await Promise.all([
@@ -119,6 +148,9 @@ export async function recordTransfer(
     throw new Error('Accounts not initialised');
   }
 
+  const fromAcc = fromType === 'savings' ? savingsAcc : expendAcc;
+  const toAcc = toType === 'savings' ? savingsAcc : expendAcc;
+
   const transferId = Date.now();
 
   await db.transaction('rw', db.transactions, db.accounts, async () => {
@@ -128,25 +160,25 @@ export async function recordTransfer(
         description: note,
         amount,
         type: 'debit',
-        accountId: savingsAcc.id!,
+        accountId: fromAcc.id!,
         category,
         createdAt: transferId,
         transferId,
       },
       {
         date,
-        description: 'Transfer from Savings',
+        description: fromType === 'savings' ? 'Transfer from Savings' : 'Transfer from Expenditure',
         amount,
         type: 'credit',
-        accountId: expendAcc.id!,
+        accountId: toAcc.id!,
         category,
         createdAt: transferId,
         transferId,
       },
     ]);
 
-    await adjustBalance(savingsAcc.id!, -amount);
-    await adjustBalance(expendAcc.id!, amount);
+    await adjustBalance(fromAcc.id!, -amount);
+    await adjustBalance(toAcc.id!, amount);
   });
 }
 
@@ -232,5 +264,95 @@ export async function updateSavingGoal(id: number, goal: Partial<SavingGoal>): P
 /** Delete a saving goal */
 export async function deleteSavingGoal(id: number): Promise<void> {
   await db.savingGoals.delete(id);
+}
+
+// ─── Subscriptions ───────────────────────────────────────────────────────────
+
+export async function addSubscription(sub: Omit<Subscription, 'id'>): Promise<number> {
+  return db.subscriptions.add(sub) as Promise<number>;
+}
+
+export async function updateSubscription(id: number, sub: Partial<Subscription>): Promise<void> {
+  await db.subscriptions.update(id, sub);
+}
+
+export async function deleteSubscription(id: number): Promise<void> {
+  await db.subscriptions.delete(id);
+}
+
+/**
+ * Scan transactions table for description + similar amount appearing 2+ times across different months.
+ * Populates subscriptions table with autoDetected: true.
+ */
+export async function runSubscriptionAutoDetection(): Promise<number> {
+  // Get expenditure account
+  const expendAcc = await db.accounts.where('type').equals('expenditure').first();
+  if (!expendAcc?.id) return 0;
+
+  // Query all debit transactions on expenditure account
+  const txs = await db.transactions
+    .where('accountId')
+    .equals(expendAcc.id)
+    .filter(t => t.type === 'debit')
+    .toArray();
+
+  // Group by name (lowercase, trimmed) and approximate amount (rounded to nearest 5)
+  const groups: Record<string, typeof txs> = {};
+  for (const tx of txs) {
+    const nameKey = tx.description.trim().toLowerCase();
+    const amtKey = Math.round(tx.amount / 5) * 5;
+    const key = `${nameKey}_${amtKey}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(tx);
+  }
+
+  let addedCount = 0;
+
+  for (const key in groups) {
+    const groupTxs = groups[key];
+    if (groupTxs.length < 2) continue;
+
+    // Check if they occurred in different months
+    const months = new Set(groupTxs.map(tx => tx.date.substring(0, 7)));
+    if (months.size < 2) continue;
+
+    // We found a recurring transaction!
+    const sampleTx = groupTxs[0];
+    const name = sampleTx.description.trim();
+    const amount = sampleTx.amount;
+    const category = sampleTx.category || 'Other';
+
+    // Check if a subscription with the same name already exists
+    const existing = await db.subscriptions
+      .filter(s => s.name.toLowerCase() === name.toLowerCase())
+      .first();
+
+    if (!existing) {
+      // Calculate next due date based on the last transaction date
+      const sortedTxs = groupTxs.sort((a, b) => a.date.localeCompare(b.date));
+      const lastTx = sortedTxs[sortedTxs.length - 1];
+      const lastDate = new Date(lastTx.date);
+      
+      // Add 1 month to the last date
+      const nextDueDate = new Date(lastDate.getFullYear(), lastDate.getMonth() + 1, lastDate.getDate());
+      
+      // Format as YYYY-MM-DD
+      const nextDueDateStr = nextDueDate.toISOString().split('T')[0];
+
+      await db.subscriptions.add({
+        name,
+        amount,
+        frequency: 'monthly',
+        nextDueDate: nextDueDateStr,
+        category,
+        status: 'active',
+        autoDetected: true,
+        notes: 'Auto-detected recurring expense'
+      });
+      addedCount++;
+    }
+  }
+
+  return addedCount;
 }
 

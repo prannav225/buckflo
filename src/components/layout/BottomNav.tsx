@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, PiggyBank, Home } from 'lucide-react';
+import { Calendar, PiggyBank, Home, Plus, BarChart2 } from 'lucide-react';
 
 export function BottomNav() {
   return (
     <div className="nav-wrapper" role="navigation" aria-label="App navigation">
-      {/* Symmetrical 4-tab glass navigation pill */}
+      {/* Symmetrical 5-tab glass navigation pill */}
       <nav className="nav-pill" aria-label="Main navigation">
         {/* Home */}
         <NavLink
@@ -15,8 +15,7 @@ export function BottomNav() {
           id="nav-home"
         >
           <Home />
-          {/* <span>Home</span> */}
-         </NavLink>
+        </NavLink>
 
         {/* Monthly */}
         <NavLink
@@ -26,7 +25,26 @@ export function BottomNav() {
           id="nav-monthly"
         >
           <Calendar />
-          {/* <span>Monthly</span> */}
+        </NavLink>
+
+        {/* Add Entry [+] */}
+        <NavLink
+          to="/add"
+          className={({ isActive }) => `nav-item-fab${isActive ? ' active' : ''}`}
+          aria-label="Add entry"
+          id="nav-add"
+        >
+          <Plus />
+        </NavLink>
+
+        {/* Insights */}
+        <NavLink
+          to="/insights"
+          className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
+          aria-label="Insights"
+          id="nav-insights"
+        >
+          <BarChart2 />
         </NavLink>
 
         {/* Savings */}
@@ -37,7 +55,6 @@ export function BottomNav() {
           id="nav-savings"
         >
           <PiggyBank />
-          {/* <span>Savings</span> */}
         </NavLink>
       </nav>
     </div>

@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Wallet, PiggyBank, ArrowRight, ChevronRight, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Wallet, PiggyBank, ArrowRight, ChevronRight, ChevronDown, X } from 'lucide-react';
+import { updateSheetOpenState } from '../utils/modalHelper';
 import { db, recordTransfer, adjustBalance } from '../db/database';
 import { todayISO, formatMonthYear } from '../utils/dateUtils';
+import { CATEGORIES } from '../utils/categories';
 import toast from 'react-hot-toast';
 
 interface MonthInitModalProps {
@@ -30,6 +33,11 @@ function MonthInitContent({ onClose, monthYear, onSaved, isEdit }: ContentProps)
   const [includeTransfer, setIncludeTransfer] = useState(false);
   const [transferAmount,  setTransferAmount]  = useState('');
   const [loading,         setLoading]         = useState(isEdit); // start true only in edit mode
+  const [catBudgets,      setCatBudgets]      = useState<Record<string, string>>({});
+  const [showCatBudgets,  setShowCatBudgets]  = useState(false);
+
+  // Categories excluding 'Transfer' and 'Other' (not meaningful budget targets)
+  const budgetableCategories = CATEGORIES.filter(c => c !== 'Transfer' && c !== 'Other');
 
   const handleBlur = (val: string, setter: (v: string) => void) => {
     if (!val) return;
@@ -53,6 +61,14 @@ function MonthInitContent({ onClose, monthYear, onSaved, isEdit }: ContentProps)
         if (setup) {
           setExpendBalance(setup.openingBalance.toLocaleString('en-IN', { maximumFractionDigits: 2 }));
           setBudget(setup.monthlyBudget.toLocaleString('en-IN', { maximumFractionDigits: 2 }));
+          if (setup.categoryBudgets && Object.keys(setup.categoryBudgets).length > 0) {
+            const loaded: Record<string, string> = {};
+            for (const [cat, amt] of Object.entries(setup.categoryBudgets)) {
+              loaded[cat] = amt.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+            }
+            setCatBudgets(loaded);
+            setShowCatBudgets(true);
+          }
         }
         setLoading(false);
       })
@@ -65,6 +81,14 @@ function MonthInitContent({ onClose, monthYear, onSaved, isEdit }: ContentProps)
 
     return () => { cancelled = true; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handle active overlay body class for inactive background visual dimming
+  useEffect(() => {
+    updateSheetOpenState();
+    return () => {
+      setTimeout(updateSheetOpenState, 0);
+    };
+  }, []);
 
   const handleBackdrop = (e: React.MouseEvent) => {
     if (onClose && e.target === e.currentTarget) onClose();
@@ -98,7 +122,13 @@ function MonthInitContent({ onClose, monthYear, onSaved, isEdit }: ContentProps)
         if (!existingSetup?.id) throw new Error('Setup record not found');
 
         const diff = expBal - existingSetup.openingBalance;
-        await db.monthSetups.update(existingSetup.id, { openingBalance: expBal, monthlyBudget: monthBudget });
+        // Build categoryBudgets map from non-zero entries
+        const categoryBudgets: Record<string, number> = {};
+        for (const [cat, val] of Object.entries(catBudgets)) {
+          const n = parseFloat(val.replace(/,/g, ''));
+          if (n > 0) categoryBudgets[cat] = n;
+        }
+        await db.monthSetups.update(existingSetup.id, { openingBalance: expBal, monthlyBudget: monthBudget, categoryBudgets });
         if (diff !== 0) await adjustBalance(expendAcc.id, diff);
 
         toast.success('Budget setup updated ✓');
@@ -120,11 +150,18 @@ function MonthInitContent({ onClose, monthYear, onSaved, isEdit }: ContentProps)
           await db.accounts.update(savingsAcc.id, { currentBalance: savBal });
         }
 
+        // Build categoryBudgets map from non-zero entries
+        const categoryBudgets: Record<string, number> = {};
+        for (const [cat, val] of Object.entries(catBudgets)) {
+          const n = parseFloat(val.replace(/,/g, ''));
+          if (n > 0) categoryBudgets[cat] = n;
+        }
         await db.monthSetups.add({
           monthYear,
           openingBalance: expBal,
           monthlyBudget: monthBudget,
           accountId: expendAcc.id,
+          categoryBudgets,
         });
 
         if (includeTransfer && transferAmount) {
@@ -191,6 +228,58 @@ function MonthInitContent({ onClose, monthYear, onSaved, isEdit }: ContentProps)
             <input id="modal-monthly-budget" type="text" inputMode="decimal" placeholder="e.g. 30,000"
               value={budget} onChange={e => setBudget(e.target.value)} onBlur={() => handleBlur(budget, setBudget)} className="input-field" required />
           </div>
+
+          {/* ── Category Budgets ──────────────────────────── */}
+          <div className="divider" style={{ margin: '18px 0' }} />
+          <div
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: showCatBudgets ? 14 : 0, userSelect: 'none' }}
+            onClick={() => setShowCatBudgets(v => !v)}
+            role="button" tabIndex={0}
+            onKeyDown={e => e.key === ' ' && setShowCatBudgets(v => !v)}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 9, background: 'rgba(217,119,87,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Wallet size={15} color="var(--accent)" />
+              </div>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.875rem', fontWeight: 600, letterSpacing: '-0.01em' }}>
+                Category Budgets <span style={{ fontWeight: 400, opacity: 0.6, fontSize: '0.8125rem' }}>— optional</span>
+              </span>
+            </div>
+            <ChevronDown
+              size={18}
+              color="var(--text-muted)"
+              style={{ transition: 'transform 0.2s ease', transform: showCatBudgets ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            />
+          </div>
+
+          {showCatBudgets && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 4 }}>
+              {budgetableCategories.map(cat => (
+                <div key={cat} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.8125rem', fontWeight: 500, color: 'var(--text)', minWidth: 90, flexShrink: 0 }}>{cat}</span>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, background: 'var(--bg-glass-strong)', borderRadius: 'var(--r-md)', padding: '0 10px', border: 'var(--glass-border)' }}>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500 }}>₹</span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="0"
+                      value={catBudgets[cat] || ''}
+                      onChange={e => setCatBudgets(prev => ({ ...prev, [cat]: e.target.value }))}
+                      onBlur={() => {
+                        const val = catBudgets[cat];
+                        if (val) handleBlur(val, (v) => setCatBudgets(prev => ({ ...prev, [cat]: v })));
+                      }}
+                      style={{
+                        border: 'none', background: 'transparent', outline: 'none',
+                        fontFamily: "'Inter', sans-serif", fontSize: '0.875rem', fontWeight: 500,
+                        color: 'var(--text)', padding: '8px 0', width: '100%',
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* ── Savings (new setup only) ──────────────────── */}
           {!isEdit && (
@@ -272,13 +361,14 @@ function SectionHeader({ icon, bg, label }: { icon: React.ReactNode; bg: string;
 // ── Public shell — mounts inner content only when open ───────────────────────
 export function MonthInitModal({ isOpen, onClose, monthYear, onSaved, isEdit = false }: MonthInitModalProps) {
   if (!isOpen) return null;
-  return (
+  return createPortal(
     <MonthInitContent
       key={`${monthYear}-${isEdit}`}
       onClose={onClose}
       monthYear={monthYear}
       onSaved={onSaved}
       isEdit={isEdit}
-    />
+    />,
+    document.body
   );
 }

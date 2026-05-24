@@ -1,15 +1,20 @@
 import { useState } from 'react';
-import { Download, Calendar } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Download } from 'lucide-react';
 import { useAccount, useMonthSetup, useTransactions, useRunningBalances, useMonthSummary } from '../db/hooks';
-import { TransactionCard } from '../components/TransactionRow';
 import { MonthPicker } from '../components/MonthPicker';
 import { MonthInitModal } from '../components/MonthInitModal';
 import { formatINR } from '../utils/currency';
 import { getCurrentMonthYear, formatMonthYear } from '../utils/dateUtils';
 import { exportTransactionsCSV } from '../utils/csvExport';
+import { useHistoricalData } from '../hooks/useAnalytics';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
+import { BudgetOverviewCard } from '../components/monthly/BudgetOverviewCard';
+import { RecentTransactionsList } from '../components/monthly/RecentTransactionsList';
 
 export function MonthlyView() {
-  const [monthYear, setMonthYear] = useState(getCurrentMonthYear());
+  const [searchParams, setSearchParams] = useSearchParams();
+  const monthYear = searchParams.get('month') || getCurrentMonthYear();
   const isCurrentMonth = monthYear === getCurrentMonthYear();
 
   const expendAcc   = useAccount('expenditure');
@@ -17,6 +22,9 @@ export function MonthlyView() {
   const transactions = useTransactions(expendAcc?.id, monthYear);
   const runningBalances = useRunningBalances(transactions, monthSetup?.openingBalance ?? 0);
   const summary = useMonthSummary(transactions, monthSetup?.openingBalance ?? 0);
+
+  const [isChartExpanded, setIsChartExpanded] = useState(false);
+  const historicalData = useHistoricalData(6);
 
   const [showInitModal, setShowInitModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -41,11 +49,15 @@ export function MonthlyView() {
     .map(([name, amount]) => ({ name, amount }))
     .sort((a, b) => b.amount - a.amount);
 
+  const handleMonthChange = (newMonth: string) => {
+    setSearchParams({ month: newMonth }, { replace: true });
+  };
+
   return (
     <>
       {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="sub-header fade-in-up">
-        <h2 className="sub-header-title">Monthly</h2>
+      <div className="sub-header fade-in-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <h2 className="sub-header-title" style={{ margin: 0 }}>Monthly</h2>
         <button
           className="btn-ghost"
           onClick={handleExport}
@@ -58,14 +70,59 @@ export function MonthlyView() {
         </button>
       </div>
 
-      {/* ── Month Picker ─────────────────────────────────────────────────── */}
-      <div className="glass-card fade-in-up" style={{ padding: '14px 18px', marginBottom: 12 }}>
-        <MonthPicker monthYear={monthYear} onChange={setMonthYear} />
+      {/* ── Compact Month Filter ────────────────────────────────────────── */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }} className="fade-in-up">
+        <MonthPicker monthYear={monthYear} onChange={handleMonthChange} compact={true} />
       </div>
 
       {/* ── Summary Cards ────────────────────────────────────────────────── */}
       {monthSetup ? (
         <>
+          {/* Collapsible Spending Trend Chart */}
+          <div
+            className="glass-card fade-in-up delay-1"
+            style={{ marginBottom: 12, padding: '12px 18px', cursor: 'pointer' }}
+          >
+            <div
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              onClick={() => setIsChartExpanded(!isChartExpanded)}
+            >
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Spending Trend (6 Months)
+              </span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 600 }}>
+                {isChartExpanded ? 'Hide Chart' : 'Show Trend'}
+              </span>
+            </div>
+            {isChartExpanded && historicalData.length > 0 && (
+              <div style={{ height: 160, marginTop: 12, width: '100%' }} onClick={(e) => e.stopPropagation()}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={historicalData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.2}/>
+                        <stop offset="95%" stopColor="var(--accent)" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="label" stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}`} />
+                    <Tooltip
+                      formatter={(value: any) => [formatINR(value), 'Spend']}
+                      contentStyle={{
+                        background: 'var(--bg-glass-strong)',
+                        border: 'var(--glass-border)',
+                        borderRadius: 'var(--r-md)',
+                        color: 'var(--text)',
+                        fontSize: '12px',
+                      }}
+                    />
+                    <Area type="monotone" dataKey="totalDebited" stroke="var(--accent)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorSpend)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+
           {/* Consolidated 2x2 Summary Card */}
           <div className="glass-card fade-in-up delay-1" style={{ marginBottom: 12, overflow: 'hidden' }}>
             <div style={{
@@ -88,26 +145,26 @@ export function MonthlyView() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-              <div style={{ padding: '14px 18px', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '0 12px 12px 12px' }}>
+              <div style={{ padding: '12px', background: 'rgba(0,0,0,0.02)', borderRadius: 'var(--r-md)' }}>
                 <div className="label" style={{ marginBottom: 2 }}>Opening Balance</div>
                 <div className="amount-display" style={{ fontSize: '1.25rem' }}>
                   {formatINR(monthSetup.openingBalance)}
                 </div>
               </div>
-              <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ padding: '12px', background: 'rgba(0,0,0,0.02)', borderRadius: 'var(--r-md)' }}>
                 <div className="label" style={{ marginBottom: 2 }}>Monthly Budget</div>
                 <div className="amount-display" style={{ fontSize: '1.25rem' }}>
                   {formatINR(monthSetup.monthlyBudget)}
                 </div>
               </div>
-              <div style={{ padding: '14px 18px', borderRight: '1px solid var(--border)' }}>
+              <div style={{ padding: '12px', background: 'rgba(224, 85, 69, 0.04)', borderRadius: 'var(--r-md)' }}>
                 <div className="label" style={{ marginBottom: 2 }}>Total Debited</div>
                 <div className="amount-display amount-debit" style={{ fontSize: '1.25rem' }}>
                   {formatINR(summary.totalDebited)}
                 </div>
               </div>
-              <div style={{ padding: '14px 18px' }}>
+              <div style={{ padding: '12px', background: 'rgba(90, 158, 111, 0.04)', borderRadius: 'var(--r-md)' }}>
                 <div className="label" style={{ marginBottom: 2 }}>Total Credited</div>
                 <div className="amount-display amount-credit" style={{ fontSize: '1.25rem' }}>
                   {formatINR(summary.totalCredited)}
@@ -135,37 +192,11 @@ export function MonthlyView() {
           </div>
 
           {/* Category-wise Spend Chart */}
-          {sortedCategories.length > 0 && (
-            <div className="glass-card fade-in-up delay-2" style={{ padding: '18px 20px', marginBottom: 12 }}>
-              <h3 style={{ fontSize: '0.75rem', fontWeight: 600, marginBottom: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Category Spend
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {sortedCategories.map(({ name, amount }) => {
-                  const pct = totalExpense > 0 ? (amount / totalExpense) * 100 : 0;
-                  return (
-                    <div key={name} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', fontWeight: 500 }}>
-                        <span style={{ color: 'var(--text)' }}>{name}</span>
-                        <span style={{ color: 'var(--text-secondary)' }}>
-                          {formatINR(amount)} <span style={{ opacity: 0.5, fontSize: '0.75rem', marginLeft: 2 }}>({pct.toFixed(0)}%)</span>
-                        </span>
-                      </div>
-                      <div style={{ height: 6, background: 'var(--border)', borderRadius: 999, overflow: 'hidden' }}>
-                        <div style={{
-                          height: '100%',
-                          width: `${pct}%`,
-                          background: 'linear-gradient(90deg, var(--accent) 0%, #eb9d85 100%)',
-                          borderRadius: 999,
-                          transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                        }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          <BudgetOverviewCard
+            sortedCategories={sortedCategories}
+            monthSetup={monthSetup}
+            totalExpense={totalExpense}
+          />
         </>
       ) : (
         <div className="glass-card fade-in-up delay-1" style={{ marginBottom: 12, textAlign: 'center', padding: '28px 20px' }}>
@@ -184,39 +215,11 @@ export function MonthlyView() {
       )}
 
       {/* ── Transaction List ──────────────────────────────────────────────── */}
-      <div className="fade-in-up delay-3">
-        <h3 style={{
-          fontSize: '13px',
-          fontWeight: 600,
-          letterSpacing: '0.04em',
-          textTransform: 'uppercase',
-          color: 'var(--text-muted)',
-          paddingLeft: '4px',
-          marginBottom: '10px'
-        }}>
-          Expenditure Transactions
-        </h3> 
-        {transactions.length === 0 ? (
-          <div className="glass-card empty-state" style={{ marginTop: 12 }}>
-            <Calendar size={32} className="empty-state-icon" />
-            <p className="empty-state-title">No expenses yet this month</p>
-            <p className="empty-state-desc">
-              No transactions logged for {formatMonthYear(monthYear)}. Start tracking!
-            </p>
-          </div>
-        ) : (
-          <div className="glass-card" style={{ padding: 8 }}>
-            {transactions.map((tx, i) => (
-              <TransactionCard
-                key={tx.id}
-                transaction={tx}
-                runningBalance={runningBalances[i]}
-                showRunningBalance={true}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      <RecentTransactionsList
+        transactions={transactions}
+        runningBalances={runningBalances}
+        monthYear={monthYear}
+      />
 
       {/* ── Setup / Edit Modals ──────────────────────────────────────────── */}
       <MonthInitModal

@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/database';
-import { useAccount } from '../db/hooks';
+import { useAccount, useMonthSetup, useTransactions } from '../db/hooks';
+import { getCurrentMonthYear } from '../utils/dateUtils';
 import { startOfDay, subDays, format, differenceInDays, addDays } from 'date-fns';
 
 // Helper to get ISO date string from Date object
@@ -267,5 +268,205 @@ export function useFrequentPresets(limit = 4): FrequentPreset[] {
     },
     [expendAcc?.id, limit],
     FALLBACK_PRESETS.slice(0, limit)
+  );
+}
+
+// ─── 5. Category Budget Alerts Hook ──────────────────────────────────────────
+export interface CategoryBudgetAlert {
+  category: string;
+  spent: number;
+  budget: number;
+  percentUsed: number;  // e.g. 85.3
+  isExceeded: boolean;  // true when ≥ 100%
+}
+
+/**
+ * Returns alerts for categories where spending ≥ 80% of the per-category budget.
+ * Uses the current month's setup and expenditure transactions.
+ */
+export function useCategoryBudgetAlerts(): CategoryBudgetAlert[] {
+  const monthYear = getCurrentMonthYear();
+  const expendAcc = useAccount('expenditure');
+  const monthSetup = useMonthSetup(monthYear);
+  const transactions = useTransactions(expendAcc?.id, monthYear);
+
+  if (!monthSetup?.categoryBudgets || Object.keys(monthSetup.categoryBudgets).length === 0) {
+    return [];
+  }
+
+  const catBudgets = monthSetup.categoryBudgets;
+
+  // Build spend-per-category from current month transactions
+  const catSpend: Record<string, number> = {};
+  for (const tx of transactions) {
+    if (tx.type === 'debit') {
+      const cat = tx.category || 'Other';
+      catSpend[cat] = (catSpend[cat] || 0) + tx.amount;
+    }
+  }
+
+  const alerts: CategoryBudgetAlert[] = [];
+  for (const [category, budget] of Object.entries(catBudgets)) {
+    const spent = catSpend[category] || 0;
+    const percentUsed = budget > 0 ? +((spent / budget) * 100).toFixed(1) : 0;
+    if (percentUsed >= 80) {
+      alerts.push({
+        category,
+        spent,
+        budget,
+        percentUsed,
+        isExceeded: spent >= budget,
+      });
+    }
+  }
+
+  // Sort: exceeded first, then by percent descending
+  return alerts.sort((a, b) => {
+    if (a.isExceeded !== b.isExceeded) return a.isExceeded ? -1 : 1;
+    return b.percentUsed - a.percentUsed;
+  });
+}
+
+// ─── 6. Smart Allocation Prompt Hook ─────────────────────────────────────────
+export interface SmartAllocationResult {
+  shouldShow: boolean;
+  surplus: number;
+  suggestedAmount: number;
+  expenditureBalance: number;
+  projectedSpend: number;
+}
+
+export function useSmartAllocationPrompt(): SmartAllocationResult | null {
+  const expendAcc = useAccount('expenditure');
+  const monthYear = getCurrentMonthYear();
+  const transactions = useTransactions(expendAcc?.id, monthYear);
+
+  return useLiveQuery(
+    async () => {
+      if (!expendAcc?.id) return null;
+
+      // Check localStorage for dismissal (valid for 24 hours)
+      const dismissedTime = localStorage.getItem('flo_advisor_dismissed');
+      if (dismissedTime) {
+        const lastDismissed = new Date(parseInt(dismissedTime, 10));
+        const diffHours = (Date.now() - lastDismissed.getTime()) / (1000 * 60 * 60);
+        if (diffHours < 24) {
+          return {
+            shouldShow: false,
+            surplus: 0,
+            suggestedAmount: 0,
+            expenditureBalance: expendAcc.currentBalance,
+            projectedSpend: 0,
+          };
+        }
+      }
+
+      const today = new Date();
+      const currentDay = today.getDate();
+      const totalDays = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      const daysElapsed = Math.max(1, currentDay);
+      const daysRemaining = Math.max(0, totalDays - daysElapsed);
+
+      // Sum all debits for the current month setup
+      let totalDebited = 0;
+      for (const tx of transactions) {
+        if (tx.type === 'debit') {
+          totalDebited += tx.amount;
+        }
+      }
+
+      const avgDailySpend = totalDebited / daysElapsed;
+      const projectedRemainingSpend = avgDailySpend * daysRemaining;
+      const surplus = expendAcc.currentBalance - projectedRemainingSpend;
+
+      const shouldShow = surplus > 1000 && expendAcc.currentBalance > 1000;
+      const suggestedAmount = shouldShow ? Math.max(500, Math.floor((surplus * 0.8) / 500) * 500) : 0;
+
+      return {
+        shouldShow,
+        surplus: +surplus.toFixed(2),
+        suggestedAmount,
+        expenditureBalance: expendAcc.currentBalance,
+        projectedSpend: +projectedRemainingSpend.toFixed(2),
+      };
+    },
+    [expendAcc?.id, expendAcc?.currentBalance, transactions],
+    null
+  );
+}
+
+// ─── 7. Historical Data Hook ──────────────────────────────────────────────────
+export interface HistoricalDataPoint {
+  label: string; // e.g. "Dec"
+  monthYear: string; // "YYYY-MM"
+  totalDebited: number;
+  netWorth: number;
+}
+
+export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
+  const expendAcc = useAccount('expenditure');
+  const savingsAcc = useAccount('savings');
+
+  return useLiveQuery(
+    async () => {
+      if (!expendAcc || !savingsAcc) return [];
+
+      const allTxs = await db.transactions.toArray();
+      const today = new Date();
+      const points: HistoricalDataPoint[] = [];
+
+      for (let i = monthsCount - 1; i >= 0; i--) {
+        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const mYear = format(d, 'yyyy-MM');
+        const label = format(d, 'MMM');
+
+        // 1. Calculate total debited in this month on expenditure account
+        let totalDebited = 0;
+        for (const tx of allTxs) {
+          if (
+            tx.accountId === expendAcc.id &&
+            tx.type === 'debit' &&
+            tx.date.startsWith(mYear)
+          ) {
+            totalDebited += tx.amount;
+          }
+        }
+
+        // 2. Reconstruct balances at the end of this month
+        let expBal = expendAcc.currentBalance;
+        let savBal = savingsAcc.currentBalance;
+
+        for (const tx of allTxs) {
+          const txMonth = tx.date.substring(0, 7);
+          if (txMonth > mYear) {
+            const amt = tx.amount;
+            if (tx.accountId === expendAcc.id) {
+              if (tx.type === 'credit') {
+                expBal -= amt;
+              } else {
+                expBal += amt;
+              }
+            } else if (tx.accountId === savingsAcc.id) {
+              if (tx.type === 'credit') {
+                savBal -= amt;
+              } else {
+                savBal += amt;
+              }
+            }
+          }
+        }
+
+        points.push({
+          label,
+          monthYear: mYear,
+          totalDebited: +totalDebited.toFixed(2),
+          netWorth: +(expBal + savBal).toFixed(2),
+        });
+      }
+
+      return points;
+    },
+    [expendAcc?.id, savingsAcc?.id, monthsCount],
+    []
   );
 }
