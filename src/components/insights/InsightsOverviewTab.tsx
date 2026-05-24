@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ResponsiveContainer,
@@ -55,10 +56,10 @@ export function InsightsOverviewTab() {
     <div className="fade-in-up flex flex-col gap-4">
       {/* Net Worth Trend Line Chart */}
       <div className="glass-card p-[18px_20px]">
-        <h3 className="text-[0.8125rem] font-semibold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-1">
+        <h3 className="text-[0.8125rem] font-semibold text-(--text-secondary) uppercase tracking-wider mb-1">
           Net Worth Trend
         </h3>
-        <p className="text-[0.6875rem] text-[var(--text-muted)] m-[0_0_16px_0]">
+        <p className="text-[0.6875rem] text-(--text-muted) m-[0_0_16px_0]">
           Combined Expenditure & Savings balance over the last 6 months
         </p>
         {historicalData.length > 0 ? (
@@ -124,7 +125,7 @@ export function InsightsOverviewTab() {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="py-10 text-center text-[var(--text-muted)] text-[0.8125rem]">
+          <div className="py-10 text-center text-(--text-muted) text-[0.8125rem]">
             No historical records found
           </div>
         )}
@@ -132,10 +133,10 @@ export function InsightsOverviewTab() {
 
       {/* Month-over-month Spend Bar Chart */}
       <div className="glass-card p-[18px_20px]">
-        <h3 className="text-[0.8125rem] font-semibold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-1">
+        <h3 className="text-[0.8125rem] font-semibold text-(--text-secondary) uppercase tracking-wider mb-1">
           Monthly Spending
         </h3>
-        <p className="text-[0.6875rem] text-[var(--text-muted)] m-[0_0_16px_0]">
+        <p className="text-[0.6875rem] text-(--text-muted) m-[0_0_16px_0]">
           Comparison of total debited amounts per month
         </p>
         {historicalData.length > 0 ? (
@@ -179,7 +180,7 @@ export function InsightsOverviewTab() {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="py-10 text-center text-[var(--text-muted)] text-[0.8125rem]">
+          <div className="py-10 text-center text-(--text-muted) text-[0.8125rem]">
             No spending history found
           </div>
         )}
@@ -187,10 +188,10 @@ export function InsightsOverviewTab() {
 
       {/* Category Distribution Donut Chart */}
       <div className="glass-card p-[18px_20px]">
-        <h3 className="text-[0.8125rem] font-semibold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-1">
+        <h3 className="text-[0.8125rem] font-semibold text-(--text-secondary) uppercase tracking-wider mb-1">
           Category Spend Breakdown
         </h3>
-        <p className="text-[0.6875rem] text-[var(--text-muted)] m-[0_0_16px_0]">
+        <p className="text-[0.6875rem] text-(--text-muted) m-[0_0_16px_0]">
           Spend distribution for the current month ({getCurrentMonthYear()})
         </p>
         {donutData.length > 0 ? (
@@ -241,7 +242,7 @@ export function InsightsOverviewTab() {
             </div>
           </div>
         ) : (
-          <div className="py-[50px] text-center text-[var(--text-muted)] text-[0.8125rem]">
+          <div className="py-[50px] text-center text-(--text-muted) text-[0.8125rem]">
             No expenses logged for this month
           </div>
         )}

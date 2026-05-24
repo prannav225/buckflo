@@ -102,7 +102,7 @@ export function SubscriptionFormSheet({
       className="sheet-overlay"
       onClick={(e) => e.target === e.currentTarget && setShowFormModal(false)}
     >
-      <div className="sheet-panel pb-[calc(24px+env(safe-area-inset-bottom,0px))]">
+      <div className="sheet-panel pb-[calc(24px+env(safe-area-inset-bottom,0))]">
         <div className="sheet-handle" />
 
         {/* Modal Header */}
@@ -111,7 +111,7 @@ export function SubscriptionFormSheet({
             <h3 className="text-xl tracking-[-0.02em] m-0">
               {editingSub ? "Edit Subscription" : "New Subscription"}
             </h3>
-            <p className="mt-[3px] text-xs text-[var(--text-muted)]">
+            <p className="mt-[3px] text-xs text-(--text-muted)">
               Set up committed recurring expenditures
             </p>
           </div>
@@ -156,9 +156,11 @@ export function SubscriptionFormSheet({
               <select
                 value={formFrequency}
                 onChange={(e) =>
-                  setFormFrequency(e.target.value as "weekly" | "monthly" | "yearly")
+                  setFormFrequency(
+                    e.target.value as "weekly" | "monthly" | "yearly",
+                  )
                 }
-                className="input-field bg-[var(--bg-glass)] h-12 px-4"
+                className="input-field bg-(--bg-glass) h-12 px-4"
               >
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
@@ -184,7 +186,7 @@ export function SubscriptionFormSheet({
               <select
                 value={formCategory}
                 onChange={(e) => setFormCategory(e.target.value)}
-                className="input-field bg-[var(--bg-glass)] h-12 px-4"
+                className="input-field bg-(--bg-glass) h-12 px-4"
               >
                 {CATEGORIES.filter((c) => c !== "Transfer").map((cat) => (
                   <option key={cat} value={cat}>
@@ -226,10 +228,7 @@ export function SubscriptionFormSheet({
             />
           </div>
 
-          <button
-            type="submit"
-            className="btn-primary w-full mt-3"
-          >
+          <button type="submit" className="btn-primary w-full mt-3">
             {editingSub ? "Save Changes" : "Create Subscription"}
           </button>
         </form>
