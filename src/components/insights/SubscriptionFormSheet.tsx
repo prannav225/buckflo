@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
-import { addSubscription, updateSubscription, type Subscription } from "../../db/database";
+import {
+  addSubscription,
+  updateSubscription,
+  type Subscription,
+} from "../../db/database";
 import { CATEGORIES } from "../../utils/categories";
 
 interface Props {
@@ -10,7 +14,11 @@ interface Props {
   editingSub: Subscription | null;
 }
 
-export function SubscriptionFormSheet({ showFormModal, setShowFormModal, editingSub }: Props) {
+export function SubscriptionFormSheet({
+  showFormModal,
+  setShowFormModal,
+  editingSub,
+}: Props) {
   // Form states
   const [formName, setFormName] = useState("");
   const [formAmount, setFormAmount] = useState("");
@@ -92,60 +100,30 @@ export function SubscriptionFormSheet({ showFormModal, setShowFormModal, editing
   return createPortal(
     <div
       className="sheet-overlay"
-      onClick={(e) =>
-        e.target === e.currentTarget && setShowFormModal(false)
-      }
+      onClick={(e) => e.target === e.currentTarget && setShowFormModal(false)}
     >
-      <div
-        className="sheet-panel"
-        style={{
-          paddingBottom: "calc(24px + env(safe-area-inset-bottom, 0px))",
-        }}
-      >
+      <div className="sheet-panel pb-[calc(24px+env(safe-area-inset-bottom,0px))]">
         <div className="sheet-handle" />
 
         {/* Modal Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 20,
-          }}
-        >
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h3
-              style={{
-                fontSize: "1.25rem",
-                letterSpacing: "-0.02em",
-                margin: 0,
-              }}
-            >
+            <h3 className="text-xl tracking-[-0.02em] m-0">
               {editingSub ? "Edit Subscription" : "New Subscription"}
             </h3>
-            <p
-              style={{
-                margin: "3px 0 0",
-                fontSize: "0.75rem",
-                color: "var(--text-muted)",
-              }}
-            >
+            <p className="mt-[3px] text-xs text-[var(--text-muted)]">
               Set up committed recurring expenditures
             </p>
           </div>
           <button
-            className="btn-ghost"
+            className="btn-ghost p-2 rounded-full"
             onClick={() => setShowFormModal(false)}
-            style={{ padding: 8, borderRadius: "50%" }}
           >
             ✕
           </button>
         </div>
 
-        <form
-          onSubmit={handleFormSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: 12 }}
-        >
+        <form onSubmit={handleFormSubmit} className="flex flex-col gap-3">
           {/* Name */}
           <div className="form-group">
             <span className="label">Name / Description</span>
@@ -161,7 +139,7 @@ export function SubscriptionFormSheet({ showFormModal, setShowFormModal, editing
 
           {/* Amount & Frequency */}
           <div className="form-row">
-            <div className="form-group" style={{ flex: 1.2 }}>
+            <div className="form-group flex-[1.2]">
               <span className="label">Amount (₹)</span>
               <input
                 type="number"
@@ -173,17 +151,14 @@ export function SubscriptionFormSheet({ showFormModal, setShowFormModal, editing
                 required
               />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group flex-1">
               <span className="label">Frequency</span>
               <select
                 value={formFrequency}
-                onChange={(e) => setFormFrequency(e.target.value as any)}
-                className="input-field"
-                style={{
-                  background: "var(--bg-glass)",
-                  height: 48,
-                  padding: "0 16px",
-                }}
+                onChange={(e) =>
+                  setFormFrequency(e.target.value as "weekly" | "monthly" | "yearly")
+                }
+                className="input-field bg-[var(--bg-glass)] h-12 px-4"
               >
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
@@ -194,7 +169,7 @@ export function SubscriptionFormSheet({ showFormModal, setShowFormModal, editing
 
           {/* Next Due Date & Category */}
           <div className="form-row">
-            <div className="form-group" style={{ flex: 1.2 }}>
+            <div className="form-group flex-[1.2]">
               <span className="label">Next Due Date</span>
               <input
                 type="date"
@@ -204,17 +179,12 @@ export function SubscriptionFormSheet({ showFormModal, setShowFormModal, editing
                 required
               />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group flex-1">
               <span className="label">Category</span>
               <select
                 value={formCategory}
                 onChange={(e) => setFormCategory(e.target.value)}
-                className="input-field"
-                style={{
-                  background: "var(--bg-glass)",
-                  height: 48,
-                  padding: "0 16px",
-                }}
+                className="input-field bg-[var(--bg-glass)] h-12 px-4"
               >
                 {CATEGORIES.filter((c) => c !== "Transfer").map((cat) => (
                   <option key={cat} value={cat}>
@@ -228,17 +198,14 @@ export function SubscriptionFormSheet({ showFormModal, setShowFormModal, editing
           {/* Status & Notes */}
           <div className="form-group">
             <span className="label">Status</span>
-            <div className="seg-control" style={{ padding: 3, gap: 3 }}>
+            <div className="seg-control p-[3px] gap-[3px]">
               {(["active", "paused", "cancelled"] as const).map((st) => (
                 <button
                   key={st}
                   type="button"
                   onClick={() => setFormStatus(st)}
-                  className={`seg-option ${formStatus === st ? "active" : ""}`}
+                  className={`seg-option ${formStatus === st ? "active" : ""} px-2.5 py-1.5 text-xs rounded-full`}
                   style={{
-                    padding: "6px 10px",
-                    fontSize: "0.75rem",
-                    borderRadius: "var(--r-pill)",
                     boxShadow: formStatus === st ? undefined : "none",
                   }}
                 >
@@ -261,8 +228,7 @@ export function SubscriptionFormSheet({ showFormModal, setShowFormModal, editing
 
           <button
             type="submit"
-            className="btn-primary"
-            style={{ width: "100%", marginTop: 12 }}
+            className="btn-primary w-full mt-3"
           >
             {editingSub ? "Save Changes" : "Create Subscription"}
           </button>

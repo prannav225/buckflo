@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ResponsiveContainer,
   AreaChart,
@@ -51,35 +52,17 @@ export function InsightsOverviewTab() {
   ];
 
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", gap: 16 }}
-      className="fade-in-up"
-    >
+    <div className="fade-in-up flex flex-col gap-4">
       {/* Net Worth Trend Line Chart */}
-      <div className="glass-card" style={{ padding: "18px 20px" }}>
-        <h3
-          style={{
-            fontSize: "0.8125rem",
-            fontWeight: 600,
-            color: "var(--text-secondary)",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: 4,
-          }}
-        >
+      <div className="glass-card p-[18px_20px]">
+        <h3 className="text-[0.8125rem] font-semibold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-1">
           Net Worth Trend
         </h3>
-        <p
-          style={{
-            fontSize: "0.6875rem",
-            color: "var(--text-muted)",
-            margin: "0 0 16px 0",
-          }}
-        >
+        <p className="text-[0.6875rem] text-[var(--text-muted)] m-[0_0_16px_0]">
           Combined Expenditure & Savings balance over the last 6 months
         </p>
         {historicalData.length > 0 ? (
-          <div style={{ height: 200, width: "100%" }}>
+          <div className="h-[200px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={historicalData}
@@ -120,10 +103,7 @@ export function InsightsOverviewTab() {
                   tickFormatter={(v) => `₹${v}`}
                 />
                 <Tooltip
-                  formatter={(value: any) => [
-                    formatINR(value),
-                    "Net Worth",
-                  ]}
+                  formatter={(value: any) => [formatINR(value), "Net Worth"]}
                   contentStyle={{
                     background: "var(--bg-glass-strong)",
                     border: "var(--glass-border)",
@@ -144,44 +124,22 @@ export function InsightsOverviewTab() {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div
-            style={{
-              padding: "40px 0",
-              textAlign: "center",
-              color: "var(--text-muted)",
-              fontSize: "0.8125rem",
-            }}
-          >
+          <div className="py-10 text-center text-[var(--text-muted)] text-[0.8125rem]">
             No historical records found
           </div>
         )}
       </div>
 
       {/* Month-over-month Spend Bar Chart */}
-      <div className="glass-card" style={{ padding: "18px 20px" }}>
-        <h3
-          style={{
-            fontSize: "0.8125rem",
-            fontWeight: 600,
-            color: "var(--text-secondary)",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: 4,
-          }}
-        >
+      <div className="glass-card p-[18px_20px]">
+        <h3 className="text-[0.8125rem] font-semibold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-1">
           Monthly Spending
         </h3>
-        <p
-          style={{
-            fontSize: "0.6875rem",
-            color: "var(--text-muted)",
-            margin: "0 0 16px 0",
-          }}
-        >
+        <p className="text-[0.6875rem] text-[var(--text-muted)] m-[0_0_16px_0]">
           Comparison of total debited amounts per month
         </p>
         {historicalData.length > 0 ? (
-          <div style={{ height: 200, width: "100%" }}>
+          <div className="h-[200px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={historicalData}
@@ -221,51 +179,23 @@ export function InsightsOverviewTab() {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div
-            style={{
-              padding: "40px 0",
-              textAlign: "center",
-              color: "var(--text-muted)",
-              fontSize: "0.8125rem",
-            }}
-          >
+          <div className="py-10 text-center text-[var(--text-muted)] text-[0.8125rem]">
             No spending history found
           </div>
         )}
       </div>
 
       {/* Category Distribution Donut Chart */}
-      <div className="glass-card" style={{ padding: "18px 20px" }}>
-        <h3
-          style={{
-            fontSize: "0.8125rem",
-            fontWeight: 600,
-            color: "var(--text-secondary)",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: 4,
-          }}
-        >
+      <div className="glass-card p-[18px_20px]">
+        <h3 className="text-[0.8125rem] font-semibold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-1">
           Category Spend Breakdown
         </h3>
-        <p
-          style={{
-            fontSize: "0.6875rem",
-            color: "var(--text-muted)",
-            margin: "0 0 16px 0",
-          }}
-        >
+        <p className="text-[0.6875rem] text-[var(--text-muted)] m-[0_0_16px_0]">
           Spend distribution for the current month ({getCurrentMonthYear()})
         </p>
         {donutData.length > 0 ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <div style={{ height: 210, width: "100%" }}>
+          <div className="flex flex-col items-center">
+            <div className="h-[210px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -311,14 +241,7 @@ export function InsightsOverviewTab() {
             </div>
           </div>
         ) : (
-          <div
-            style={{
-              padding: "50px 0",
-              textAlign: "center",
-              color: "var(--text-muted)",
-              fontSize: "0.8125rem",
-            }}
-          >
+          <div className="py-[50px] text-center text-[var(--text-muted)] text-[0.8125rem]">
             No expenses logged for this month
           </div>
         )}

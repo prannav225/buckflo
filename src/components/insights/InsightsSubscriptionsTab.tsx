@@ -62,43 +62,16 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
   return (
     <>
       {confirmDialog}
-      <div
-        style={{ display: "flex", flexDirection: "column", gap: 16 }}
-        className="fade-in-up"
-      >
+      <div className="fade-in-up flex flex-col gap-4">
         {/* Summary Card */}
-        <div
-          className="glass-card-strong"
-          style={{ padding: "16px 20px", textAlign: "center" }}
-        >
-          <div
-            style={{
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              color: "var(--text-secondary)",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              marginBottom: 4,
-            }}
-          >
+        <div className="glass-card-strong px-5 py-4 text-center">
+          <div className="text-xs font-semibold text-(--text-secondary) uppercase tracking-wider mb-1">
             Monthly Committed Spends
           </div>
-          <div
-            style={{
-              fontSize: "2rem",
-              fontFamily: "var(--font-display)",
-              color: "var(--text)",
-            }}
-          >
+          <div className="text-3xl font-display text-(--text)">
             {formatINR(totalCommitted)}
           </div>
-          <div
-            style={{
-              fontSize: "0.6875rem",
-              color: "var(--text-muted)",
-              marginTop: 2,
-            }}
-          >
+          <div className="text-[0.6875rem] text-(--text-muted) mt-0.5">
             Across {approvedSubs.filter((s) => s.status === "active").length}{" "}
             active subscription(s)
           </div>
@@ -106,101 +79,41 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
 
         {/* Auto-detected Subscriptions Banner */}
         {detectedSubs.length > 0 && (
-          <div
-            className="glass-card"
-            style={{
-              padding: "16px 18px",
-              background: "rgba(217,119,87,0.05)",
-              boxShadow: "var(--glass-shadow-lg)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginBottom: 8,
-              }}
-            >
+          <div className="glass-card p-[16px_18px] bg-[rgba(217,119,87,0.05)] shadow-(--glass-shadow-lg)">
+            <div className="flex items-center gap-2 mb-2">
               <Lightbulb size={18} color="var(--accent)" />
-              <h4
-                style={{
-                  margin: 0,
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  color: "var(--text)",
-                }}
-              >
+              <h4 className="m-0 text-sm font-semibold text-(--text)">
                 Review Detected Subscriptions
               </h4>
             </div>
-            <p
-              style={{
-                fontSize: "0.75rem",
-                color: "var(--text-secondary)",
-                lineHeight: 1.4,
-                margin: "0 0 14px 0",
-              }}
-            >
+            <p className="text-xs text-(--text-secondary) leading-relaxed m-[0_0_14px_0]">
               We scanned your transaction records and found{" "}
               {detectedSubs.length} potential subscription(s):
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="flex flex-col gap-2">
               {detectedSubs.map((sub) => (
                 <div
                   key={sub.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    background: "var(--bg-glass-strong)",
-                    padding: "10px 14px",
-                    borderRadius: "var(--r-md)",
-                    border: "var(--glass-border)",
-                  }}
+                  className="flex items-center justify-between bg-(--bg-glass-strong) p-[10px_14px] rounded-(--r-md) border-(--glass-border)"
                 >
                   <div>
-                    <div
-                      style={{
-                        fontSize: "0.8125rem",
-                        fontWeight: 600,
-                        color: "var(--text)",
-                      }}
-                    >
+                    <div className="text-[0.8125rem] font-semibold text-(--text)">
                       {sub.name}
                     </div>
-                    <div
-                      style={{
-                        fontSize: "0.6875rem",
-                        color: "var(--text-muted)",
-                        marginTop: 2,
-                      }}
-                    >
+                    <div className="text-[0.6875rem] text-(--text-muted) mt-0.5">
                       {formatINR(sub.amount)} • {sub.category}
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div className="flex gap-2">
                     <button
-                      className="btn-primary"
+                      className="btn-primary px-3 py-1.5 text-xs rounded-full h-auto shadow-none"
                       onClick={() => handleApproveSub(sub.id!)}
-                      style={{
-                        padding: "6px 12px",
-                        fontSize: "0.75rem",
-                        borderRadius: "var(--r-pill)",
-                        height: "auto",
-                        boxShadow: "none",
-                      }}
                     >
                       Approve
                     </button>
                     <button
-                      className="btn-ghost"
+                      className="btn-ghost px-3 py-1.5 text-xs text-(--text-muted)"
                       onClick={() => handleDeleteSub(sub.id!)}
-                      style={{
-                        padding: "6px 12px",
-                        fontSize: "0.75rem",
-                        color: "var(--text-muted)",
-                      }}
                     >
                       Ignore
                     </button>
@@ -212,39 +125,15 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
         )}
 
         {/* Subscription List Title & Add Button */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginTop: 10,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <h3
-              style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                color: "var(--text-muted)",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                margin: 0,
-              }}
-            >
+        <div className="flex justify-between items-center mt-2.5">
+          <div className="flex items-center gap-2">
+            <h3 className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.06em] m-0">
               Committed Spends ({sortedSubs.length})
             </h3>
           </div>
           <button
-            className="header-action-pill-btn"
+            className="header-action-pill-btn h-7 px-2.5 text-xs inline-flex items-center gap-1"
             onClick={() => openForm(null)}
-            style={{
-              height: 28,
-              padding: "0 10px",
-              fontSize: "0.75rem",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-            }}
           >
             <Plus size={14} /> Add
           </button>
@@ -252,10 +141,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
 
         {/* Cards List */}
         {sortedSubs.length === 0 ? (
-          <div
-            className="glass-card empty-state"
-            style={{ padding: "40px 20px" }}
-          >
+          <div className="glass-card empty-state px-5 py-10">
             <Calendar size={32} className="empty-state-icon" />
             <p className="empty-state-title">No subscriptions added</p>
             <p className="empty-state-desc">
@@ -264,7 +150,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
             </p>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div className="flex flex-col gap-2.5">
             {sortedSubs.map((sub) => {
               const daysLeft = getDaysLeft(sub.nextDueDate);
               const badge = getDaysBadgeColor(daysLeft);
@@ -274,12 +160,8 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
               return (
                 <div
                   key={sub.id}
-                  className="glass-card"
+                  className="glass-card px-4 py-3.5 flex flex-col gap-3"
                   style={{
-                    padding: "14px 16px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 12,
                     opacity: isPaused || isCancelled ? 0.7 : 1,
                     border: isPaused
                       ? "1px solid var(--text-muted)"
@@ -289,120 +171,50 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                   }}
                 >
                   {/* Top Row */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      justifyContent: "space-between",
-                      gap: 10,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                      }}
-                    >
+                  <div className="flex items-start justify-between gap-2.5">
+                    <div className="flex items-center gap-2.5">
                       <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                         style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: "8px",
                           background: isPaused
                             ? "rgba(0,0,0,0.05)"
                             : "rgba(217,119,87,0.08)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
                           color: isPaused
                             ? "var(--text-muted)"
                             : "var(--accent)",
-                          flexShrink: 0,
                         }}
                       >
                         <Clock size={16} />
                       </div>
                       <div>
-                        <div
-                          style={{
-                            fontSize: "0.875rem",
-                            fontWeight: 600,
-                            color: "var(--text)",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 6,
-                          }}
-                        >
+                        <div className="text-sm font-semibold text-[var(--text)] flex items-center gap-1.5">
                           {sub.name}
                           {isPaused && (
-                            <span
-                              style={{
-                                fontSize: "0.625rem",
-                                padding: "1px 5px",
-                                background: "rgba(0,0,0,0.06)",
-                                color: "var(--text-muted)",
-                                borderRadius: "var(--r-pill)",
-                              }}
-                            >
+                            <span className="text-[0.625rem] px-1.25 py-0.25 bg-[rgba(0,0,0,0.06)] text-[var(--text-muted)] rounded-full">
                               Paused
                             </span>
                           )}
                           {isCancelled && (
-                            <span
-                              style={{
-                                fontSize: "0.625rem",
-                                padding: "1px 5px",
-                                background: "rgba(224,85,69,0.08)",
-                                color: "var(--text-muted)",
-                                borderRadius: "var(--r-pill)",
-                              }}
-                            >
+                            <span className="text-[0.625rem] px-1.25 py-0.25 bg-[rgba(224,85,69,0.08)] text-[var(--text-muted)] rounded-full">
                               Cancelled
                             </span>
                           )}
                         </div>
-                        <div
-                          style={{
-                            fontSize: "0.6875rem",
-                            color: "var(--text-muted)",
-                            marginTop: 2,
-                          }}
-                        >
+                        <div className="text-[0.6875rem] text-[var(--text-muted)] mt-0.5">
                           {sub.category} • Every {sub.frequency}
                         </div>
                       </div>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div
-                        style={{
-                          fontSize: "0.9375rem",
-                          fontWeight: 600,
-                          color: "var(--text)",
-                        }}
-                      >
+                    <div className="text-right">
+                      <div className="text-[0.9375rem] font-semibold text-[var(--text)]">
                         {formatINR(sub.amount)}
                       </div>
                     </div>
                   </div>
 
                   {/* Middle Row — Due Date & urgency badge */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      background: "rgba(0,0,0,0.02)",
-                      padding: "8px 10px",
-                      borderRadius: "var(--r-sm)",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "var(--text-secondary)",
-                      }}
-                    >
+                  <div className="flex justify-between items-center bg-[rgba(0,0,0,0.02)] px-2.5 py-2 rounded-[var(--r-sm)]">
+                    <span className="text-xs text-[var(--text-secondary)]">
                       Next due:{" "}
                       <strong>
                         {format(parseISO(sub.nextDueDate), "d MMM yyyy")}
@@ -410,11 +222,8 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                     </span>
                     {!isCancelled && !isPaused && (
                       <span
+                        className="text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full"
                         style={{
-                          fontSize: "0.6875rem",
-                          fontWeight: 600,
-                          padding: "2px 8px",
-                          borderRadius: "var(--r-pill)",
                           background: badge.bg,
                           color: badge.text,
                           border: badge.border,
@@ -430,25 +239,12 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                   </div>
 
                   {/* Bottom Actions */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      borderTop: "1px solid var(--border)",
-                      paddingTop: 10,
-                    }}
-                  >
-                    <div style={{ display: "flex", gap: 12 }}>
+                  <div className="flex justify-between items-center border-t border-[var(--border)] pt-2.5">
+                    <div className="flex gap-3">
                       <button
                         onClick={() => toggleStatus(sub)}
-                        className="btn-ghost"
+                        className="btn-ghost text-xs px-1.5 py-1 inline-flex items-center gap-1"
                         style={{
-                          fontSize: "0.75rem",
-                          padding: "4px 6px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 4,
                           color: isPaused
                             ? "var(--credit)"
                             : "var(--text-secondary)",
@@ -466,32 +262,21 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             toast.success(
                               `Subscription marked as ${isCancelled ? "Active" : "Cancelled"} ✓`,
                             );
-                          } catch (e) {
-                            toast.error(
-                              "Failed to update subscription status",
-                            );
+                          } catch {
+                            toast.error("Failed to update subscription status");
                           }
                         }}
-                        className="btn-ghost"
-                        style={{
-                          fontSize: "0.75rem",
-                          padding: "4px 6px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 4,
-                          color: "var(--text-secondary)",
-                        }}
+                        className="btn-ghost text-xs px-1.5 py-1 inline-flex items-center gap-1 text-[var(--text-secondary)]"
                       >
                         <CheckCircle size={12} />
                         {isCancelled ? "Mark Active" : "Mark Cancelled"}
                       </button>
                     </div>
 
-                    <div style={{ display: "flex", gap: 6 }}>
+                    <div className="flex gap-1.5">
                       <button
                         onClick={() => openForm(sub)}
-                        className="btn-ghost"
-                        style={{ padding: 6 }}
+                        className="btn-ghost p-1.5"
                         title="Edit"
                       >
                         <Edit3 size={14} />
@@ -507,8 +292,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             if (yes) handleDeleteSub(sub.id!);
                           });
                         }}
-                        className="btn-ghost"
-                        style={{ padding: 6, color: "var(--text-muted)" }}
+                        className="btn-ghost p-1.5 text-[var(--text-muted)]"
                         title="Delete"
                       >
                         <Trash2 size={14} />
