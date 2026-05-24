@@ -127,7 +127,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
         {/* Subscription List Title & Add Button */}
         <div className="flex justify-between items-center mt-2.5">
           <div className="flex items-center gap-2">
-            <h3 className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.06em] m-0">
+            <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] m-0">
               Committed Spends ({sortedSubs.length})
             </h3>
           </div>
@@ -187,34 +187,34 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                         <Clock size={16} />
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-[var(--text)] flex items-center gap-1.5">
+                        <div className="text-sm font-semibold text-(--text) flex items-center gap-1.5">
                           {sub.name}
                           {isPaused && (
-                            <span className="text-[0.625rem] px-1.25 py-0.25 bg-[rgba(0,0,0,0.06)] text-[var(--text-muted)] rounded-full">
+                            <span className="text-[0.625rem] px-1.25 py-0.25 bg-[rgba(0,0,0,0.06)] text-(--text-muted) rounded-full">
                               Paused
                             </span>
                           )}
                           {isCancelled && (
-                            <span className="text-[0.625rem] px-1.25 py-0.25 bg-[rgba(224,85,69,0.08)] text-[var(--text-muted)] rounded-full">
+                            <span className="text-[0.625rem] px-1.25 py-0.25 bg-[rgba(224,85,69,0.08)] text-(--text-muted) rounded-full">
                               Cancelled
                             </span>
                           )}
                         </div>
-                        <div className="text-[0.6875rem] text-[var(--text-muted)] mt-0.5">
+                        <div className="text-[0.6875rem] text-(--text-muted) mt-0.5">
                           {sub.category} • Every {sub.frequency}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[0.9375rem] font-semibold text-[var(--text)]">
+                      <div className="text-[0.9375rem] font-semibold text-(--text)">
                         {formatINR(sub.amount)}
                       </div>
                     </div>
                   </div>
 
                   {/* Middle Row — Due Date & urgency badge */}
-                  <div className="flex justify-between items-center bg-[rgba(0,0,0,0.02)] px-2.5 py-2 rounded-[var(--r-sm)]">
-                    <span className="text-xs text-[var(--text-secondary)]">
+                  <div className="flex justify-between items-center bg-[rgba(0,0,0,0.02)] px-2.5 py-2 rounded-(--r-sm)">
+                    <span className="text-xs text-(--text-secondary)">
                       Next due:{" "}
                       <strong>
                         {format(parseISO(sub.nextDueDate), "d MMM yyyy")}
@@ -239,7 +239,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                   </div>
 
                   {/* Bottom Actions */}
-                  <div className="flex justify-between items-center border-t border-[var(--border)] pt-2.5">
+                  <div className="flex justify-between items-center border-t border-(--border) pt-2.5">
                     <div className="flex gap-3">
                       <button
                         onClick={() => toggleStatus(sub)}
@@ -266,7 +266,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             toast.error("Failed to update subscription status");
                           }
                         }}
-                        className="btn-ghost text-xs px-1.5 py-1 inline-flex items-center gap-1 text-[var(--text-secondary)]"
+                        className="btn-ghost text-xs px-1.5 py-1 inline-flex items-center gap-1 text-(--text-secondary)"
                       >
                         <CheckCircle size={12} />
                         {isCancelled ? "Mark Active" : "Mark Cancelled"}
@@ -292,7 +292,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             if (yes) handleDeleteSub(sub.id!);
                           });
                         }}
-                        className="btn-ghost p-1.5 text-[var(--text-muted)]"
+                        className="btn-ghost p-1.5 text-(--text-muted)"
                         title="Delete"
                       >
                         <Trash2 size={14} />
