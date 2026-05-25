@@ -185,7 +185,10 @@ export function SubscriptionFormSheet({
                   key={st}
                   type="button"
                   onClick={() => setFormStatus(st)}
-                  className={`seg-option ${formStatus === st ? "seg-option-active" : ""} px-2.5 py-1.5 text-xs rounded-full`}
+                  className={`seg-option ${formStatus === st ? "active" : ""} px-2.5 py-1.5 text-xs rounded-full`}
+                  style={{
+                    boxShadow: formStatus === st ? undefined : "none",
+                  }}
                 >
                   {st.toUpperCase()}
                 </button>
