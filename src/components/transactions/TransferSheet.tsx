@@ -105,7 +105,7 @@ function TransferSheetContent({
           <button
             type="button"
             className={`seg-option ${
-              direction === "savings_to_expenditure" ? "active" : ""
+              direction === "savings_to_expenditure" ? "seg-option-active" : ""
             } py-1.5! px-2! text-xs! whitespace-nowrap`}
             onClick={() => {
               setDirection("savings_to_expenditure");
@@ -117,7 +117,7 @@ function TransferSheetContent({
           <button
             type="button"
             className={`seg-option ${
-              direction === "expenditure_to_savings" ? "active" : ""
+              direction === "expenditure_to_savings" ? "seg-option-active" : ""
             } py-1.5! px-2! text-xs! whitespace-nowrap`}
             onClick={() => {
               setDirection("expenditure_to_savings");

@@ -1,29 +1,17 @@
-import { useState, useEffect } from "react";
-import { type Subscription } from "../db/database";
-import { updateSheetOpenState } from "../utils/modalHelper";
 import { InsightsOverviewTab } from "../components/insights/InsightsOverviewTab";
 import { InsightsSubscriptionsTab } from "../components/insights/InsightsSubscriptionsTab";
 import { SubscriptionFormSheet } from "../components/insights/SubscriptionFormSheet";
+import { useInsightsData } from "../hooks/useInsightsData";
 
 export function Insights() {
-  const [activeTab, setActiveTab] = useState<"overview" | "subscriptions">(
-    "overview",
-  );
-  const [showFormModal, setShowFormModal] = useState(false);
-  const [editingSub, setEditingSub] = useState<Subscription | null>(null);
-
-  // Handle active overlay body class for inactive background visual dimming
-  useEffect(() => {
-    updateSheetOpenState();
-    return () => {
-      setTimeout(updateSheetOpenState, 0);
-    };
-  }, [showFormModal]);
-
-  const openForm = (sub: Subscription | null = null) => {
-    setEditingSub(sub);
-    setShowFormModal(true);
-  };
+  const {
+    activeTab,
+    setActiveTab,
+    showFormModal,
+    setShowFormModal,
+    editingSub,
+    openForm,
+  } = useInsightsData();
 
   return (
     <>
@@ -33,17 +21,17 @@ export function Insights() {
       </div>
 
       {/* ── Navigation Tabs ──────────────────────────────────────────────── */}
-      <div className="seg-control fade-in-up" style={{ marginBottom: 20 }}>
+      <div className="seg-control fade-in-up mb-5">
         <button
           type="button"
-          className={`seg-option ${activeTab === "overview" ? "active" : ""}`}
+          className={`seg-option ${activeTab === "overview" ? "seg-option-active" : ""}`}
           onClick={() => setActiveTab("overview")}
         >
           Overview
         </button>
         <button
           type="button"
-          className={`seg-option ${activeTab === "subscriptions" ? "active" : ""}`}
+          className={`seg-option ${activeTab === "subscriptions" ? "seg-option-active" : ""}`}
           onClick={() => setActiveTab("subscriptions")}
         >
           Subscriptions

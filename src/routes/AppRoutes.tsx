@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "../components/layout/AppLayout";
-import { Dashboard } from "../pages/Dashboard";
+import { Home } from "../pages/Home";
 import { MonthlyView } from "../pages/MonthlyView";
 import { SavingsView } from "../pages/SavingsView";
 import { AddEditTransaction } from "../pages/AddEditTransaction";
@@ -9,7 +9,7 @@ import { Insights } from "../pages/Insights";
 import { useMonthSetup } from "../db/hooks";
 
 const routesConfig = [
-  { path: "/", element: <Dashboard />, isTab: true },
+  { path: "/", element: <Home />, isTab: true },
   { path: "/monthly", element: <MonthlyView />, isTab: true },
   {
     path: "/monthly/transactions",
