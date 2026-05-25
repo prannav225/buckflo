@@ -1,11 +1,28 @@
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/database';
-import { useAccount, useMonthSetup, useTransactions } from '../db/hooks';
-import { getCurrentMonthYear } from '../utils/dateUtils';
-import { startOfDay, subDays, format, differenceInDays, addDays } from 'date-fns';
+import { useMemo } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../db/database";
+import {
+  useAccount,
+  useMonthSetup,
+  useTransactions,
+  useMonthSummary,
+} from "../db/hooks";
+import {
+  getCurrentMonthYear,
+  getDaysInCurrentMonth,
+  getDaysElapsedInMonth,
+  isDismissedWithin24Hours,
+} from "../utils/dateUtils";
+import {
+  startOfDay,
+  subDays,
+  format,
+  differenceInDays,
+  addDays,
+} from "date-fns";
 
 // Helper to get ISO date string from Date object
-const toISODate = (d: Date) => format(d, 'yyyy-MM-dd');
+const toISODate = (d: Date) => format(d, "yyyy-MM-dd");
 
 // ─── 1. Burn Rate Hook ───────────────────────────────────────────────────────
 export interface BurnRateResult {
@@ -16,21 +33,21 @@ export interface BurnRateResult {
   daysRemaining: number;
 }
 
-export function useBurnRate(budget: number, totalSpent: number): BurnRateResult {
-  const today = new Date();
-  const currentDay = today.getDate();
-  const totalDays = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-
-  // Days elapsed in the month so far
-  const elapsedDays = Math.max(1, currentDay);
+export function useBurnRate(
+  budget: number,
+  totalSpent: number,
+): BurnRateResult {
+  const totalDays = getDaysInCurrentMonth();
+  const elapsedDays = getDaysElapsedInMonth();
   const avgDailySpend = +(totalSpent / elapsedDays).toFixed(2);
   const projectedTotalSpend = +(avgDailySpend * totalDays).toFixed(2);
   const isOverrunProjected = budget > 0 && projectedTotalSpend > budget;
 
   // Day of the month on which budget will run out
-  const dayOfExhaustion = isOverrunProjected && avgDailySpend > 0
-    ? Math.floor(budget / avgDailySpend)
-    : null;
+  const dayOfExhaustion =
+    isOverrunProjected && avgDailySpend > 0
+      ? Math.floor(budget / avgDailySpend)
+      : null;
 
   return {
     avgDailySpend,
@@ -51,7 +68,7 @@ export interface DetectedSubscription {
 }
 
 export function useSubscriptionAlerts(): DetectedSubscription[] {
-  const expendAcc = useAccount('expenditure');
+  const expendAcc = useAccount("expenditure");
 
   return useLiveQuery(
     async () => {
@@ -60,9 +77,14 @@ export function useSubscriptionAlerts(): DetectedSubscription[] {
       // Query past 90 days of expenditure debits
       const ninetyDaysAgo = toISODate(subDays(new Date(), 90));
       const txs = await db.transactions
-        .where('[accountId+date]')
-        .between([expendAcc.id, ninetyDaysAgo], [expendAcc.id, '\uffff'], true, true)
-        .filter(t => t.type === 'debit')
+        .where("[accountId+date]")
+        .between(
+          [expendAcc.id, ninetyDaysAgo],
+          [expendAcc.id, "\uffff"],
+          true,
+          true,
+        )
+        .filter((t) => t.type === "debit")
         .toArray();
 
       // Group by lowercase description + amount
@@ -80,7 +102,9 @@ export function useSubscriptionAlerts(): DetectedSubscription[] {
       const detected: DetectedSubscription[] = [];
 
       for (const key in groups) {
-        const groupTxs = groups[key].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const groupTxs = groups[key].sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        );
         if (groupTxs.length < 2) continue;
 
         // Check date intervals
@@ -89,7 +113,10 @@ export function useSubscriptionAlerts(): DetectedSubscription[] {
         const intervals = [];
 
         for (let i = 1; i < groupTxs.length; i++) {
-          const diff = differenceInDays(new Date(groupTxs[i].date), new Date(groupTxs[i - 1].date));
+          const diff = differenceInDays(
+            new Date(groupTxs[i].date),
+            new Date(groupTxs[i - 1].date),
+          );
           if (diff >= 25 && diff <= 35) {
             isRecurring = true;
             intervals.push(diff);
@@ -98,7 +125,9 @@ export function useSubscriptionAlerts(): DetectedSubscription[] {
 
         if (isRecurring) {
           if (intervals.length > 0) {
-            avgInterval = Math.round(intervals.reduce((a, b) => a + b, 0) / intervals.length);
+            avgInterval = Math.round(
+              intervals.reduce((a, b) => a + b, 0) / intervals.length,
+            );
           }
 
           const lastTx = groupTxs[groupTxs.length - 1];
@@ -113,7 +142,7 @@ export function useSubscriptionAlerts(): DetectedSubscription[] {
             detected.push({
               description: lastTx.description,
               amount: lastTx.amount,
-              category: lastTx.category || 'Other',
+              category: lastTx.category || "Other",
               nextDueDate: toISODate(nextDate),
               daysLeft,
             });
@@ -125,7 +154,7 @@ export function useSubscriptionAlerts(): DetectedSubscription[] {
       return detected.sort((a, b) => a.daysLeft - b.daysLeft);
     },
     [expendAcc?.id],
-    []
+    [],
   );
 }
 
@@ -137,11 +166,12 @@ export interface WoWResult {
 }
 
 export function useWeekOverWeek(): WoWResult {
-  const expendAcc = useAccount('expenditure');
+  const expendAcc = useAccount("expenditure");
 
   return useLiveQuery(
     async () => {
-      if (!expendAcc?.id) return { thisWeekTotal: 0, lastWeekTotal: 0, percentChange: 0 };
+      if (!expendAcc?.id)
+        return { thisWeekTotal: 0, lastWeekTotal: 0, percentChange: 0 };
 
       const today = new Date();
       const thisWeekStart = toISODate(subDays(today, 6)); // last 7 days
@@ -149,9 +179,14 @@ export function useWeekOverWeek(): WoWResult {
       const lastWeekEnd = toISODate(subDays(today, 7));
 
       const txs = await db.transactions
-        .where('[accountId+date]')
-        .between([expendAcc.id, lastWeekStart], [expendAcc.id, '\uffff'], true, true)
-        .filter(t => t.type === 'debit')
+        .where("[accountId+date]")
+        .between(
+          [expendAcc.id, lastWeekStart],
+          [expendAcc.id, "\uffff"],
+          true,
+          true,
+        )
+        .filter((t) => t.type === "debit")
         .toArray();
 
       let thisWeekTotal = 0;
@@ -167,7 +202,10 @@ export function useWeekOverWeek(): WoWResult {
 
       let percentChange = 0;
       if (lastWeekTotal > 0) {
-        percentChange = +(((thisWeekTotal - lastWeekTotal) / lastWeekTotal) * 100).toFixed(1);
+        percentChange = +(
+          ((thisWeekTotal - lastWeekTotal) / lastWeekTotal) *
+          100
+        ).toFixed(1);
       }
 
       return {
@@ -177,7 +215,7 @@ export function useWeekOverWeek(): WoWResult {
       };
     },
     [expendAcc?.id],
-    { thisWeekTotal: 0, lastWeekTotal: 0, percentChange: 0 }
+    { thisWeekTotal: 0, lastWeekTotal: 0, percentChange: 0 },
   );
 }
 
@@ -189,14 +227,14 @@ export interface FrequentPreset {
 }
 
 const FALLBACK_PRESETS: FrequentPreset[] = [
-  { description: 'Coffee', amount: 80, category: 'Food' },
-  { description: 'Metro Fare', amount: 50, category: 'Transport' },
-  { description: 'Groceries', amount: 500, category: 'Shopping' },
-  { description: 'Lunch Thali', amount: 150, category: 'Food' },
+  { description: "Coffee", amount: 80, category: "Food" },
+  { description: "Metro Fare", amount: 50, category: "Transport" },
+  { description: "Groceries", amount: 500, category: "Shopping" },
+  { description: "Lunch Thali", amount: 150, category: "Food" },
 ];
 
 export function useFrequentPresets(limit = 4): FrequentPreset[] {
-  const expendAcc = useAccount('expenditure');
+  const expendAcc = useAccount("expenditure");
 
   return useLiveQuery(
     async () => {
@@ -204,19 +242,28 @@ export function useFrequentPresets(limit = 4): FrequentPreset[] {
 
       // Query past transactions to calculate frequency
       const txs = await db.transactions
-        .where('accountId')
+        .where("accountId")
         .equals(expendAcc.id)
-        .filter(t => t.type === 'debit')
+        .filter((t) => t.type === "debit")
         .toArray();
 
       if (txs.length === 0) return FALLBACK_PRESETS.slice(0, limit);
 
       // Group and count occurrences of combination of description + category (ignoring amount differences)
-      const freqMap = new Map<string, { desc: string; cat: string; count: number; lastAmount: number; lastCreatedAt: number }>();
+      const freqMap = new Map<
+        string,
+        {
+          desc: string;
+          cat: string;
+          count: number;
+          lastAmount: number;
+          lastCreatedAt: number;
+        }
+      >();
 
       for (const tx of txs) {
         const descNorm = tx.description.trim();
-        const catVal = tx.category || 'Other';
+        const catVal = tx.category || "Other";
         const key = `${descNorm.toLowerCase()}_${catVal.toLowerCase()}`;
 
         const existing = freqMap.get(key);
@@ -228,23 +275,23 @@ export function useFrequentPresets(limit = 4): FrequentPreset[] {
             existing.lastCreatedAt = tx.createdAt;
           }
         } else {
-          freqMap.set(key, { 
-            desc: descNorm, 
-            cat: catVal, 
-            count: 1, 
-            lastAmount: tx.amount, 
-            lastCreatedAt: tx.createdAt 
+          freqMap.set(key, {
+            desc: descNorm,
+            cat: catVal,
+            count: 1,
+            lastAmount: tx.amount,
+            lastCreatedAt: tx.createdAt,
           });
         }
       }
 
       // Convert map to array, filter items logged at least twice, and sort by frequency descending
       const sortedFreq = Array.from(freqMap.values())
-        .filter(item => item.count >= 2)
+        .filter((item) => item.count >= 2)
         .sort((a, b) => b.count - a.count);
 
       // Map to FrequentPreset format using the last logged amount
-      const presets: FrequentPreset[] = sortedFreq.map(item => ({
+      const presets: FrequentPreset[] = sortedFreq.map((item) => ({
         description: item.desc,
         amount: item.lastAmount,
         category: item.cat,
@@ -256,7 +303,9 @@ export function useFrequentPresets(limit = 4): FrequentPreset[] {
           if (presets.length >= limit) break;
           // Check if fallback description is already present
           const isDuplicate = presets.some(
-            p => p.description.toLowerCase() === fallback.description.toLowerCase()
+            (p) =>
+              p.description.toLowerCase() ===
+              fallback.description.toLowerCase(),
           );
           if (!isDuplicate) {
             presets.push(fallback);
@@ -267,7 +316,7 @@ export function useFrequentPresets(limit = 4): FrequentPreset[] {
       return presets.slice(0, limit);
     },
     [expendAcc?.id, limit],
-    FALLBACK_PRESETS.slice(0, limit)
+    FALLBACK_PRESETS.slice(0, limit),
   );
 }
 
@@ -276,8 +325,8 @@ export interface CategoryBudgetAlert {
   category: string;
   spent: number;
   budget: number;
-  percentUsed: number;  // e.g. 85.3
-  isExceeded: boolean;  // true when ≥ 100%
+  percentUsed: number; // e.g. 85.3
+  isExceeded: boolean; // true when ≥ 100%
 }
 
 /**
@@ -286,11 +335,14 @@ export interface CategoryBudgetAlert {
  */
 export function useCategoryBudgetAlerts(): CategoryBudgetAlert[] {
   const monthYear = getCurrentMonthYear();
-  const expendAcc = useAccount('expenditure');
+  const expendAcc = useAccount("expenditure");
   const monthSetup = useMonthSetup(monthYear);
   const transactions = useTransactions(expendAcc?.id, monthYear);
 
-  if (!monthSetup?.categoryBudgets || Object.keys(monthSetup.categoryBudgets).length === 0) {
+  if (
+    !monthSetup?.categoryBudgets ||
+    Object.keys(monthSetup.categoryBudgets).length === 0
+  ) {
     return [];
   }
 
@@ -299,8 +351,8 @@ export function useCategoryBudgetAlerts(): CategoryBudgetAlert[] {
   // Build spend-per-category from current month transactions
   const catSpend: Record<string, number> = {};
   for (const tx of transactions) {
-    if (tx.type === 'debit') {
-      const cat = tx.category || 'Other';
+    if (tx.type === "debit") {
+      const cat = tx.category || "Other";
       catSpend[cat] = (catSpend[cat] || 0) + tx.amount;
     }
   }
@@ -337,62 +389,48 @@ export interface SmartAllocationResult {
 }
 
 export function useSmartAllocationPrompt(): SmartAllocationResult | null {
-  const expendAcc = useAccount('expenditure');
+  const expendAcc = useAccount("expenditure");
   const monthYear = getCurrentMonthYear();
   const transactions = useTransactions(expendAcc?.id, monthYear);
+  const summary = useMonthSummary(transactions, 0);
 
-  return useLiveQuery(
-    async () => {
-      if (!expendAcc?.id) return null;
+  return useMemo(() => {
+    if (!expendAcc?.id) return null;
 
-      // Check localStorage for dismissal (valid for 24 hours)
-      const dismissedTime = localStorage.getItem('flo_advisor_dismissed');
-      if (dismissedTime) {
-        const lastDismissed = new Date(parseInt(dismissedTime, 10));
-        const diffHours = (Date.now() - lastDismissed.getTime()) / (1000 * 60 * 60);
-        if (diffHours < 24) {
-          return {
-            shouldShow: false,
-            surplus: 0,
-            suggestedAmount: 0,
-            expenditureBalance: expendAcc.currentBalance,
-            projectedSpend: 0,
-          };
-        }
-      }
-
-      const today = new Date();
-      const currentDay = today.getDate();
-      const totalDays = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-      const daysElapsed = Math.max(1, currentDay);
-      const daysRemaining = Math.max(0, totalDays - daysElapsed);
-
-      // Sum all debits for the current month setup
-      let totalDebited = 0;
-      for (const tx of transactions) {
-        if (tx.type === 'debit') {
-          totalDebited += tx.amount;
-        }
-      }
-
-      const avgDailySpend = totalDebited / daysElapsed;
-      const projectedRemainingSpend = avgDailySpend * daysRemaining;
-      const surplus = expendAcc.currentBalance - projectedRemainingSpend;
-
-      const shouldShow = surplus > 1000 && expendAcc.currentBalance > 1000;
-      const suggestedAmount = shouldShow ? Math.max(500, Math.floor((surplus * 0.8) / 500) * 500) : 0;
-
+    // Check localStorage for dismissal (valid for 24 hours)
+    const dismissedTime = localStorage.getItem("flo_advisor_dismissed");
+    if (isDismissedWithin24Hours(dismissedTime)) {
       return {
-        shouldShow,
-        surplus: +surplus.toFixed(2),
-        suggestedAmount,
+        shouldShow: false,
+        surplus: 0,
+        suggestedAmount: 0,
         expenditureBalance: expendAcc.currentBalance,
-        projectedSpend: +projectedRemainingSpend.toFixed(2),
+        projectedSpend: 0,
       };
-    },
-    [expendAcc?.id, expendAcc?.currentBalance, transactions],
-    null
-  );
+    }
+
+    const totalDays = getDaysInCurrentMonth();
+    const daysElapsed = getDaysElapsedInMonth();
+    const daysRemaining = Math.max(0, totalDays - daysElapsed);
+
+    const totalDebited = summary.totalDebited;
+    const avgDailySpend = totalDebited / daysElapsed;
+    const projectedRemainingSpend = avgDailySpend * daysRemaining;
+    const surplus = expendAcc.currentBalance - projectedRemainingSpend;
+
+    const shouldShow = surplus > 1000 && expendAcc.currentBalance > 1000;
+    const suggestedAmount = shouldShow
+      ? Math.max(500, Math.floor((surplus * 0.8) / 500) * 500)
+      : 0;
+
+    return {
+      shouldShow,
+      surplus: +surplus.toFixed(2),
+      suggestedAmount,
+      expenditureBalance: expendAcc.currentBalance,
+      projectedSpend: +projectedRemainingSpend.toFixed(2),
+    };
+  }, [expendAcc, summary]);
 }
 
 // ─── 7. Historical Data Hook ──────────────────────────────────────────────────
@@ -404,8 +442,8 @@ export interface HistoricalDataPoint {
 }
 
 export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
-  const expendAcc = useAccount('expenditure');
-  const savingsAcc = useAccount('savings');
+  const expendAcc = useAccount("expenditure");
+  const savingsAcc = useAccount("savings");
 
   return useLiveQuery(
     async () => {
@@ -417,15 +455,15 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
 
       for (let i = monthsCount - 1; i >= 0; i--) {
         const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-        const mYear = format(d, 'yyyy-MM');
-        const label = format(d, 'MMM');
+        const mYear = format(d, "yyyy-MM");
+        const label = format(d, "MMM");
 
         // 1. Calculate total debited in this month on expenditure account
         let totalDebited = 0;
         for (const tx of allTxs) {
           if (
             tx.accountId === expendAcc.id &&
-            tx.type === 'debit' &&
+            tx.type === "debit" &&
             tx.date.startsWith(mYear)
           ) {
             totalDebited += tx.amount;
@@ -441,13 +479,13 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
           if (txMonth > mYear) {
             const amt = tx.amount;
             if (tx.accountId === expendAcc.id) {
-              if (tx.type === 'credit') {
+              if (tx.type === "credit") {
                 expBal -= amt;
               } else {
                 expBal += amt;
               }
             } else if (tx.accountId === savingsAcc.id) {
-              if (tx.type === 'credit') {
+              if (tx.type === "credit") {
                 savBal -= amt;
               } else {
                 savBal += amt;
@@ -467,6 +505,6 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
       return points;
     },
     [expendAcc?.id, savingsAcc?.id, monthsCount],
-    []
+    [],
   );
 }

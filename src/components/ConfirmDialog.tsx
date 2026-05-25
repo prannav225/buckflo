@@ -1,7 +1,7 @@
-import { useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { AlertTriangle, Trash2 } from 'lucide-react';
-import { updateSheetOpenState } from '../utils/modalHelper';
+import { useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { AlertTriangle, Trash2 } from "lucide-react";
+import { updateSheetOpenState } from "../utils/modalHelper";
 
 // ─── Shared Types (imported by useConfirm.ts) ─────────────────────────────────
 
@@ -11,7 +11,7 @@ export interface ConfirmOptions {
   /** Label for the confirm button. Defaults to "Confirm". */
   confirmLabel?: string;
   /** Visual variant for the confirm button. Defaults to "danger". */
-  variant?: 'danger' | 'default';
+  variant?: "danger" | "default";
 }
 
 export interface DialogState extends ConfirmOptions {
@@ -48,18 +48,18 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
   useEffect(() => {
     if (!state) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         state.resolve(false);
         onClose();
       }
     };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
   }, [state, onClose]);
 
   if (!state) return null;
 
-  const isDanger = state.variant !== 'default';
+  const isDanger = state.variant !== "default";
 
   const handleConfirm = () => {
     state.resolve(true);
@@ -82,75 +82,34 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
       aria-labelledby="confirm-dialog-title"
       aria-describedby="confirm-dialog-message"
       onClick={handleBackdrop}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(10, 9, 8, 0.55)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        zIndex: 500,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-        animation: 'fadeIn 0.18s ease',
-      }}
+      className="fixed inset-0 bg-[#0a0908]/55 [backdrop-filter:blur(10px)] [-webkit-backdrop-filter:blur(10px)] z-500 flex items-center justify-center p-6 animate-fade-in"
     >
-      <div
-        className="glass-card-strong pop-in"
-        style={{
-          width: '100%',
-          maxWidth: '340px',
-          background: 'var(--bg-surface)',
-          border: 'var(--glass-border)',
-          borderRadius: 'var(--r-xl)',
-          boxShadow: 'var(--glass-shadow-lg)',
-          padding: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
-      >
+      <div className="glass-card-strong pop-in w-full max-w-[340px] bg-(--bg-surface) border border-black/8 dark:border-white/6 rounded-(--r-xl) shadow-(--glass-shadow-lg) p-6 flex flex-col gap-4">
         {/* Icon + Title */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-          <div style={{
-            flexShrink: 0,
-            width: 40,
-            height: 40,
-            borderRadius: 'var(--r-md)',
-            background: isDanger ? 'rgba(224, 85, 69, 0.10)' : 'rgba(217, 119, 87, 0.10)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            {isDanger
-              ? <Trash2 size={20} color="var(--debit)" />
-              : <AlertTriangle size={20} color="var(--accent)" />
-            }
+        <div className="flex items-start gap-3.5">
+          <div
+            className={`shrink-0 w-10 h-10 rounded-(--r-md) flex items-center justify-center ${
+              isDanger
+                ? "bg-[rgba(224,85,69,0.1)]"
+                : "bg-[rgba(217,119,87,0.1)]"
+            }`}
+          >
+            {isDanger ? (
+              <Trash2 size={20} className="text-(--debit)" />
+            ) : (
+              <AlertTriangle size={20} className="text-(--accent)" />
+            )}
           </div>
           <div>
             <h3
               id="confirm-dialog-title"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '1rem',
-                fontWeight: 700,
-                letterSpacing: '-0.02em',
-                color: 'var(--text)',
-                margin: 0,
-              }}
+              className="font-sans text-base font-bold tracking-tight text-(--text) m-0"
             >
               {state.title}
             </h3>
             <p
               id="confirm-dialog-message"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '0.875rem',
-                color: 'var(--text-secondary)',
-                margin: '6px 0 0',
-                lineHeight: 1.5,
-              }}
+              className="font-sans text-sm text-(--text-secondary) mt-1.5 leading-normal"
             >
               {state.message}
             </p>
@@ -158,47 +117,27 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div className="flex gap-2.5">
           <button
             ref={cancelRef}
             type="button"
             onClick={handleCancel}
-            style={{
-              flex: 1,
-              padding: '12px 16px',
-              borderRadius: 'var(--r-pill)',
-              border: '1.5px solid var(--border)',
-              background: 'transparent',
-              color: 'var(--text-secondary)',
-              fontFamily: "'Inter', sans-serif",
-              fontSize: '0.9375rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            className="flex-1 py-3 px-4 rounded-(--r-pill) border-[1.5px] border-(--border) bg-transparent text-(--text-secondary) font-sans text-[0.9375rem] font-semibold cursor-pointer active:bg-black/5 dark:active:bg-white/5 transition-colors"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            style={{
-              flex: 1,
-              padding: '12px 16px',
-              borderRadius: 'var(--r-pill)',
-              border: 'none',
-              background: isDanger ? 'var(--debit)' : 'var(--accent)',
-              color: '#fff',
-              fontFamily: "'Inter', sans-serif",
-              fontSize: '0.9375rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            className={`flex-1 py-3 px-4 rounded-(--r-pill) border-none text-white font-sans text-[0.9375rem] font-semibold cursor-pointer transition-opacity active:opacity-90 ${
+              isDanger ? "bg-(--debit)" : "bg-(--accent)"
+            }`}
           >
-            {state.confirmLabel ?? 'Confirm'}
+            {state.confirmLabel ?? "Confirm"}
           </button>
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

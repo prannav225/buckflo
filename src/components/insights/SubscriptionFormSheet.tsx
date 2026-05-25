@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import {
@@ -20,38 +20,17 @@ export function SubscriptionFormSheet({
   editingSub,
 }: Props) {
   // Form states
-  const [formName, setFormName] = useState("");
-  const [formAmount, setFormAmount] = useState("");
+  const [formName, setFormName] = useState(editingSub ? editingSub.name : "");
+  const [formAmount, setFormAmount] = useState(editingSub ? editingSub.amount.toString() : "");
   const [formFrequency, setFormFrequency] = useState<
     "weekly" | "monthly" | "yearly"
-  >("monthly");
-  const [formDueDate, setFormDueDate] = useState("");
-  const [formCategory, setFormCategory] = useState("Bills");
+  >(editingSub ? editingSub.frequency : "monthly");
+  const [formDueDate, setFormDueDate] = useState(editingSub ? editingSub.nextDueDate : new Date().toISOString().split("T")[0]);
+  const [formCategory, setFormCategory] = useState(editingSub ? editingSub.category : "Bills");
   const [formStatus, setFormStatus] = useState<
     "active" | "cancelled" | "paused"
-  >("active");
-  const [formNotes, setFormNotes] = useState("");
-
-  useEffect(() => {
-    if (editingSub) {
-      setFormName(editingSub.name);
-      setFormAmount(editingSub.amount.toString());
-      setFormFrequency(editingSub.frequency);
-      setFormDueDate(editingSub.nextDueDate);
-      setFormCategory(editingSub.category);
-      setFormStatus(editingSub.status);
-      setFormNotes(editingSub.notes || "");
-    } else {
-      setFormName("");
-      setFormAmount("");
-      setFormFrequency("monthly");
-      // Default to today
-      setFormDueDate(new Date().toISOString().split("T")[0]);
-      setFormCategory("Bills");
-      setFormStatus("active");
-      setFormNotes("");
-    }
-  }, [editingSub, showFormModal]);
+  >(editingSub ? editingSub.status : "active");
+  const [formNotes, setFormNotes] = useState(editingSub?.notes || "");
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

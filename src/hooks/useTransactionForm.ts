@@ -109,7 +109,7 @@ export function useTransactionForm(): TransactionFormState {
 
     const timeout = setTimeout(guessCategory, 250); // debounce database lookup
     return () => clearTimeout(timeout);
-  }, [description, isEdit, category]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [description, isEdit, category]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

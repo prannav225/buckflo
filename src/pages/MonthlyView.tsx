@@ -107,7 +107,7 @@ export function MonthlyView() {
                     <XAxis dataKey="label" stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} />
                     <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}`} />
                     <Tooltip
-                      formatter={(value: any) => [formatINR(value), 'Spend']}
+                      formatter={(value) => [formatINR(Number(value)), 'Spend']}
                       contentStyle={{
                         background: 'var(--bg-glass-strong)',
                         border: 'var(--glass-border)',

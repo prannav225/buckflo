@@ -4,7 +4,7 @@ import { PiggyBank, Download, Plus, Target, ChevronRight } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type SavingGoal } from '../db/database';
 import { useAccount, useTransactions, useRunningBalances, useMonthSummary } from '../db/hooks';
-import { TransactionCard } from '../components/TransactionRow';
+import { TransactionCard } from '../components/transactions/TransactionRow';
 import { MonthPicker } from '../components/MonthPicker';
 import { formatINR } from '../utils/currency';
 import { getCurrentMonthYear, formatMonthYear } from '../utils/dateUtils';

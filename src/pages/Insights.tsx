@@ -58,11 +58,13 @@ export function Insights() {
       )}
 
       {/* ── Manual Add / Edit Modal Overlay ─────────────────────────────── */}
-      <SubscriptionFormSheet
-        showFormModal={showFormModal}
-        setShowFormModal={setShowFormModal}
-        editingSub={editingSub}
-      />
+      {showFormModal && (
+        <SubscriptionFormSheet
+          showFormModal={showFormModal}
+          setShowFormModal={setShowFormModal}
+          editingSub={editingSub}
+        />
+      )}
     </>
   );
 }

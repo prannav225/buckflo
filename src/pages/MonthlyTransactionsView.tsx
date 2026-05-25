@@ -1,10 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Calendar, Download, Search, X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/database';
 import { useAccount, useMonthSetup, useTransactions, useRunningBalances } from '../db/hooks';
-import { TransactionCard } from '../components/TransactionRow';
+import { TransactionCard } from '../components/transactions/TransactionRow';
 import { MonthPicker } from '../components/MonthPicker';
 import { formatINR } from '../utils/currency';
 import { getCurrentMonthYear } from '../utils/dateUtils';
@@ -70,26 +70,20 @@ export function MonthlyTransactionsView() {
 
   const handleTabChange = (tab: 'all' | 'expenditure' | 'savings') => {
     setActiveTab(tab);
+    setPageSize(20);
     setSearchParams(prev => {
       prev.set('tab', tab);
       return prev;
     }, { replace: true });
   };
 
-  // Reset pagination size when active tab or search changes
-  useEffect(() => {
-    setPageSize(20);
-  }, [activeTab, searchQuery]);
-
   const handleExport = () => {
-    let txsToExport = [];
-    if (activeTab === 'expenditure') {
-      txsToExport = expendTxs;
-    } else if (activeTab === 'savings') {
-      txsToExport = savingsTxs;
-    } else {
-      txsToExport = [...expendTxs, ...savingsTxs].sort((a, b) => b.date.localeCompare(a.date));
-    }
+    const txsToExport =
+      activeTab === 'expenditure'
+        ? expendTxs
+        : activeTab === 'savings'
+          ? savingsTxs
+          : [...expendTxs, ...savingsTxs].sort((a, b) => b.date.localeCompare(a.date));
     exportTransactionsCSV(txsToExport, `flo-${activeTab}-${monthYear}.csv`);
   };
 
@@ -237,7 +231,10 @@ export function MonthlyTransactionsView() {
             type="text"
             placeholder="Search description, category, or amount..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPageSize(20);
+            }}
             style={{
               width: '100%',
               background: 'transparent',
@@ -250,7 +247,10 @@ export function MonthlyTransactionsView() {
           />
           {searchQuery && (
             <button
-              onClick={() => setSearchQuery('')}
+              onClick={() => {
+                setSearchQuery('');
+                setPageSize(20);
+              }}
               style={{
                 background: 'transparent',
                 border: 'none',

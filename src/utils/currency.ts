@@ -15,9 +15,10 @@ export function formatINR(amount: number, decimals = 2): string {
 /**
  * Format a plain number with Indian comma grouping (no ₹ symbol).
  */
-export function formatNumber(amount: number, decimals = 2): string {
+export function formatNumber(amount: number, decimals = 2, minDecimals = decimals): string {
   return new Intl.NumberFormat('en-IN', {
-    minimumFractionDigits: decimals,
+    minimumFractionDigits: minDecimals,
     maximumFractionDigits: decimals,
   }).format(amount);
 }
+

@@ -16,6 +16,15 @@ import { updateSubscription, type Subscription } from "../../db/database";
 import { useConfirm } from "../../hooks/useConfirm";
 import { useSubscriptionLogic } from "../../hooks/useSubscriptionLogic";
 
+
+const formatFrequency = (freq: string): string => {
+  const f = freq.toLowerCase();
+  if (f === "monthly") return "Monthly";
+  if (f === "weekly") return "Weekly";
+  if (f === "yearly") return "Yearly";
+  return freq.charAt(0).toUpperCase() + freq.slice(1);
+};
+
 interface Props {
   openForm: (sub: Subscription | null) => void;
 }
@@ -39,24 +48,14 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
     return differenceInDays(due, today);
   };
 
-  const getDaysBadgeColor = (days: number) => {
-    if (days > 7)
-      return {
-        bg: "rgba(90,158,111,0.10)",
-        text: "var(--credit)",
-        border: "1px solid rgba(90,158,111,0.20)",
-      };
-    if (days >= 3)
-      return {
-        bg: "rgba(234,179,8,0.10)",
-        text: "#b8960f",
-        border: "1px solid rgba(234,179,8,0.20)",
-      };
-    return {
-      bg: "rgba(224,85,69,0.10)",
-      text: "var(--text)",
-      border: "1px solid rgba(224,85,69,0.20)",
-    };
+  const getDaysBadgeClass = (days: number) => {
+    if (days > 7) {
+      return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
+    }
+    if (days >= 3) {
+      return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20";
+    }
+    return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20";
   };
 
   return (
@@ -153,82 +152,77 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
           <div className="flex flex-col gap-2.5">
             {sortedSubs.map((sub) => {
               const daysLeft = getDaysLeft(sub.nextDueDate);
-              const badge = getDaysBadgeColor(daysLeft);
+              const badgeClass = getDaysBadgeClass(daysLeft);
               const isPaused = sub.status === "paused";
               const isCancelled = sub.status === "cancelled";
 
               return (
                 <div
                   key={sub.id}
-                  className="glass-card px-4 py-3.5 flex flex-col gap-3"
+                  className="glass-card px-4 py-4 flex flex-col gap-3.5 transition-all duration-200 hover:shadow-md"
                   style={{
-                    opacity: isPaused || isCancelled ? 0.7 : 1,
-                    border: isPaused
-                      ? "1px solid var(--text-muted)"
-                      : isCancelled
-                        ? "1px solid var(--text-muted)"
-                        : "var(--glass-border)",
+                    opacity: isPaused || isCancelled ? 0.75 : 1,
                   }}
                 >
                   {/* Top Row */}
                   <div className="flex items-start justify-between gap-2.5">
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-3">
                       <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors"
                         style={{
                           background: isPaused
-                            ? "rgba(0,0,0,0.05)"
-                            : "rgba(217,119,87,0.08)",
+                            ? "rgba(245, 158, 11, 0.08)"
+                            : isCancelled
+                              ? "rgba(239, 68, 68, 0.08)"
+                              : "rgba(217, 119, 87, 0.08)",
                           color: isPaused
-                            ? "var(--text-muted)"
-                            : "var(--accent)",
+                            ? "var(--warning, #f59e0b)"
+                            : isCancelled
+                              ? "var(--danger, #ef4444)"
+                              : "var(--accent)",
                         }}
                       >
-                        <Clock size={16} />
+                        <Clock size={18} />
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-(--text) flex items-center gap-1.5">
+                        <div className="text-sm font-semibold text-(--text) flex items-center gap-2 flex-wrap">
                           {sub.name}
                           {isPaused && (
-                            <span className="text-[0.625rem] px-1.25 py-0.25 bg-[rgba(0,0,0,0.06)] text-(--text-muted) rounded-full">
+                            <span className="text-[0.625rem] font-medium px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full border border-amber-500/20">
                               Paused
                             </span>
                           )}
                           {isCancelled && (
-                            <span className="text-[0.625rem] px-1.25 py-0.25 bg-[rgba(224,85,69,0.08)] text-(--text-muted) rounded-full">
+                            <span className="text-[0.625rem] font-medium px-2 py-0.5 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-full border border-rose-500/20">
                               Cancelled
                             </span>
                           )}
                         </div>
-                        <div className="text-[0.6875rem] text-(--text-muted) mt-0.5">
-                          {sub.category} • Every {sub.frequency}
+                        <div className="text-[0.6875rem] text-(--text-muted) mt-0.5 font-medium">
+                          {sub.category} • {formatFrequency(sub.frequency)}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[0.9375rem] font-semibold text-(--text)">
+                      <div className="text-[1.0625rem] font-bold text-(--text) font-display">
                         {formatINR(sub.amount)}
                       </div>
                     </div>
                   </div>
 
                   {/* Middle Row — Due Date & urgency badge */}
-                  <div className="flex justify-between items-center bg-[rgba(0,0,0,0.02)] px-2.5 py-2 rounded-(--r-sm)">
-                    <span className="text-xs text-(--text-secondary)">
-                      Next due:{" "}
-                      <strong>
-                        {format(parseISO(sub.nextDueDate), "d MMM yyyy")}
-                      </strong>
+                  <div className="flex justify-between items-center bg-black/[0.03] dark:bg-white/[0.04] px-3 py-2.5 rounded-xl border border-black/[0.08] dark:border-white/[0.08]">
+                    <span className="text-[0.75rem] text-(--text-secondary) flex items-center gap-1.5 font-medium">
+                      <Calendar size={13} className="text-(--text-muted)" />
+                      <span>
+                        Next due:{" "}
+                        <strong className="text-(--text) font-semibold">
+                          {format(parseISO(sub.nextDueDate), "d MMM yyyy")}
+                        </strong>
+                      </span>
                     </span>
                     {!isCancelled && !isPaused && (
-                      <span
-                        className="text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full"
-                        style={{
-                          background: badge.bg,
-                          color: badge.text,
-                          border: badge.border,
-                        }}
-                      >
+                      <span className={`text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full ${badgeClass}`}>
                         {daysLeft < 0
                           ? "Overdue"
                           : daysLeft === 0
@@ -239,11 +233,11 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                   </div>
 
                   {/* Bottom Actions */}
-                  <div className="flex justify-between items-center border-t border-(--border) pt-2.5">
-                    <div className="flex gap-3">
+                  <div className="flex justify-between items-center border-t border-neutral-100 dark:border-neutral-800/80 pt-3">
+                    <div className="flex gap-2">
                       <button
                         onClick={() => toggleStatus(sub)}
-                        className="btn-ghost text-xs px-1.5 py-1 inline-flex items-center gap-1"
+                        className="text-[0.6875rem] px-2.5 py-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-all flex items-center gap-1 font-medium cursor-pointer"
                         style={{
                           color: isPaused
                             ? "var(--credit)"
@@ -266,20 +260,20 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             toast.error("Failed to update subscription status");
                           }
                         }}
-                        className="btn-ghost text-xs px-1.5 py-1 inline-flex items-center gap-1 text-(--text-secondary)"
+                        className="text-[0.6875rem] px-2.5 py-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-all flex items-center gap-1 font-medium text-(--text-secondary) cursor-pointer"
                       >
                         <CheckCircle size={12} />
-                        {isCancelled ? "Mark Active" : "Mark Cancelled"}
+                        {isCancelled ? "Activate" : "Cancel"}
                       </button>
                     </div>
 
                     <div className="flex gap-1.5">
                       <button
                         onClick={() => openForm(sub)}
-                        className="btn-ghost p-1.5"
+                        className="p-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] text-(--text-secondary) transition-all cursor-pointer"
                         title="Edit"
                       >
-                        <Edit3 size={14} />
+                        <Edit3 size={13} />
                       </button>
                       <button
                         onClick={() => {
@@ -292,10 +286,10 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             if (yes) handleDeleteSub(sub.id!);
                           });
                         }}
-                        className="btn-ghost p-1.5 text-(--text-muted)"
+                        className="p-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] text-(--text-muted) hover:text-red-500 dark:hover:text-red-400 transition-all cursor-pointer"
                         title="Delete"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </div>
