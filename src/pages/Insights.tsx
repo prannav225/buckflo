@@ -37,7 +37,7 @@ export function Insights() {
       <SegmentedControl
         options={["overview", "subscriptions"] as const}
         value={activeTab}
-        onChange={() => setActiveTab}
+        onChange={(val) => setActiveTab(val)}
         idPrefix="tab"
         className="fade-in-up max-w-[320px] mx-auto mb-5"
       />

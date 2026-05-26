@@ -25,6 +25,7 @@ import { useFrequentPresets } from "../hooks/useAnalytics";
 export function Dashboard() {
   const navigate = useNavigate();
   const [showTransfer, setShowTransfer] = useState(false);
+  const [showMonthInit, setShowMonthInit] = useState(false);
   const [transferConfig, setTransferConfig] = useState<{
     direction: "savings_to_expenditure" | "expenditure_to_savings";
     amount: string;
@@ -93,6 +94,7 @@ export function Dashboard() {
             overBudget={overBudget}
             dailyRemaining={dailyRemaining}
             onTopUp={handleTopUp}
+            onSetup={() => setShowMonthInit(true)}
           />
 
           <SavingsQuickCard
@@ -177,10 +179,10 @@ export function Dashboard() {
           />
 
           <MonthInitModal
-            isOpen={monthSetup === null}
+            isOpen={showMonthInit}
             monthYear={monthYear}
-            onSaved={() => {}}
-          />
+            onClose={() => setShowMonthInit(false)}
+            onSaved={() => { setShowMonthInit(false); }} />
         </>
       )}
     </>

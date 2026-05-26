@@ -3,7 +3,7 @@
 
 /* ─── Tailwind v4 ───────────────────────────────────────────────────────────── */
 @import "tailwindcss";
-@dark selector;
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ─── Brand Theme Tokens ────────────────────────────────────────────────────── */
 @theme {

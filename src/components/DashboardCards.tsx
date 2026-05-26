@@ -15,6 +15,7 @@ interface DashboardHeroCardProps {
   overBudget: boolean;
   dailyRemaining: number;
   onTopUp: () => void;
+  onSetup?: () => void;
 }
 
 export function DashboardHeroCard({
@@ -29,6 +30,7 @@ export function DashboardHeroCard({
   overBudget,
   dailyRemaining,
   onTopUp,
+  onSetup,
 }: DashboardHeroCardProps) {
   return (
     <div
@@ -56,7 +58,7 @@ export function DashboardHeroCard({
       </div>
 
       {/* Budget progress */}
-      {monthSetup && budget > 0 && (
+      {monthSetup && budget > 0 ? (
         <div className="mb-4.5">
           <div className="flex justify-between mb-1.5 font-sans text-xs text-white/72 font-medium">
             <span>
@@ -93,7 +95,13 @@ export function DashboardHeroCard({
             )}
           </div>
         </div>
-      )}
+      ) : !monthSetup && onSetup ? (
+        <div className="mb-4.5 relative z-10">
+          <p className="font-sans text-xs text-white/80 mb-0 leading-relaxed">
+            Your month is not set up yet. Initialize it now to track your daily budget and opening balance.
+          </p>
+        </div>
+      ) : null}
 
       {/* Footer row */}
       <div className="flex items-center justify-between">
@@ -103,17 +111,27 @@ export function DashboardHeroCard({
             {daysLeft} day{daysLeft !== 1 ? "s" : ""} remaining
           </span>
         </div>
-        <button
-          onClick={onTopUp}
-          id="btn-load-savings"
-          className={`flex items-center gap-1.5 [backdrop-filter:blur(12px)] [-webkit-backdrop-filter:blur(12px)] rounded-full font-sans text-[0.8125rem] font-semibold py-2 px-4.5 cursor-pointer transition-[background,transform] active:scale-98 tracking-tight ${
-            overBudget
-              ? "bg-white border-none text-[#b82d23] shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
-              : "bg-white/18 border border-white/32 text-white"
-          }`}
-        >
-          <PiggyBank size={14} /> Top up
-        </button>
+        {!monthSetup && onSetup ? (
+          <button
+            onClick={onSetup}
+            id="btn-prompt-setup"
+            className="flex items-center gap-1.5 bg-white text-(--accent-dark) rounded-full font-sans text-[0.8125rem] font-bold py-2 px-4.5 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.12)] active:scale-98 transition-transform outline-none focus:outline-none"
+          >
+            Set Up Now
+          </button>
+        ) : (
+          <button
+            onClick={onTopUp}
+            id="btn-load-savings"
+            className={`flex items-center gap-1.5 [backdrop-filter:blur(12px)] [-webkit-backdrop-filter:blur(12px)] rounded-full font-sans text-[0.8125rem] font-semibold py-2 px-4.5 cursor-pointer transition-[background,transform] active:scale-98 tracking-tight ${
+              overBudget
+                ? "bg-white border-none text-[#b82d23] shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
+                : "bg-white/18 border border-white/32 text-white"
+            }`}
+          >
+            <PiggyBank size={14} /> Top up
+          </button>
+        )}
       </div>
     </div>
   );
@@ -153,6 +171,47 @@ export function SavingsQuickCard({
         </div>
       </div>
       <ChevronRight size={18} className="text-(--text-muted)" />
+    </div>
+  );
+}
+
+/* ── Setup Prompt Card ──────────────────────────────────────────────────────── */
+
+interface SetupPromptCardProps {
+  monthYear: string;
+  onAction: () => void;
+}
+
+export function SetupPromptCard({ monthYear, onAction }: SetupPromptCardProps) {
+  return (
+    <div
+      id="setup-prompt-card"
+      className="hero-card hero-card-orange fade-in-up mb-3 flex flex-col justify-between min-h-[190px] relative overflow-hidden"
+    >
+      <div className="hero-card-orb-lg" />
+      <div className="hero-card-orb-sm" />
+
+      <div className="relative z-10">
+        <span className="font-sans text-[0.6875rem] font-semibold text-white/65 tracking-widest uppercase">
+          Month Initialization
+        </span>
+        <h2 className="font-display text-2xl text-white mt-3 mb-1.5 font-bold tracking-tight">
+          Initialize {formatMonthYear(monthYear)}
+        </h2>
+        <p className="font-sans text-xs text-white/80 max-w-[280px] leading-relaxed">
+          Set up your expenditure budget and opening account balances to begin tracking your cash flow.
+        </p>
+      </div>
+
+      <div className="relative z-10 flex justify-end mt-4">
+        <button
+          onClick={onAction}
+          id="btn-prompt-setup"
+          className="flex items-center gap-1.5 bg-white text-(--accent-dark) rounded-full font-sans text-[0.8125rem] font-bold py-2.5 px-5 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.12)] active:scale-98 transition-transform outline-none focus:outline-none"
+        >
+          Set Up Now
+        </button>
+      </div>
     </div>
   );
 }
