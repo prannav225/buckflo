@@ -107,7 +107,10 @@ function MonthInitContent({
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto pr-1">
+        <form
+          onSubmit={handleSubmit}
+          className="max-h-[70vh] overflow-y-auto pr-1"
+        >
           {/* ── Expenditure ──────────────────────────────── */}
           <SectionHeader
             icon={<Wallet size={15} className="text-(--accent)" />}
@@ -254,14 +257,16 @@ function MonthInitContent({
                 role="checkbox"
                 aria-checked={includeTransfer}
                 tabIndex={0}
-                onKeyDown={(e) => e.key === " " && setIncludeTransfer((v) => !v)}
+                onKeyDown={(e) =>
+                  e.key === " " && setIncludeTransfer((v) => !v)
+                }
                 id="modal-toggle-opening-transfer"
               >
                 <div
-                  className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-all duration-[180ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] shrink-0 ${
+                  className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-all duration-180 ease-[cubic-bezier(0.34,1.56,0.64,1)] shrink-0 ${
                     includeTransfer
-                      ? "border-[var(--accent)] bg-[var(--accent)]"
-                      : "border-[var(--text-muted)] bg-transparent"
+                      ? "border-(--accent) bg-(--accent)"
+                      : "border-(--text-muted) bg-transparent"
                   }`}
                 >
                   {includeTransfer && (
@@ -282,23 +287,17 @@ function MonthInitContent({
               </div>
 
               {includeTransfer && (
-                <div className="form-group p-3.5 bg-[rgba(217,119,87,0.07)] rounded-[var(--r-lg)] border border-[rgba(217,119,87,0.18)]">
+                <div className="form-group p-3.5 bg-(--bg-glass-weak) rounded-(--r-lg) border border-(--accent)/25">
                   <label htmlFor="modal-transfer-amt" className="label">
                     Transfer Amount (₹)
                   </label>
                   <div className="flex items-center gap-2">
-                    <PiggyBank
-                      size={15}
-                      className="text-(--credit) shrink-0"
-                    />
+                    <PiggyBank size={15} className="text-(--credit) shrink-0" />
                     <ArrowRight
                       size={13}
                       className="text-(--text-muted) shrink-0"
                     />
-                    <Wallet
-                      size={15}
-                      className="text-(--accent) shrink-0"
-                    />
+                    <Wallet size={15} className="text-(--accent) shrink-0" />
                     <input
                       id="modal-transfer-amt"
                       type="text"
@@ -306,7 +305,9 @@ function MonthInitContent({
                       placeholder="0.00"
                       value={transferAmount}
                       onChange={(e) => setTransferAmount(e.target.value)}
-                      onBlur={() => handleBlur(transferAmount, setTransferAmount)}
+                      onBlur={() =>
+                        handleBlur(transferAmount, setTransferAmount)
+                      }
                       className="input-field flex-1 !mb-0"
                     />
                   </div>

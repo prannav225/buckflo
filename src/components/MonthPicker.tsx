@@ -35,7 +35,7 @@ export function MonthPicker({
 
   if (compact) {
     return (
-      <div className="month-picker-compact inline-flex items-center bg-(--bg-glass) border border-black/8 dark:border-white/6 rounded-[var(--r-pill)] p-0.5 shadow-[var(--glass-shadow)] [backdrop-filter:var(--glass-blur)] [-webkit-backdrop-filter:var(--glass-blur)]">
+      <div className="month-picker-compact inline-flex items-center bg-(--bg-glass) border border-black/8 dark:border-white/6 rounded-(--r-pill) p-0.5 shadow-(--glass-shadow) [backdrop-filter:var(--glass-blur)] [-webkit-backdrop-filter:var(--glass-blur)]">
         <button
           onClick={goToPrev}
           id={prevId}
@@ -50,8 +50,8 @@ export function MonthPicker({
             <span
               className={`rounded-full px-1.25 py-0.25 text-[0.5625rem] font-bold uppercase tracking-wider ${
                 isSavings
-                  ? "bg-[rgba(90,158,111,0.14)] text-[var(--credit)]"
-                  : "bg-[rgba(217,119,87,0.12)] text-[var(--accent)]"
+                  ? "bg-[rgba(90,158,111,0.14)] text-(--credit)"
+                  : "bg-[rgba(217,119,87,0.12)] text-(--accent)"
               }`}
             >
               Now
@@ -84,8 +84,8 @@ export function MonthPicker({
           <span
             className={`pill ml-2 text-[0.625rem] ${
               isSavings
-                ? "bg-[rgba(90,158,111,0.14)] text-[var(--credit)]"
-                : "bg-[rgba(217,119,87,0.12)] text-[var(--accent)]"
+                ? "bg-[rgba(90,158,111,0.14)] text-(--credit)"
+                : "bg-[rgba(217,119,87,0.12)] text-(--accent)"
             }`}
           >
             Current

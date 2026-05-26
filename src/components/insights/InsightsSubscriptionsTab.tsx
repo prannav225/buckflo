@@ -16,7 +16,6 @@ import { updateSubscription, type Subscription } from "../../db/database";
 import { useConfirm } from "../../hooks/useConfirm";
 import { useSubscriptionLogic } from "../../hooks/useSubscriptionLogic";
 
-
 const formatFrequency = (freq: string): string => {
   const f = freq.toLowerCase();
   if (f === "monthly") return "Monthly";
@@ -172,7 +171,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             ? "bg-[rgba(245,158,11,0.08)] text-[#f59e0b]"
                             : isCancelled
                               ? "bg-[rgba(239,68,68,0.08)] text-[#ef4444]"
-                              : "bg-[rgba(217,119,87,0.08)] text-[var(--accent)]"
+                              : "bg-[rgba(217,119,87,0.08)] text-(--accent)"
                         }`}
                       >
                         <Clock size={18} />
@@ -204,7 +203,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                   </div>
 
                   {/* Middle Row — Due Date & urgency badge */}
-                  <div className="flex justify-between items-center bg-black/[0.03] dark:bg-white/[0.04] px-3 py-2.5 rounded-xl border border-black/[0.08] dark:border-white/[0.08]">
+                  <div className="flex justify-between items-center bg-black/3 dark:bg-white/4 px-3 py-2.5 rounded-xl border border-black/8 dark:border-white/8">
                     <span className="text-[0.75rem] text-(--text-secondary) flex items-center gap-1.5 font-medium">
                       <Calendar size={13} className="text-(--text-muted)" />
                       <span>
@@ -215,7 +214,9 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                       </span>
                     </span>
                     {!isCancelled && !isPaused && (
-                      <span className={`text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full ${badgeClass}`}>
+                      <span
+                        className={`text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full ${badgeClass}`}
+                      >
                         {daysLeft < 0
                           ? "Overdue"
                           : daysLeft === 0
@@ -230,10 +231,10 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                     <div className="flex gap-2">
                       <button
                         onClick={() => toggleStatus(sub)}
-                        className={`text-[0.6875rem] px-2.5 py-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-all flex items-center gap-1 font-medium cursor-pointer ${
+                        className={`text-[0.6875rem] px-2.5 py-1.5 rounded-lg bg-black/3 dark:bg-white/4 border border-black/8 dark:border-white/8 transition-all flex items-center gap-1 font-medium cursor-pointer ${
                           isPaused
-                            ? "text-[var(--credit)]"
-                            : "text-[var(--text-secondary)]"
+                            ? "text-(--credit)"
+                            : "text-(--text-secondary)"
                         }`}
                       >
                         {isPaused ? <Play size={12} /> : <Pause size={12} />}
@@ -252,7 +253,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             toast.error("Failed to update subscription status");
                           }
                         }}
-                        className="text-[0.6875rem] px-2.5 py-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-all flex items-center gap-1 font-medium text-(--text-secondary) cursor-pointer"
+                        className="text-[0.6875rem] px-2.5 py-1.5 rounded-lg bg-black/3 dark:bg-white/4 border border-black/8 dark:border-white/8 transition-all flex items-center gap-1 font-medium text-(--text-secondary) cursor-pointer"
                       >
                         <CheckCircle size={12} />
                         {isCancelled ? "Activate" : "Cancel"}
@@ -262,7 +263,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                     <div className="flex gap-1.5">
                       <button
                         onClick={() => openForm(sub)}
-                        className="p-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] text-(--text-secondary) transition-all cursor-pointer"
+                        className="p-1.5 rounded-lg bg-black/3 dark:bg-white/4 border border-black/8 dark:border-white/8 text-(--text-secondary) transition-all cursor-pointer"
                         title="Edit"
                       >
                         <Edit3 size={13} />
@@ -278,7 +279,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             if (yes) handleDeleteSub(sub.id!);
                           });
                         }}
-                        className="p-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] text-(--text-muted) hover:text-red-500 dark:hover:text-red-400 transition-all cursor-pointer"
+                        className="p-1.5 rounded-lg bg-black/3 dark:bg-white/4 border border-black/8 dark:border-white/8 text-(--text-muted) hover:text-red-500 dark:hover:text-red-400 transition-all cursor-pointer"
                         title="Delete"
                       >
                         <Trash2 size={13} />

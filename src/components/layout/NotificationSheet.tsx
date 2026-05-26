@@ -60,10 +60,10 @@ export function NotificationSheet({
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-xl font-bold tracking-tight m-0 text-[var(--text)]">
+            <h2 className="text-xl font-bold tracking-tight m-0 text-(--text)">
               Notification Hub
             </h2>
-            <p className="m-[3px_0_0] text-[0.8125rem] text-[var(--text-muted)] font-sans">
+            <p className="m-[3px_0_0] text-[0.8125rem] text-(--text-muted) font-sans">
               Smart ledger analysis & alerts
             </p>
           </div>
@@ -80,11 +80,13 @@ export function NotificationSheet({
         <div className="flex-1 overflow-y-auto pr-0.5 notification-list-scroll">
           {alerts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-15 px-5 text-center">
-              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[var(--bg-glass)] border border-black/8 dark:border-white/6 text-[var(--text-muted)] mb-4 shadow-[var(--glass-shadow)]">
+              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-(--bg-glass) border border-black/8 dark:border-white/6 text-(--text-muted) mb-4 shadow-(--glass-shadow)">
                 <Bell size={28} />
               </div>
-              <h4 className="font-sans text-[15px] font-semibold text-[var(--text)] mt-0 mb-1.5">All Systems Nominal</h4>
-              <p className="font-sans text-[0.8125rem] text-[var(--text-muted)] max-w-[240px] m-0 leading-[1.4]">
+              <h4 className="font-sans text-[15px] font-semibold text-(--text) mt-0 mb-1.5">
+                All Systems Nominal
+              </h4>
+              <p className="font-sans text-[0.8125rem] text-(--text-muted) max-w-[240px] m-0 leading-[1.4]">
                 You are operating perfectly within your budget parameters, Sir.
               </p>
             </div>
@@ -93,7 +95,7 @@ export function NotificationSheet({
               {/* System Alerts */}
               {systemAlerts.length > 0 && (
                 <div className="mb-6">
-                  <div className="font-sans text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.06em] mb-2.5">
+                  <div className="font-sans text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] mb-2.5">
                     Critical & Warnings
                   </div>
                   <div className="flex flex-col gap-2.5">
@@ -112,7 +114,7 @@ export function NotificationSheet({
               {/* Upcoming Bills */}
               {bills.length > 0 && (
                 <div className="mb-6">
-                  <div className="font-sans text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.06em] mb-2.5">
+                  <div className="font-sans text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] mb-2.5">
                     Upcoming Bills
                   </div>
                   <div className="flex flex-col gap-2.5">
@@ -131,7 +133,7 @@ export function NotificationSheet({
               {/* Insights */}
               {insights.length > 0 && (
                 <div className="mb-3">
-                  <div className="font-sans text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.06em] mb-2.5">
+                  <div className="font-sans text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] mb-2.5">
                     Smart Insights & Milestones
                   </div>
                   <div className="flex flex-col gap-2.5">
@@ -151,6 +153,6 @@ export function NotificationSheet({
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
