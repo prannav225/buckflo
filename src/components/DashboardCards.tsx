@@ -32,6 +32,7 @@ export function DashboardHeroCard({
 }: DashboardHeroCardProps) {
   return (
     <div
+      id="balance-card"
       className={`hero-card ${
         overBudget ? "hero-card-red" : "hero-card-orange"
       } fade-in-up mb-3`}
@@ -85,7 +86,7 @@ export function DashboardHeroCard({
             ) : (
               <>
                 Daily budget left:{" "}
-                <span className="font-bold">
+                <span id="daily-budget-left" className="font-bold">
                   {formatINR(dailyRemaining)}/day
                 </span>
               </>

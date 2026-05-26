@@ -74,10 +74,10 @@ export function Dashboard() {
     <>
       {monthSetup === undefined ? (
         /* Loading skeletons */
-        <div style={{ padding: "10px 0" }}>
-          <div className="skeleton" style={{ height: 220, marginBottom: 12 }} />
-          <div className="skeleton" style={{ height: 72, marginBottom: 12 }} />
-          <div className="skeleton" style={{ height: 300 }} />
+        <div className="py-2.5 px-0">
+          <div className="skeleton h-[220px] mb-3" />
+          <div className="skeleton h-[72px] mb-3" />
+          <div className="skeleton h-[300px]" />
         </div>
       ) : (
         <>
@@ -102,82 +102,23 @@ export function Dashboard() {
 
           {/* Quick Presets */}
           {presets.length > 0 && (
-            <div
-              className="fade-in-up delay-1"
-              style={{ marginBottom: 20, marginTop: 24 }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 8,
-                }}
-              >
-                <h2
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "var(--text-muted)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    margin: 0,
-                  }}
-                >
+            <div id="quick-presets" className="fade-in-up delay-1 mb-5 mt-6">
+              <div className="flex items-center gap-2 mb-2">
+                <h2 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] m-0">
                   Quick Presets
                 </h2>
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 8,
-                  overflowX: "auto",
-                  paddingBottom: 4,
-                  width: "100%",
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
+              <div className="flex gap-2.5 overflow-x-auto pb-1.5 w-full touch-pan-x">
                 {presets.map((preset, idx) => (
                   <button
                     key={idx}
                     onClick={() => handlePresetClick(preset)}
-                    className="chip"
-                    style={{
-                      flexShrink: 0,
-                      padding: "10px 14px",
-                      borderRadius: "var(--r-md)",
-                      background: "var(--bg-glass-strong)",
-                      border: "var(--glass-border)",
-                      boxShadow: "var(--glass-shadow)",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      gap: 2,
-                      minWidth: 105,
-                      cursor: "pointer",
-                      textAlign: "left",
-                    }}
+                    className="shrink-0 py-3 px-4 rounded-xl bg-(--bg-glass-strong) border border-white/8 dark:border-black/8 transition-all duration-200 ease-out shadow-sm active:translate-y-0 active:scale-[0.98] flex flex-col items-start gap-1 min-w-[110px] cursor-pointer text-left outline-none"
                   >
-                    <span
-                      style={{
-                        fontSize: "0.8125rem",
-                        fontWeight: 600,
-                        color: "var(--text)",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                        width: "100%",
-                      }}
-                    >
+                    <span className="text-xs font-semibold text-(--text) truncate w-full">
                       {preset.description}
                     </span>
-                    <span
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "var(--accent)",
-                        fontWeight: 600,
-                      }}
-                    >
+                    <span className="text-[0.8125rem] font-bold text-(--accent)">
                       {formatINR(preset.amount)}
                     </span>
                   </button>
@@ -187,35 +128,18 @@ export function Dashboard() {
           )}
 
           {/* Recent Transactions */}
-          <div className="fade-in-up delay-2" style={{ marginTop: 32 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "14px",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <h2
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "var(--text-muted)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    margin: 0,
-                  }}
-                >
+          <div className="fade-in-up delay-2 mt-8">
+            <div className="flex justify-between items-center mb-3.5">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] m-0">
                   Recent Transactions
                 </h2>
               </div>
               <button
-                className="btn-ghost"
+                className="btn-ghost text-[0.8125rem] py-1 px-2 gap-0.5"
                 onClick={() =>
                   navigate(`/monthly/transactions?month=${monthYear}`)
                 }
-                style={{ fontSize: "0.8125rem", padding: "4px 8px", gap: 2 }}
                 id="btn-view-all"
               >
                 See all <ChevronRight size={14} />
@@ -231,7 +155,7 @@ export function Dashboard() {
                 </p>
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className="flex flex-col gap-2">
                 {recentTxs.map((tx) => (
                   <TransactionCard
                     key={tx.id}

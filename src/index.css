@@ -3,6 +3,7 @@
 
 /* ─── Tailwind v4 ───────────────────────────────────────────────────────────── */
 @import "tailwindcss";
+@dark selector;
 
 /* ─── Brand Theme Tokens ────────────────────────────────────────────────────── */
 @theme {
@@ -350,48 +351,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: var(--accent);
 }
 
-/* ─── Segmented Control ──────────────────────────────────────────────────────── */
-.seg-control {
-  display: flex;
-  background: rgba(0, 0, 0, 0.07);
-  border-radius: var(--r-pill);
-  padding: 4px;
-  gap: 4px;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) .seg-control {
-    background: rgba(255, 255, 255, 0.09);
-  }
-}
-.dark .seg-control {
-  background: rgba(255, 255, 255, 0.09);
-}
-
-.seg-option {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 13px 16px;
-  border: none;
-  border-radius: var(--r-pill);
-  background: transparent;
-  color: var(--text-muted);
-  font-family: "Inter", sans-serif;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-  letter-spacing: -0.01em;
-}
-.seg-option.active {
-  background: var(--bg-surface);
-  color: var(--text);
-  box-shadow:
-    0 2px 10px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.04);
-}
 
 /* ─── Chip ───────────────────────────────────────────────────────────────────── */
 .chip {
@@ -825,31 +784,6 @@ body.sheet-open .page-header {
   margin: 0;
 }
 
-/* 3. Reusable Custom Checkbox Controls */
-.checkbox-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  padding: 10px 0;
-  user-select: none;
-}
-.checkbox-box {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  border: 2px solid var(--text-muted);
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-  flex-shrink: 0;
-}
-.checkbox-row.checked .checkbox-box {
-  border-color: var(--accent);
-  background: var(--accent);
-}
 
 /* 4. Category Scrolling SUPPRESS Track */
 .chip-scroll::-webkit-scrollbar {
@@ -895,61 +829,7 @@ body.sheet-open .page-header {
   will-change: transform, opacity;
 }
 
-/* ─── Goal Jars CSS ─────────────────────────────────────────────────────────── */
-.goal-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
-}
 
-.goal-card {
-  background: var(--bg-glass);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: var(--r-xl);
-  box-shadow: var(--glass-shadow);
-  padding: 18px 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  position: relative;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background 0.15s ease;
-}
-
-.goal-card:active {
-  background: rgba(0, 0, 0, 0.04);
-}
-:root.dark .goal-card:active {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.goal-card-completed {
-  border-color: rgba(90, 158, 111, 0.3);
-  background: linear-gradient(
-    135deg,
-    rgba(90, 158, 111, 0.03) 0%,
-    var(--bg-glass) 100%
-  );
-}
-
-/* Pulsing Badge Dot */
-.bell-badge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 7px;
-  height: 7px;
-  background-color: var(--debit);
-  border-radius: 50%;
-  box-shadow: 0 0 0 0 rgba(217, 119, 87, 0.7);
-  animation: pulse-glow 2s infinite;
-}
 
 @keyframes pulse-glow {
   0% {
@@ -981,4 +861,28 @@ body.sheet-open .page-header {
 .notification-list-scroll::-webkit-scrollbar-thumb {
   background-color: var(--border);
   border-radius: var(--r-pill);
+}
+
+/* ─── Onboarding & Tooltip Animations ────────────────────────────────────────── */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(0.98); }
+}
+
+@keyframes progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
 }

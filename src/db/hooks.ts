@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   db,
@@ -158,3 +159,46 @@ export function useMonthSummary(
 export function useSubscriptions(): Subscription[] {
   return useLiveQuery(() => db.subscriptions.toArray(), [], []);
 }
+
+// ─── Opening Balance Reconstructor ───────────────────────────────────────────
+
+export function useOpeningBalanceReconstructor(
+  accountId: number | undefined,
+  monthYear: string,
+): number {
+  const currentBalance = useLiveQuery(
+    async () => {
+      if (!accountId) return 0;
+      const acc = await db.accounts.get(accountId);
+      return acc?.currentBalance ?? 0;
+    },
+    [accountId],
+    0,
+  );
+
+  const txsSinceStart = useLiveQuery(
+    async () => {
+      if (!accountId) return [];
+      const [year, month] = monthYear.split("-").map(Number);
+      const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+      return db.transactions
+        .where("accountId")
+        .equals(accountId)
+        .filter((tx) => tx.date >= startDate)
+        .toArray();
+    },
+    [accountId, monthYear],
+    [],
+  );
+
+  const openingBalance = useMemo(() => {
+    let bal = currentBalance;
+    for (const tx of txsSinceStart) {
+      bal = tx.type === "credit" ? bal - tx.amount : bal + tx.amount;
+    }
+    return +bal.toFixed(2);
+  }, [currentBalance, txsSinceStart]);
+
+  return openingBalance;
+}
+

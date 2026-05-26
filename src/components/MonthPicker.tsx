@@ -30,10 +30,6 @@ export function MonthPicker({
     }
   };
 
-  const pillBackground = isSavings
-    ? "rgba(90,158,111,0.14)"
-    : "rgba(217,119,87,0.12)";
-  const pillColor = isSavings ? "var(--credit)" : "var(--accent)";
   const prevId = isSavings ? "savings-btn-prev-month" : "btn-prev-month";
   const nextId = isSavings ? "savings-btn-next-month" : "btn-next-month";
 
@@ -52,8 +48,11 @@ export function MonthPicker({
           {formatMonthYear(monthYear)}
           {isCurrentMonth && (
             <span
-              style={{ background: pillBackground, color: pillColor }}
-              className="rounded-full px-1.25 py-0.25 text-[0.5625rem] font-bold uppercase tracking-wider"
+              className={`rounded-full px-1.25 py-0.25 text-[0.5625rem] font-bold uppercase tracking-wider ${
+                isSavings
+                  ? "bg-[rgba(90,158,111,0.14)] text-[var(--credit)]"
+                  : "bg-[rgba(217,119,87,0.12)] text-[var(--accent)]"
+              }`}
             >
               Now
             </span>
@@ -83,8 +82,11 @@ export function MonthPicker({
         {formatMonthYear(monthYear)}
         {isCurrentMonth && (
           <span
-            className="pill ml-2 text-[0.625rem]"
-            style={{ background: pillBackground, color: pillColor }}
+            className={`pill ml-2 text-[0.625rem] ${
+              isSavings
+                ? "bg-[rgba(90,158,111,0.14)] text-[var(--credit)]"
+                : "bg-[rgba(217,119,87,0.12)] text-[var(--accent)]"
+            }`}
           >
             Current
           </span>

@@ -30,7 +30,7 @@ export function BudgetOverviewCard({
       <h3 className="text-xs font-semibold mb-3 text-(--text-secondary) uppercase tracking-[0.04em]">
         {hasCatBudgets ? "Category Budgets" : "Category Spend"}
       </h3>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 mt-3">
         {sortedCategories.map(({ name, amount }) => {
           const catLimit = catBudgets?.[name];
           const hasBudget = catLimit !== undefined && catLimit > 0;

@@ -4,6 +4,7 @@ import { updateSheetOpenState } from "../utils/modalHelper";
 import { InsightsOverviewTab } from "../components/insights/InsightsOverviewTab";
 import { InsightsSubscriptionsTab } from "../components/insights/InsightsSubscriptionsTab";
 import { SubscriptionFormSheet } from "../components/insights/SubscriptionFormSheet";
+import { SegmentedControl } from "../components/ui/SegmentedControl";
 
 export function Insights() {
   const [activeTab, setActiveTab] = useState<"overview" | "subscriptions">(
@@ -33,22 +34,13 @@ export function Insights() {
       </div>
 
       {/* ── Navigation Tabs ──────────────────────────────────────────────── */}
-      <div className="seg-control fade-in-up" style={{ marginBottom: 20 }}>
-        <button
-          type="button"
-          className={`seg-option ${activeTab === "overview" ? "active" : ""}`}
-          onClick={() => setActiveTab("overview")}
-        >
-          Overview
-        </button>
-        <button
-          type="button"
-          className={`seg-option ${activeTab === "subscriptions" ? "active" : ""}`}
-          onClick={() => setActiveTab("subscriptions")}
-        >
-          Subscriptions
-        </button>
-      </div>
+      <SegmentedControl
+        options={["overview", "subscriptions"] as const}
+        value={activeTab}
+        onChange={setActiveTab}
+        idPrefix="tab"
+        className="fade-in-up max-w-[320px] mx-auto mb-5"
+      />
 
       {/* ── Tab Content ─────────────────────────────────────────── */}
       {activeTab === "overview" && <InsightsOverviewTab />}

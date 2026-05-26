@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PiggyBank, Download, Plus, Target, ChevronRight } from 'lucide-react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type SavingGoal } from '../db/database';
-import { useAccount, useTransactions, useRunningBalances, useMonthSummary } from '../db/hooks';
+import { type SavingGoal } from '../db/database';
+import { useAccount, useTransactions, useRunningBalances, useMonthSummary, useOpeningBalanceReconstructor } from '../db/hooks';
 import { TransactionCard } from '../components/transactions/TransactionRow';
 import { MonthPicker } from '../components/MonthPicker';
 import { formatINR } from '../utils/currency';
@@ -13,6 +12,7 @@ import { CreateGoalSheet } from '../components/savings/CreateGoalSheet';
 import { ManageGoalSheet } from '../components/savings/ManageGoalSheet';
 import { SavingsGoalCard } from '../components/savings/SavingsGoalCard';
 import { useSavingsGoals } from '../hooks/useSavingsGoals';
+import { Tooltip } from '../components/ui/Tooltip';
 
 export function SavingsView() {
   const navigate = useNavigate();
@@ -30,31 +30,7 @@ export function SavingsView() {
     setSearchParams({ month: newMonth }, { replace: true });
   };
 
-  // Fetch all savings transactions from the 1st of the selected month to today
-  const txsSinceStart = useLiveQuery(
-    async () => {
-      if (!savingsAcc?.id) return [];
-      const [year, month] = monthYear.split('-').map(Number);
-      const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-      return db.transactions
-        .where('accountId')
-        .equals(savingsAcc.id)
-        .filter(tx => tx.date >= startDate)
-        .toArray();
-    },
-    [savingsAcc?.id, monthYear],
-    []
-  );
-
-  // Reconstruct opening balance
-  const openingBalance = (() => {
-    if (!savingsAcc) return 0;
-    let bal = savingsAcc.currentBalance;
-    for (const tx of txsSinceStart) {
-      bal = tx.type === 'credit' ? bal - tx.amount : bal + tx.amount;
-    }
-    return +bal.toFixed(2);
-  })();
+  const openingBalance = useOpeningBalanceReconstructor(savingsAcc?.id, monthYear);
 
   const runningBalances = useRunningBalances(transactions, openingBalance);
   const summary = useMonthSummary(transactions, openingBalance);
@@ -79,8 +55,8 @@ export function SavingsView() {
   return (
     <>
       {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="sub-header fade-in-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <h2 className="sub-header-title" style={{ margin: 0 }}>Savings</h2>
+      <div className="sub-header fade-in-up flex items-center justify-between mb-2">
+        <h2 className="sub-header-title m-0">Savings</h2>
         <button
           className="btn-ghost"
           onClick={handleExport}
@@ -94,32 +70,24 @@ export function SavingsView() {
       </div>
 
       {/* ── Compact Month Filter ────────────────────────────────────────── */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }} className="fade-in-up">
+      <div className="fade-in-up flex justify-center mb-4">
         <MonthPicker monthYear={monthYear} onChange={handleMonthChange} isSavings={true} compact={true} />
       </div>
 
       {/* ── Balance Hero ──────────────────────────────────────────────────── */}
-      <div className="hero-card hero-card-green fade-in-up" style={{ marginBottom: 12 }}>
+      <div className="hero-card hero-card-green fade-in-up mb-3">
         <div className="hero-card-orb-lg" />
         <div className="hero-card-orb-sm" />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+        <div className="flex items-center gap-2 mb-1.5">
           <PiggyBank size={14} color="rgba(255,255,255,0.65)" />
-          <span style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '0.6875rem',
-            fontWeight: 600,
-            color: 'rgba(255,255,255,0.65)',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-          }}>
+          <span className="font-sans text-[0.6875rem] font-semibold text-[rgba(255,255,255,0.65)] tracking-[0.08em] uppercase">
             {isCurrentMonth ? 'Savings Balance' : 'Savings Closing Balance'}
           </span>
         </div>
 
         <div
-          className="amount-display"
-          style={{ fontSize: 'clamp(2.25rem, 10vw, 3rem)', color: '#fff' }}
+          className="amount-display text-[clamp(2.25rem,10vw,3rem)] text-white"
         >
           {formatINR(isCurrentMonth ? currentSavingsBalance : summary.closingBalance)}
         </div>
@@ -127,68 +95,49 @@ export function SavingsView() {
 
       {/* ── Savings Goal Jars ────────────────────────────────────────────── */}
       {isCurrentMonth && (
-        <div className="fade-in-up delay-1" style={{ marginBottom: 20, marginTop: 24 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <h3 style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: 'var(--text-muted)',
-                margin: 0,
-              }}>
+        <div id="goal-jars-section" className="fade-in-up delay-1 mb-5 mt-6">
+          <div className="flex justify-between items-center mb-2.5">
+            <div className="flex items-center gap-2">
+              <h3 className="text-[11px] font-semibold tracking-[0.06em] uppercase text-(--text-muted) m-0 flex items-center gap-1">
                 Goal Jars
+                <Tooltip id="tooltip_goal_jars" text="Allocate portions of your savings toward specific goals. Tap + Add Jar to create one." preferredPosition="top" />
               </h3>
             </div>
             <button
               onClick={() => setIsCreateOpen(true)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--accent)',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '4px 8px',
-                borderRadius: 'var(--r-sm)'
-              }}
-              className="btn-ghost"
+              className="btn-ghost bg-transparent border-none text-(--accent) text-[0.8125rem] font-semibold cursor-pointer flex items-center gap-1 py-1 px-2 rounded-(--r-sm)"
             >
               <Plus size={14} /> Add Jar
             </button>
           </div>
 
           {/* Unallocated balance card */}
-          <div className="glass-card" style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div id="unallocated-savings" className="glass-card py-3.5 px-[18px] flex justify-between items-center mb-3">
             <div>
-              <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500, marginBottom: 2 }}>
+              <div className="font-sans text-xs text-(--text-muted) font-medium mb-[2px]">
                 Unallocated Savings
               </div>
-              <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: '1.5rem', fontWeight: 600, color: 'var(--text)' }}>
+              <div className="font-['Instrument_Serif',_Georgia,_serif] text-2xl font-semibold text-(--text)">
                 {formatINR(unallocatedBalance)}
               </div>
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right' }}>
-              <div>Total Allocated</div>
-              <div style={{ fontWeight: 600, color: 'var(--text)' }}>{formatINR(totalAllocated)}</div>
-            </div>
+            <div className="text-xs text-(--text-muted) text-right">
+                <div>Total Allocated</div>
+                <div className="font-semibold text-(--text)">{formatINR(totalAllocated)}</div>
+              </div>
           </div>
 
           {/* Goal Grid */}
           {savingGoals.length === 0 ? (
-            <div className="glass-card empty-state" style={{ padding: '24px 16px', minHeight: 'auto' }}>
-              <Target size={28} className="empty-state-icon" style={{ opacity: 0.6 }} />
-              <p className="empty-state-title" style={{ fontSize: '0.875rem' }}>No goal jars yet</p>
-              <p className="empty-state-desc" style={{ fontSize: '0.75rem', maxWidth: '240px', margin: '4px auto 0' }}>
+            <div className="glass-card empty-state py-6 px-4 min-h-[auto]">
+              <Target size={28} className="empty-state-icon opacity-60" />
+              <p className="empty-state-title text-sm">No goal jars yet</p>
+              <p className="empty-state-desc text-xs max-w-[240px] mt-1 mx-auto mb-0">
                 Partition your savings into visual jars to track specific targets.
               </p>
             </div>
           ) : (
-            <div className="goal-grid">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(135px,1fr))] gap-3 mt-3">
               {savingGoals.map((goal) => (
                 <SavingsGoalCard
                   key={goal.id}
@@ -202,43 +151,27 @@ export function SavingsView() {
       )}
 
       {/* ── Summary ──────────────────────────────────────────────────────── */}
-      <div className={`fade-in-up ${summaryDelay}`} style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 4px',
-        marginBottom: 14,
-        fontSize: '0.8125rem',
-        color: 'var(--text-muted)'
-      }}>
+      <div className={`fade-in-up ${summaryDelay} flex items-center justify-between py-0 px-1 mb-3.5 text-[0.8125rem] text-(--text-muted)`}>
         <div>
-          Transferred Out: <span className="amount-debit" style={{ fontWeight: 600, marginLeft: 2 }}>{formatINR(summary.totalDebited)}</span>
+          Transferred Out: <span className="amount-debit font-semibold ml-[2px]">{formatINR(summary.totalDebited)}</span>
         </div>
         <div>
-          Credited In: <span className="amount-credit" style={{ fontWeight: 600, marginLeft: 2 }}>{formatINR(summary.totalCredited)}</span>
+          Credited In: <span className="amount-credit font-semibold ml-[2px]">{formatINR(summary.totalCredited)}</span>
         </div>
       </div>
 
       {/* ── Transaction List ──────────────────────────────────────────────── */}
-      <div className={`fade-in-up ${listDelay}`} style={{ marginTop: 32 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <h3 style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              color: 'var(--text-muted)',
-              margin: 0
-            }}>
+      <div className={`fade-in-up ${listDelay} mt-8`}>
+        <div className="flex justify-between items-center mb-3.5">
+          <div className="flex items-center gap-2">
+            <h3 className="text-[11px] font-semibold tracking-[0.06em] uppercase text-(--text-muted) m-0">
               Savings Transactions
             </h3>
           </div>
           {transactions.length > 0 && (
             <button
-              className="btn-ghost"
+              className="btn-ghost text-[0.8125rem] py-1 px-2 gap-0.5 flex items-center"
               onClick={() => navigate(`/monthly/transactions?month=${monthYear}&tab=savings`)}
-              style={{ fontSize: '0.8125rem', padding: '4px 8px', gap: 2, display: 'flex', alignItems: 'center' }}
               id="btn-view-all-savings"
             >
               See all ({transactions.length}) <ChevronRight size={14} />
@@ -254,7 +187,7 @@ export function SavingsView() {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div className="flex flex-col gap-2">
             {displayedTransactions.map((tx, i) => {
               const originalIndex = getOriginalIndex(i);
               return (

@@ -1,27 +1,47 @@
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Download } from 'lucide-react';
-import { useAccount, useMonthSetup, useTransactions, useRunningBalances, useMonthSummary } from '../db/hooks';
-import { MonthPicker } from '../components/MonthPicker';
-import { MonthInitModal } from '../components/MonthInitModal';
-import { formatINR } from '../utils/currency';
-import { getCurrentMonthYear, formatMonthYear } from '../utils/dateUtils';
-import { exportTransactionsCSV } from '../utils/csvExport';
-import { useHistoricalData } from '../hooks/useAnalytics';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
-import { BudgetOverviewCard } from '../components/monthly/BudgetOverviewCard';
-import { RecentTransactionsList } from '../components/monthly/RecentTransactionsList';
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Download } from "lucide-react";
+import {
+  useAccount,
+  useMonthSetup,
+  useTransactions,
+  useRunningBalances,
+  useMonthSummary,
+} from "../db/hooks";
+import { MonthPicker } from "../components/MonthPicker";
+import { MonthInitModal } from "../components/MonthInitModal";
+import { formatINR } from "../utils/currency";
+import { getCurrentMonthYear, formatMonthYear } from "../utils/dateUtils";
+import { exportTransactionsCSV } from "../utils/csvExport";
+import { useHistoricalData } from "../hooks/useAnalytics";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
+import { RecentTransactionsList } from "../components/monthly/RecentTransactionsList";
+import { Tooltip as UITooltip } from "../components/ui/Tooltip";
 
 export function MonthlyView() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const monthYear = searchParams.get('month') || getCurrentMonthYear();
+  const monthYear = searchParams.get("month") || getCurrentMonthYear();
   const isCurrentMonth = monthYear === getCurrentMonthYear();
 
-  const expendAcc   = useAccount('expenditure');
-  const monthSetup  = useMonthSetup(monthYear);
+  const expendAcc = useAccount("expenditure");
+  const monthSetup = useMonthSetup(monthYear);
   const transactions = useTransactions(expendAcc?.id, monthYear);
-  const runningBalances = useRunningBalances(transactions, monthSetup?.openingBalance ?? 0);
-  const summary = useMonthSummary(transactions, monthSetup?.openingBalance ?? 0);
+  const runningBalances = useRunningBalances(
+    transactions,
+    monthSetup?.openingBalance ?? 0,
+  );
+  const summary = useMonthSummary(
+    transactions,
+    monthSetup?.openingBalance ?? 0,
+  );
 
   const [isChartExpanded, setIsChartExpanded] = useState(false);
   const historicalData = useHistoricalData(6);
@@ -38,8 +58,8 @@ export function MonthlyView() {
   let totalExpense = 0;
 
   for (const tx of transactions) {
-    if (tx.type === 'debit') {
-      const cat = tx.category || 'Other';
+    if (tx.type === "debit") {
+      const cat = tx.category || "Other";
       categorySpend[cat] = (categorySpend[cat] || 0) + tx.amount;
       totalExpense += tx.amount;
     }
@@ -56,8 +76,8 @@ export function MonthlyView() {
   return (
     <>
       {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="sub-header fade-in-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <h2 className="sub-header-title" style={{ margin: 0 }}>Monthly</h2>
+      <div className="sub-header fade-in-up flex items-center justify-between mb-2">
+        <h2 className="sub-header-title m-0">Monthly</h2>
         <button
           className="btn-ghost"
           onClick={handleExport}
@@ -71,52 +91,100 @@ export function MonthlyView() {
       </div>
 
       {/* ── Compact Month Filter ────────────────────────────────────────── */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }} className="fade-in-up">
-        <MonthPicker monthYear={monthYear} onChange={handleMonthChange} compact={true} />
+      <div className="fade-in-up flex justify-center mb-4">
+        <MonthPicker
+          monthYear={monthYear}
+          onChange={handleMonthChange}
+          compact={true}
+        />
       </div>
 
       {/* ── Summary Cards ────────────────────────────────────────────────── */}
       {monthSetup ? (
         <>
           {/* Collapsible Spending Trend Chart */}
-          <div
-            className="glass-card fade-in-up delay-1"
-            style={{ marginBottom: 12, padding: '12px 18px', cursor: 'pointer' }}
-          >
+          <div className="glass-card fade-in-up delay-1 mb-3 py-3 px-[18px] cursor-pointer">
             <div
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              id="trend-chart-header"
+              className="flex items-start justify-between gap-3"
               onClick={() => setIsChartExpanded(!isChartExpanded)}
             >
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span className="text-xs font-semibold text-(--text-secondary) uppercase tracking-wider leading-[1.4]">
                 Spending Trend (6 Months)
+                <span className="inline-flex ml-[6px] align-bottom translate-y-px">
+                  <UITooltip
+                    id="tooltip_trend_chart"
+                    text="Tap to expand your 6-month spending trend."
+                    preferredPosition="top"
+                  />
+                </span>
               </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 600 }}>
-                {isChartExpanded ? 'Hide Chart' : 'Show Trend'}
+              <span className="text-xs text-(--accent) font-semibold whitespace-nowrap pt-px">
+                {isChartExpanded ? "Hide Chart" : "Show Trend"}
               </span>
             </div>
             {isChartExpanded && historicalData.length > 0 && (
-              <div style={{ height: 160, marginTop: 12, width: '100%' }} onClick={(e) => e.stopPropagation()}>
+              <div
+                className="h-[160px] mt-3 w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={historicalData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                  <AreaChart
+                    data={historicalData}
+                    margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
+                  >
                     <defs>
-                      <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="var(--accent)" stopOpacity={0}/>
+                      <linearGradient
+                        id="colorSpend"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="var(--accent)"
+                          stopOpacity={0.2}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="var(--accent)"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     </defs>
-                    <XAxis dataKey="label" stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} />
-                    <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}`} />
+                    <XAxis
+                      dataKey="label"
+                      stroke="var(--text-muted)"
+                      fontSize={10}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="var(--text-muted)"
+                      fontSize={10}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(v) => `₹${v}`}
+                    />
                     <Tooltip
-                      formatter={(value) => [formatINR(Number(value)), 'Spend']}
+                      formatter={(value) => [formatINR(Number(value)), "Spend"]}
                       contentStyle={{
-                        background: 'var(--bg-glass-strong)',
-                        border: 'var(--glass-border)',
-                        borderRadius: 'var(--r-md)',
-                        color: 'var(--text)',
-                        fontSize: '12px',
+                        background: "var(--bg-glass-strong)",
+                        border: "var(--glass-border)",
+                        borderRadius: "var(--r-md)",
+                        color: "var(--text)",
+                        fontSize: "12px",
                       }}
                     />
-                    <Area type="monotone" dataKey="totalDebited" stroke="var(--accent)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorSpend)" />
+                    <Area
+                      type="monotone"
+                      dataKey="totalDebited"
+                      stroke="var(--accent)"
+                      strokeWidth={2.5}
+                      fillOpacity={1}
+                      fill="url(#colorSpend)"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -124,49 +192,44 @@ export function MonthlyView() {
           </div>
 
           {/* Consolidated 2x2 Summary Card */}
-          <div className="glass-card fade-in-up delay-1" style={{ marginBottom: 12, overflow: 'hidden' }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '12px 18px 8px',
-              borderBottom: '1px solid var(--border)',
-            }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div className="glass-card fade-in-up delay-1 mb-3 overflow-hidden">
+            <div className="flex items-center justify-between pt-3 pb-2 px-[18px] border-b border-(--border)">
+              <span className="text-xs font-semibold text-(--text-secondary) uppercase tracking-wider">
                 Summary
               </span>
-              <button
-                className="btn-ghost"
-                onClick={() => setShowEditModal(true)}
-                style={{ fontSize: '0.75rem', padding: '2px 8px', height: 'auto', minHeight: 'unset' }}
-                id="btn-edit-setup"
-              >
-                Edit Setup
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  className="btn-ghost text-xs py-0.5 px-2 h-auto min-h-[unset]"
+                  onClick={() => setShowEditModal(true)}
+                  id="btn-edit-setup"
+                >
+                  Edit Setup
+                </button>
+              </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '0 12px 12px 12px' }}>
-              <div style={{ padding: '12px', background: 'rgba(0,0,0,0.02)', borderRadius: 'var(--r-md)' }}>
-                <div className="label" style={{ marginBottom: 2 }}>Opening Balance</div>
-                <div className="amount-display" style={{ fontSize: '1.25rem' }}>
+            <div className="grid grid-cols-2 gap-2 pt-0 pb-3 px-3">
+              <div className="p-3 bg-[rgba(0,0,0,0.02)] rounded-(--r-md)">
+                <div className="label mb-[2px]">Opening Balance</div>
+                <div className="amount-display text-xl">
                   {formatINR(monthSetup.openingBalance)}
                 </div>
               </div>
-              <div style={{ padding: '12px', background: 'rgba(0,0,0,0.02)', borderRadius: 'var(--r-md)' }}>
-                <div className="label" style={{ marginBottom: 2 }}>Monthly Budget</div>
-                <div className="amount-display" style={{ fontSize: '1.25rem' }}>
+              <div className="p-3 bg-[rgba(0,0,0,0.02)] rounded-(--r-md)">
+                <div className="label mb-[2px]">Monthly Budget</div>
+                <div className="amount-display text-xl">
                   {formatINR(monthSetup.monthlyBudget)}
                 </div>
               </div>
-              <div style={{ padding: '12px', background: 'rgba(224, 85, 69, 0.04)', borderRadius: 'var(--r-md)' }}>
-                <div className="label" style={{ marginBottom: 2 }}>Total Debited</div>
-                <div className="amount-display amount-debit" style={{ fontSize: '1.25rem' }}>
+              <div className="p-3 bg-[rgba(224,85,69,0.04)] rounded-(--r-md)">
+                <div className="label mb-[2px]">Total Debited</div>
+                <div className="amount-display amount-debit text-xl">
                   {formatINR(summary.totalDebited)}
                 </div>
               </div>
-              <div style={{ padding: '12px', background: 'rgba(90, 158, 111, 0.04)', borderRadius: 'var(--r-md)' }}>
-                <div className="label" style={{ marginBottom: 2 }}>Total Credited</div>
-                <div className="amount-display amount-credit" style={{ fontSize: '1.25rem' }}>
+              <div className="p-3 bg-[rgba(90,158,111,0.04)] rounded-(--r-md)">
+                <div className="label mb-[2px]">Total Credited</div>
+                <div className="amount-display amount-credit text-xl">
                   {formatINR(summary.totalCredited)}
                 </div>
               </div>
@@ -174,42 +237,48 @@ export function MonthlyView() {
           </div>
 
           {/* Closing / Running balance */}
-          <div className="glass-card fade-in-up delay-2"
-            style={{ padding: '16px 20px', marginBottom: 12, textAlign: 'center' }}
-          >
-            <div className="label" style={{ textAlign: 'center', marginBottom: 4 }}>
-              {isCurrentMonth ? 'Running Balance' : 'Closing Balance'}
+          <div className="glass-card fade-in-up delay-2 py-4 px-5 mb-3 text-center">
+            <div className="label text-center mb-1">
+              {isCurrentMonth ? "Running Balance" : "Closing Balance"}
             </div>
             <div
-              className="amount-display"
-              style={{
-                fontSize: '2rem',
-                color: summary.closingBalance < 0 ? 'var(--debit)' : 'var(--text)',
-              }}
+              id="running-balance-value"
+              className={`amount-display text-[2rem] ${
+                summary.closingBalance < 0 ? "text-(--debit)" : "text-(--text)"
+              }`}
             >
               {formatINR(summary.closingBalance)}
             </div>
           </div>
 
           {/* Category-wise Spend Chart */}
-          <BudgetOverviewCard
-            sortedCategories={sortedCategories}
-            monthSetup={monthSetup}
-            totalExpense={totalExpense}
-          />
+          <div id="category-budget-bars" className="relative">
+            <div className="absolute top-4 right-4 z-10">
+              <UITooltip
+                id="tooltip_category_budget"
+                text="Set per-category limits in Edit Setup. Bar turns red when you're close to the cap."
+                preferredPosition="top"
+              />
+            </div>
+            <BudgetOverviewCard
+              sortedCategories={sortedCategories}
+              monthSetup={monthSetup}
+              totalExpense={totalExpense}
+            />
+          </div>
         </>
       ) : (
-        <div className="glass-card fade-in-up delay-1" style={{ marginBottom: 12, textAlign: 'center', padding: '28px 20px' }}>
-          <p style={{ color: 'var(--text-secondary)', margin: '0 0 14px 0', fontSize: '0.875rem' }}>
-            No budget or opening balance setup found for {formatMonthYear(monthYear)}.
+        <div className="glass-card fade-in-up delay-1 mb-3 text-center py-[28px] px-5">
+          <p className="text-(--text-secondary) m-0 mb-[14px] text-sm">
+            No budget or opening balance setup found for{" "}
+            {formatMonthYear(monthYear)}.
           </p>
           <button
-            className="btn-primary"
+            className="btn-primary text-[0.8125rem] py-2.5 px-5"
             onClick={() => setShowInitModal(true)}
-            style={{ fontSize: '0.8125rem', padding: '10px 20px' }}
             id="btn-init-month"
           >
-            Configure {formatMonthYear(monthYear).split(' ')[0]} Setup
+            Configure {formatMonthYear(monthYear).split(" ")[0]} Setup
           </button>
         </div>
       )}

@@ -7,6 +7,7 @@ import {
   type Subscription,
 } from "../../db/database";
 import { CATEGORIES } from "../../utils/categories";
+import { SegmentedControl } from "../ui/SegmentedControl";
 
 interface Props {
   showFormModal: boolean;
@@ -21,12 +22,20 @@ export function SubscriptionFormSheet({
 }: Props) {
   // Form states
   const [formName, setFormName] = useState(editingSub ? editingSub.name : "");
-  const [formAmount, setFormAmount] = useState(editingSub ? editingSub.amount.toString() : "");
+  const [formAmount, setFormAmount] = useState(
+    editingSub ? editingSub.amount.toString() : "",
+  );
   const [formFrequency, setFormFrequency] = useState<
     "weekly" | "monthly" | "yearly"
   >(editingSub ? editingSub.frequency : "monthly");
-  const [formDueDate, setFormDueDate] = useState(editingSub ? editingSub.nextDueDate : new Date().toISOString().split("T")[0]);
-  const [formCategory, setFormCategory] = useState(editingSub ? editingSub.category : "Bills");
+  const [formDueDate, setFormDueDate] = useState(
+    editingSub
+      ? editingSub.nextDueDate
+      : new Date().toISOString().split("T")[0],
+  );
+  const [formCategory, setFormCategory] = useState(
+    editingSub ? editingSub.category : "Bills",
+  );
   const [formStatus, setFormStatus] = useState<
     "active" | "cancelled" | "paused"
   >(editingSub ? editingSub.status : "active");
@@ -176,24 +185,16 @@ export function SubscriptionFormSheet({
             </div>
           </div>
 
-          {/* Status & Notes */}
+          {/* Status */}
           <div className="form-group">
             <span className="label">Status</span>
-            <div className="seg-control p-[3px] gap-[3px]">
-              {(["active", "paused", "cancelled"] as const).map((st) => (
-                <button
-                  key={st}
-                  type="button"
-                  onClick={() => setFormStatus(st)}
-                  className={`seg-option ${formStatus === st ? "active" : ""} px-2.5 py-1.5 text-xs rounded-full`}
-                  style={{
-                    boxShadow: formStatus === st ? undefined : "none",
-                  }}
-                >
-                  {st.toUpperCase()}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl
+              options={["active", "paused", "cancelled"] as const}
+              value={formStatus}
+              onChange={setFormStatus}
+              idPrefix="status"
+              className="max-w-[320px]"
+            />
           </div>
 
           <div className="form-group">

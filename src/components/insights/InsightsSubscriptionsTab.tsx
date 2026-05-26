@@ -159,28 +159,21 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
               return (
                 <div
                   key={sub.id}
-                  className="glass-card px-4 py-4 flex flex-col gap-3.5 transition-all duration-200 hover:shadow-md"
-                  style={{
-                    opacity: isPaused || isCancelled ? 0.75 : 1,
-                  }}
+                  className={`glass-card px-4 py-4 flex flex-col gap-3.5 transition-all duration-200 hover:shadow-md ${
+                    isPaused || isCancelled ? "opacity-75" : "opacity-100"
+                  }`}
                 >
                   {/* Top Row */}
                   <div className="flex items-start justify-between gap-2.5">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors"
-                        style={{
-                          background: isPaused
-                            ? "rgba(245, 158, 11, 0.08)"
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                          isPaused
+                            ? "bg-[rgba(245,158,11,0.08)] text-[#f59e0b]"
                             : isCancelled
-                              ? "rgba(239, 68, 68, 0.08)"
-                              : "rgba(217, 119, 87, 0.08)",
-                          color: isPaused
-                            ? "var(--warning, #f59e0b)"
-                            : isCancelled
-                              ? "var(--danger, #ef4444)"
-                              : "var(--accent)",
-                        }}
+                              ? "bg-[rgba(239,68,68,0.08)] text-[#ef4444]"
+                              : "bg-[rgba(217,119,87,0.08)] text-[var(--accent)]"
+                        }`}
                       >
                         <Clock size={18} />
                       </div>
@@ -237,12 +230,11 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                     <div className="flex gap-2">
                       <button
                         onClick={() => toggleStatus(sub)}
-                        className="text-[0.6875rem] px-2.5 py-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-all flex items-center gap-1 font-medium cursor-pointer"
-                        style={{
-                          color: isPaused
-                            ? "var(--credit)"
-                            : "var(--text-secondary)",
-                        }}
+                        className={`text-[0.6875rem] px-2.5 py-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-all flex items-center gap-1 font-medium cursor-pointer ${
+                          isPaused
+                            ? "text-[var(--credit)]"
+                            : "text-[var(--text-secondary)]"
+                        }`}
                       >
                         {isPaused ? <Play size={12} /> : <Pause size={12} />}
                         {isPaused ? "Resume" : "Pause"}

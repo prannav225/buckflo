@@ -13,6 +13,7 @@ import { useTransactionForm } from "../hooks/useTransactionForm";
 import { useConfirm } from "../hooks/useConfirm";
 import { formatINR } from "../utils/currency";
 import { CustomDatePicker } from "../components/CustomDatePicker";
+import { SegmentedControl } from "../components/ui/SegmentedControl";
 
 import { CATEGORIES } from "../utils/categories";
 
@@ -53,24 +54,8 @@ export function AddEditTransaction() {
 
   if (fetching) {
     return (
-      <div
-        style={{
-          minHeight: "80dvh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            border: "3px solid var(--border)",
-            borderTopColor: "var(--accent)",
-            borderRadius: "50%",
-            animation: "spin 0.8s linear infinite",
-          }}
-        />
+      <div className="min-h-[80dvh] flex items-center justify-center">
+        <div className="w-8 h-8 border-3 border-(--border) border-t-(--accent) rounded-full animate-spin" />
       </div>
     );
   }
@@ -80,42 +65,25 @@ export function AddEditTransaction() {
   return (
     <>
       {/* ── Page Header ─────────────────────────────────────────────────── */}
-      <div
-        className="sub-header fade-in-up"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 12,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div className="sub-header fade-in-up flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            className="btn-ghost"
+            className="btn-ghost p-1.5 rounded-full min-h-0 h-auto flex items-center justify-center"
             onClick={() => navigate(-1)}
-            style={{
-              padding: "6px",
-              borderRadius: "50%",
-              minHeight: "unset",
-              height: "auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
             title="Back"
             id="btn-back"
           >
             <ArrowLeft size={20} />
           </button>
-          <h2 className="sub-header-title" style={{ margin: 0 }}>
+          <h2 className="sub-header-title m-0">
             {isEdit ? "Edit Entry" : "Add Entry"}
           </h2>
         </div>
         {isEdit && (
           <button
             type="button"
-            className="btn-ghost"
+            className="btn-ghost text-(--debit) flex items-center gap-1.5"
             onClick={() =>
               handleDelete(() =>
                 confirm({
@@ -127,12 +95,6 @@ export function AddEditTransaction() {
                 }),
               )
             }
-            style={{
-              color: "var(--debit)",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
             id="delete-entry-btn"
           >
             <Trash2 size={16} />
@@ -141,91 +103,50 @@ export function AddEditTransaction() {
         )}
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-        }}
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         {/* Transaction Type Toggle */}
-        <div className="seg-control fade-in-up" style={{ marginBottom: 4 }}>
-          <button
-            type="button"
-            className={`seg-option${type === "debit" ? " active" : ""}`}
-            onClick={() => setType("debit")}
-            id="page-type-debit"
-          >
-            <ArrowDownLeft size={16} strokeWidth={2.5} /> Expense
-          </button>
-          <button
-            type="button"
-            className={`seg-option${type === "credit" ? " active" : ""}`}
-            onClick={() => setType("credit")}
-            id="page-type-credit"
-          >
-            <ArrowUpRight size={16} strokeWidth={2.5} /> Income
-          </button>
-        </div>
+        <SegmentedControl
+          idPrefix="page-type"
+          options={["debit", "credit"] as const}
+          value={type}
+          onChange={(val) => setType(val)}
+          className="fade-in-up max-w-[320px] mx-auto mb-3"
+          renderLabel={(option) =>
+            option === "debit" ? (
+              <>
+                <ArrowDownLeft size={12} strokeWidth={2.5} /> Expense
+              </>
+            ) : (
+              <>
+                <ArrowUpRight size={12} strokeWidth={2.5} /> Income
+              </>
+            )
+          }
+        />
 
         {/* Amount Hero Card — tappable display */}
         <div
-          className={`hero-card ${type === "debit" ? "hero-card-orange" : "hero-card-green"} fade-in-up delay-1`}
-          style={{ cursor: "text" }}
+          className={`hero-card ${type === "debit" ? "hero-card-orange" : "hero-card-green"} fade-in-up delay-1 cursor-text`}
           onClick={() => amountInputRef.current?.focus()}
         >
           <div className="hero-card-orb-lg" />
           <div className="hero-card-orb-sm" />
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: 8,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "0.6875rem",
-                fontWeight: 600,
-                color: "rgba(255,255,255,0.65)",
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-              }}
-            >
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-sans text-[0.6875rem] font-semibold text-[rgba(255,255,255,0.65)] tracking-[0.08em] uppercase">
               Amount
             </span>
-            <span
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "0.6875rem",
-                color: "rgba(255,255,255,0.50)",
-                letterSpacing: "0.04em",
-              }}
-            >
+            <span className="font-sans text-[0.6875rem] text-[rgba(255,255,255,0.50)] tracking-wider">
               Tap to edit
             </span>
           </div>
 
-          <div
-            className="amount-display"
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              color: "#fff",
-              position: "relative",
-              zIndex: 2,
-            }}
-          >
+          <div className="amount-display flex items-baseline text-white relative z-10">
             <span
+              className="text-[clamp(1.75rem,8vw,2.25rem)] mr-1.5 font-medium opacity-85"
               style={{
+                fontFamily: "'Instrument Serif', Georgia, serif",
                 fontSize: "clamp(1.75rem, 8vw, 2.25rem)",
-                marginRight: 6,
-                fontWeight: 500,
-                opacity: 0.85,
               }}
             >
               ₹
@@ -241,36 +162,21 @@ export function AddEditTransaction() {
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0"
               required
+              className={`bg-transparent border-none outline-none text-[clamp(2.25rem,10vw,3rem)] ${
+                parsedAmt > 0 ? "text-white" : "text-[rgba(255,255,255,0.40)]"
+              } w-full p-0 m-0 shadow-none leading-none font-normal`}
               style={{
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                fontSize: "clamp(2.25rem, 10vw, 3rem)",
-                color: parsedAmt > 0 ? "#fff" : "rgba(255,255,255,0.40)",
-                fontWeight: 400,
-                width: "100%",
                 fontFamily: "'Instrument Serif', Georgia, serif",
-                padding: 0,
-                margin: 0,
-                boxShadow: "none",
-                lineHeight: 1,
+                fontSize: "clamp(2.25rem, 10vw, 3rem)",
               }}
             />
           </div>
         </div>
 
         {/* Details Card */}
-        <div
-          className="glass-card fade-in-up delay-2"
-          style={{
-            padding: "20px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-          }}
-        >
+        <div className="glass-card fade-in-up delay-2 p-5 flex flex-col gap-4">
           {/* Description */}
-          <div className="form-group" style={{ margin: 0 }}>
+          <div className="form-group m-0">
             <label className="label" htmlFor="page-tx-desc">
               Description
             </label>
@@ -286,24 +192,16 @@ export function AddEditTransaction() {
           </div>
 
           {/* Account */}
-          <div className="form-group" style={{ margin: 0 }}>
+          <div className="form-group m-0">
             <span className="label">Account</span>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div className="flex gap-2.5">
               {expendAcc && (
                 <button
                   type="button"
-                  className={`chip${accountId === expendAcc.id ? " chip-active" : ""}`}
+                  className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
+                    accountId === expendAcc.id ? "chip-active" : ""
+                  }`}
                   onClick={() => setAccountId(expendAcc.id!)}
-                  style={{
-                    flex: 1,
-                    padding: "12px 16px",
-                    borderRadius: "var(--r-md)",
-                    fontSize: "0.875rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                  }}
                   id="page-acc-expenditure"
                 >
                   <CreditCard size={16} /> <span>Expenditure</span>
@@ -312,18 +210,10 @@ export function AddEditTransaction() {
               {savingsAcc && (
                 <button
                   type="button"
-                  className={`chip${accountId === savingsAcc.id ? " chip-active" : ""}`}
+                  className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
+                    accountId === savingsAcc.id ? "chip-active" : ""
+                  }`}
                   onClick={() => setAccountId(savingsAcc.id!)}
-                  style={{
-                    flex: 1,
-                    padding: "12px 16px",
-                    borderRadius: "var(--r-md)",
-                    fontSize: "0.875rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                  }}
                   id="page-acc-savings"
                 >
                   <PiggyBank size={16} /> <span>Savings</span>
@@ -333,34 +223,24 @@ export function AddEditTransaction() {
           </div>
 
           {/* Category */}
-          <div className="form-group" style={{ margin: 0 }}>
+          <div className="form-group m-0">
             <span className="label">
               Category{" "}
-              <span style={{ fontWeight: 400, opacity: 0.6 }}>— optional</span>
+              <span className="font-normal opacity-60">— optional</span>
             </span>
             <div
-              className="chip-scroll"
-              style={{
-                display: "flex",
-                gap: 8,
-                overflowX: "auto",
-                paddingBottom: 4,
-                width: "100%",
-                WebkitOverflowScrolling: "touch",
-              }}
+              id="category-pills-scroll"
+              className="chip-scroll flex gap-2 overflow-x-auto pb-1 w-full touch-pan-x"
             >
               {CATEGORIES.map((c) => (
                 <button
                   key={c}
                   type="button"
-                  className={`chip${category === c ? " chip-active" : ""}`}
+                  className={`chip whitespace-nowrap py-2 px-4 text-[0.8125rem] ${
+                    category === c ? "chip-active" : ""
+                  }`}
                   onClick={() => setCategory(category === c ? "" : c)}
                   id={`page-cat-${c.toLowerCase()}`}
-                  style={{
-                    whiteSpace: "nowrap",
-                    padding: "8px 16px",
-                    fontSize: "0.8125rem",
-                  }}
                 >
                   {c}
                 </button>
@@ -369,7 +249,7 @@ export function AddEditTransaction() {
           </div>
 
           {/* Date */}
-          <div className="form-group" style={{ margin: 0 }}>
+          <div className="form-group m-0">
             <label className="label" htmlFor="page-tx-date">
               Date
             </label>
@@ -382,22 +262,14 @@ export function AddEditTransaction() {
         </div>
 
         {/* Submit */}
-        <div className="fade-in-up delay-3" style={{ marginTop: 4 }}>
+        <div className="fade-in-up delay-3 mt-1">
           <button
             type="submit"
-            className="btn-primary"
-            style={{
-              width: "100%",
-              padding: "14px 28px",
-              borderRadius: "var(--r-pill)",
-              background: type === "debit" ? "var(--debit)" : "var(--credit)",
-              boxShadow:
-                type === "debit"
-                  ? "0 6px 20px rgba(224,85,69,0.25)"
-                  : "0 6px 20px rgba(90,158,111,0.25)",
-              transition:
-                "background 0.3s ease, box-shadow 0.3s ease, transform 0.15s",
-            }}
+            className={`btn-primary w-full py-3.5 px-7 rounded-(--r-pill) transition-[background,box-shadow,transform] duration-300 ease-in-out ${
+              type === "debit"
+                ? "bg-(--debit) shadow-[0_6px_20px_rgba(224,85,69,0.25)]"
+                : "bg-(--credit) shadow-[0_6px_20px_rgba(90,158,111,0.25)]"
+            }`}
             disabled={loading || !amount || !description}
             id="page-submit-transaction"
           >
@@ -410,7 +282,7 @@ export function AddEditTransaction() {
                   ? "Save Changes"
                   : `Save ${type === "debit" ? "Expense" : "Income"}`}
                 {parsedAmt > 0 && (
-                  <span style={{ opacity: 0.85, fontWeight: 400 }}>
+                  <span className="opacity-85 font-normal">
                     · {formatINR(parsedAmt)}
                   </span>
                 )}

@@ -5,6 +5,8 @@ import { BottomNav } from "./BottomNav";
 import { useNotificationHub } from "../../hooks/useNotificationHub";
 import { NotificationSheet } from "./NotificationSheet";
 import { TransferSheet } from "../transactions/TransferSheet";
+import { OnboardingFlow } from "../features/onboarding/OnboardingFlow";
+import { format } from "date-fns";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -12,6 +14,15 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { theme, toggleTheme } = useTheme();
+
+  const [isOnboarded, setIsOnboarded] = useState(
+    () => localStorage.getItem("flo_onboarded") === "true"
+  );
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("flo_onboarded", "true");
+    setIsOnboarded(true);
+  };
 
   // Transfer config state
   const [isTransferOpen, setIsTransferOpen] = useState(false);
@@ -42,8 +53,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <header className="sticky top-[calc(12px+env(safe-area-inset-top,0))] z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]">
           <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-(--r-pill) px-5 py-1.5 shadow-(--glass-shadow) pointer-events-auto transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
             <span
-              style={{ fontFamily: "var(--font-display)" }}
-              className="text-2xl text-(--accent-dark) dark:text-(--accent) tracking-wider leading-none italic"
+              className="font-display text-2xl text-(--accent-dark) dark:text-(--accent) tracking-wider leading-none italic"
             >
               flo
             </span>
@@ -69,7 +79,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             >
               <Bell size={16} />
               {hasUnread && (
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-(--debit) rounded-full bell-badge" />
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-(--debit) rounded-full animate-[pulse-glow_2s_infinite] shadow-[0_0_0_0_rgba(217,119,87,0.7)]" />
               )}
             </button>
           </div>
@@ -97,6 +107,13 @@ export function AppLayout({ children }: AppLayoutProps) {
         defaultAmount={transferConfig.amount}
         defaultNote={transferConfig.note}
       />
+
+      {!isOnboarded && (
+        <OnboardingFlow 
+          onComplete={handleOnboardingComplete} 
+          currentMonthName={format(new Date(), 'MMMM')}
+        />
+      )}
     </>
   );
 }

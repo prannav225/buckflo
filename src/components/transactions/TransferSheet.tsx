@@ -5,6 +5,7 @@ import { updateSheetOpenState } from "../../utils/modalHelper";
 import { useAccount } from "../../db/hooks";
 import { formatINR } from "../../utils/currency";
 import { useTransferForm } from "../../hooks/useTransferForm";
+import { SegmentedControl } from "../ui/SegmentedControl";
 
 interface TransferSheetProps {
   isOpen: boolean;
@@ -101,32 +102,21 @@ function TransferSheetContent({
         </div>
 
         {/* Direction Segmented Control */}
-        <div className="seg-control mb-5">
-          <button
-            type="button"
-            className={`seg-option ${
-              direction === "savings_to_expenditure" ? "active" : ""
-            } py-1.5! px-2! text-xs! whitespace-nowrap`}
-            onClick={() => {
-              setDirection("savings_to_expenditure");
-              setAmount("");
-            }}
-          >
-            Savings → Expenditure
-          </button>
-          <button
-            type="button"
-            className={`seg-option ${
-              direction === "expenditure_to_savings" ? "active" : ""
-            } py-1.5! px-2! text-xs! whitespace-nowrap`}
-            onClick={() => {
-              setDirection("expenditure_to_savings");
-              setAmount("");
-            }}
-          >
-            Expenditure → Savings
-          </button>
-        </div>
+        <SegmentedControl
+          idPrefix="transfer-dir"
+          options={["savings_to_expenditure", "expenditure_to_savings"] as const}
+          value={direction}
+          onChange={(val) => {
+            setDirection(val);
+            setAmount("");
+          }}
+          className="max-w-[320px] mx-auto mb-5"
+          renderLabel={(option) =>
+            option === "savings_to_expenditure"
+              ? "Savings → Expenditure"
+              : "Expenditure → Savings"
+          }
+        />
 
         {/* Source balance info */}
         <div className="flex items-center justify-between bg-(--bg-surface) border border-black/8 dark:border-white/6 shadow-(--glass-shadow) rounded-(--r-lg) p-[12px_16px] mb-5">

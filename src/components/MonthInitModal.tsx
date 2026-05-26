@@ -111,7 +111,7 @@ function MonthInitContent({
           {/* ── Expenditure ──────────────────────────────── */}
           <SectionHeader
             icon={<Wallet size={15} className="text-(--accent)" />}
-            bg="rgba(217,119,87,0.12)"
+            bgClassName="bg-[rgba(217,119,87,0.12)]"
             label="Expenditure Account"
           />
 
@@ -224,7 +224,7 @@ function MonthInitContent({
 
               <SectionHeader
                 icon={<PiggyBank size={15} className="text-(--credit)" />}
-                bg="rgba(90,158,111,0.12)"
+                bgClassName="bg-[rgba(90,158,111,0.12)]"
                 label="Savings Account"
               />
 
@@ -247,8 +247,8 @@ function MonthInitContent({
 
               {/* Transfer toggle */}
               <div
-                className={`checkbox-row ${
-                  includeTransfer ? "checked mb-3.5" : "mb-0"
+                className={`flex items-center gap-2.5 cursor-pointer py-2.5 px-0 select-none ${
+                  includeTransfer ? "mb-3.5" : "mb-0"
                 }`}
                 onClick={() => setIncludeTransfer((v) => !v)}
                 role="checkbox"
@@ -257,7 +257,13 @@ function MonthInitContent({
                 onKeyDown={(e) => e.key === " " && setIncludeTransfer((v) => !v)}
                 id="modal-toggle-opening-transfer"
               >
-                <div className="checkbox-box">
+                <div
+                  className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-all duration-[180ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] shrink-0 ${
+                    includeTransfer
+                      ? "border-[var(--accent)] bg-[var(--accent)]"
+                      : "border-[var(--text-muted)] bg-transparent"
+                  }`}
+                >
                   {includeTransfer && (
                     <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
                       <path
@@ -333,18 +339,17 @@ function MonthInitContent({
 // ── Small helper for section icons/labels ────────────────────────────────────
 function SectionHeader({
   icon,
-  bg,
+  bgClassName,
   label,
 }: {
   icon: React.ReactNode;
-  bg: string;
+  bgClassName: string;
   label: string;
 }) {
   return (
     <div className="flex items-center gap-2 mb-3.5">
       <div
-        className="w-7.5 h-7.5 rounded-[9px] flex items-center justify-center"
-        style={{ background: bg }}
+        className={`w-7.5 h-7.5 rounded-[9px] flex items-center justify-center ${bgClassName}`}
       >
         {icon}
       </div>
