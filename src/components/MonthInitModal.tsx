@@ -308,7 +308,7 @@ function MonthInitContent({
                       onBlur={() =>
                         handleBlur(transferAmount, setTransferAmount)
                       }
-                      className="input-field flex-1 !mb-0"
+                      className="input-field flex-1 mb-0!"
                     />
                   </div>
                 </div>

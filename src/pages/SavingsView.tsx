@@ -159,7 +159,7 @@ export function SavingsView() {
 
           {/* Goal Grid */}
           {savingGoals.length === 0 ? (
-            <div className="glass-card empty-state py-6 px-4 min-h-[auto]">
+            <div className="glass-card empty-state py-6 px-4 min-h-auto">
               <Target size={28} className="empty-state-icon opacity-60" />
               <p className="empty-state-title text-sm">No goal jars yet</p>
               <p className="empty-state-desc text-xs max-w-[240px] mt-1 mx-auto mb-0">
