@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { ChevronRight, ChevronLeft, CreditCard, PiggyBank } from "lucide-react";
 
 interface OnboardingFlowProps {
@@ -75,7 +76,7 @@ export function OnboardingFlow({
       id: "two-accounts",
       visual: (
         <div className="flex items-center justify-center gap-4 flex-1 h-full w-full max-w-[300px] mx-auto">
-          <div className="flex-1 aspect-[4/5] rounded-2xl bg-white/5 dark:bg-white/[0.03] border border-black/8 dark:border-white/6 shadow-md flex flex-col items-center justify-center p-5 text-center relative overflow-hidden group">
+          <div className="flex-1 aspect-4/5 rounded-2xl bg-white/5 dark:bg-white/3 border border-black/8 dark:border-white/6 shadow-md flex flex-col items-center justify-center p-5 text-center relative overflow-hidden group">
             <div className="absolute inset-0 bg-linear-to-b from-(--accent)/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="w-12 h-12 rounded-full bg-(--accent)/10 flex items-center justify-center mb-3.5 relative z-10">
               <CreditCard size={22} className="text-(--accent)" />
@@ -87,7 +88,7 @@ export function OnboardingFlow({
               Daily Spending
             </span>
           </div>
-          <div className="flex-1 aspect-[4/5] rounded-2xl bg-white/5 dark:bg-white/[0.03] border border-black/8 dark:border-white/6 shadow-md flex flex-col items-center justify-center p-5 text-center relative overflow-hidden group">
+          <div className="flex-1 aspect-4/5 rounded-2xl bg-white/5 dark:bg-white/3 border border-black/8 dark:border-white/6 shadow-md flex flex-col items-center justify-center p-5 text-center relative overflow-hidden group">
             <div className="absolute inset-0 bg-linear-to-b from-(--credit)/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="w-12 h-12 rounded-full bg-(--credit)/10 flex items-center justify-center mb-3.5 relative z-10">
               <PiggyBank size={22} className="text-(--credit)" />
@@ -129,7 +130,7 @@ export function OnboardingFlow({
       visual: (
         <div className="flex flex-col items-center justify-center flex-1 h-full w-full max-w-[280px] mx-auto gap-4">
           <div className="flex gap-3 w-full">
-            <div className="flex-1 bg-white/5 dark:bg-white/[0.03] rounded-xl p-3.5 border border-black/8 dark:border-white/6 flex flex-col items-start gap-1 shadow-sm">
+            <div className="flex-1 bg-white/5 dark:bg-white/3 rounded-xl p-3.5 border border-black/8 dark:border-white/6 flex flex-col items-start gap-1 shadow-sm">
               <span className="text-[10px] font-bold text-(--text-muted) uppercase tracking-wider">
                 Coffee
               </span>
@@ -137,7 +138,7 @@ export function OnboardingFlow({
                 ₹80
               </span>
             </div>
-            <div className="flex-1 bg-white/5 dark:bg-white/[0.03] rounded-xl p-3.5 border border-black/8 dark:border-white/6 flex flex-col items-start gap-1 shadow-sm">
+            <div className="flex-1 bg-white/5 dark:bg-white/3 rounded-xl p-3.5 border border-black/8 dark:border-white/6 flex flex-col items-start gap-1 shadow-sm">
               <span className="text-[10px] font-bold text-(--text-muted) uppercase tracking-wider">
                 Metro
               </span>
@@ -146,7 +147,7 @@ export function OnboardingFlow({
               </span>
             </div>
           </div>
-          <div className="w-full h-[64px] bg-white/5 dark:bg-white/[0.03] rounded-xl border border-black/8 dark:border-white/6 flex items-end p-3 gap-2">
+          <div className="w-full h-[64px] bg-white/5 dark:bg-white/3 rounded-xl border border-black/8 dark:border-white/6 flex items-end p-3 gap-2">
             <div className="flex-1 bg-(--accent)/15 rounded-t-md h-[30%]" />
             <div className="flex-1 bg-(--accent)/35 rounded-t-md h-[60%]" />
             <div className="flex-1 bg-(--accent)/55 rounded-t-md h-[40%]" />
@@ -164,7 +165,7 @@ export function OnboardingFlow({
       visual: (
         <div className="flex flex-col items-center justify-center flex-1 h-full relative">
           <div className="absolute w-36 h-36 rounded-full border border-(--accent)/10 animate-pulse" />
-          <div className="w-24 h-24 rounded-3xl bg-white/5 dark:bg-white/[0.03] border border-(--accent)/20 flex items-center justify-center shadow-xl shadow-(--accent)/5 mb-6 relative overflow-hidden z-10">
+          <div className="w-24 h-24 rounded-3xl bg-white/5 dark:bg-white/3 border border-(--accent)/20 flex items-center justify-center shadow-xl shadow-(--accent)/5 mb-6 relative overflow-hidden z-10">
             <div className="absolute inset-0 bg-linear-to-tr from-(--accent)/10 to-transparent opacity-50" />
             <svg
               width="40"
@@ -193,7 +194,7 @@ export function OnboardingFlow({
 
   return (
     <div
-      className="fixed inset-0 z-[99999] bg-(--bg) flex flex-col text-(--text) font-sans animate-fade-in overflow-hidden"
+      className="fixed inset-0 z-99999 bg-(--bg) flex flex-col text-(--text) font-sans animate-fade-in overflow-hidden"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -224,7 +225,7 @@ export function OnboardingFlow({
           {screens.map((screen, idx) => (
             <div
               key={screen.id}
-              className="w-full h-full flex-shrink-0 flex flex-col px-8 pt-12 pb-32"
+              className="w-full h-full shrink-0 flex flex-col px-8 pt-12 pb-32"
             >
               {/* Visual Area */}
               <div className="flex-1 flex flex-col justify-end pb-12">
@@ -254,6 +255,23 @@ export function OnboardingFlow({
                     >
                       Skip for now
                     </button>
+                    <p className="text-[10px] text-(--text-muted) mt-3 text-center leading-normal">
+                      By setting up, you agree to our{" "}
+                      <Link
+                        to="/privacy"
+                        className="underline hover:text-(--text) cursor-pointer text-(--text-muted)"
+                      >
+                        Privacy Policy
+                      </Link>{" "}
+                      and{" "}
+                      <Link
+                        to="/terms"
+                        className="underline hover:text-(--text) cursor-pointer text-(--text-muted)"
+                      >
+                        Terms & Conditions
+                      </Link>
+                      .
+                    </p>
                   </div>
                 )}
               </div>

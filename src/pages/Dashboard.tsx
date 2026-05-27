@@ -182,7 +182,10 @@ export function Dashboard() {
             isOpen={showMonthInit}
             monthYear={monthYear}
             onClose={() => setShowMonthInit(false)}
-            onSaved={() => { setShowMonthInit(false); }} />
+            onSaved={() => {
+              setShowMonthInit(false);
+            }}
+          />
         </>
       )}
     </>

@@ -1,4 +1,5 @@
 import { type ReactNode, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { Sun, Moon, Bell } from "lucide-react";
 import { BottomNav } from "./BottomNav";
@@ -6,6 +7,7 @@ import { useNotificationHub } from "../../hooks/useNotificationHub";
 import { NotificationSheet } from "./NotificationSheet";
 import { TransferSheet } from "../transactions/TransferSheet";
 import { OnboardingFlow } from "../features/onboarding/OnboardingFlow";
+import { LandingPage } from "../../pages/LandingPage";
 import { format } from "date-fns";
 import { getCurrentMonthYear } from "../../utils/dateUtils";
 
@@ -15,15 +17,21 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { theme, toggleTheme } = useTheme();
+  const { pathname } = useLocation();
+  const isLegalPage = pathname === "/privacy" || pathname === "/terms";
 
   const [isOnboarded, setIsOnboarded] = useState(
     () => localStorage.getItem("flo_onboarded") === "true",
   );
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const handleOnboardingComplete = (skipSetup?: boolean) => {
     localStorage.setItem("flo_onboarded", "true");
     if (skipSetup) {
-      localStorage.setItem(`flo_skipped_setup_${getCurrentMonthYear()}`, "true");
+      localStorage.setItem(
+        `flo_skipped_setup_${getCurrentMonthYear()}`,
+        "true",
+      );
     }
     setIsOnboarded(true);
   };
@@ -112,11 +120,19 @@ export function AppLayout({ children }: AppLayoutProps) {
             defaultNote={transferConfig.note}
           />
         </>
-      ) : (
+      ) : isLegalPage ? (
+        <main className="pt-[calc(16px+env(safe-area-inset-top,0))] pl-4 pr-4 pb-[calc(90px+env(safe-area-inset-bottom,0))] max-w-[720px] mx-auto w-full">
+          {children}
+        </main>
+      ) : showOnboarding ? (
         <OnboardingFlow
           onComplete={handleOnboardingComplete}
           currentMonthName={format(new Date(), "MMMM")}
         />
+      ) : (
+        <main className="pt-[calc(16px+env(safe-area-inset-top,0))] pl-4 pr-4 pb-[calc(90px+env(safe-area-inset-bottom,0))] max-w-[1200px] mx-auto w-full">
+          <LandingPage onStart={() => setShowOnboarding(true)} />
+        </main>
       )}
     </>
   );
