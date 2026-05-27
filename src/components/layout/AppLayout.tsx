@@ -10,6 +10,7 @@ import { OnboardingFlow } from "../features/onboarding/OnboardingFlow";
 import { LandingPage } from "../../pages/LandingPage";
 import { format } from "date-fns";
 import { getCurrentMonthYear } from "../../utils/dateUtils";
+import { useAutopayTrigger } from "../../hooks/useAutopayTrigger";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -56,6 +57,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     openNotifications,
     handleDismissAlert,
   } = useNotificationHub(setIsTransferOpen, setTransferConfig);
+
+  useAutopayTrigger(isOnboarded);
 
   return (
     <>

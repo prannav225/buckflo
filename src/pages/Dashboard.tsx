@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, Wallet } from "lucide-react";
+import { ChevronRight, Wallet, Upload, Database, X } from "lucide-react";
+import { db } from "../db/database";
+import { ImportModal } from "../components/transactions/ImportModal";
 import {
   useAccount,
   useMonthSetup,
@@ -26,6 +28,37 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [showTransfer, setShowTransfer] = useState(false);
   const [showMonthInit, setShowMonthInit] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isImportDismissed, setIsImportDismissed] = useState(
+    () => localStorage.getItem("flo_import_dismissed") === "true",
+  );
+
+  const handleDismissImportCard = () => {
+    localStorage.setItem("flo_import_dismissed", "true");
+    setIsImportDismissed(true);
+  };
+
+  useEffect(() => {
+    const checkEmptyDB = async () => {
+      try {
+        const allTxs = await db.transactions.toArray();
+        const realTxs = allTxs.filter(
+          (tx) =>
+            tx.category !== "adjustment" &&
+            tx.category !== "transfer" &&
+            tx.category !== "opening-transfer"
+        );
+        if (realTxs.length === 0) {
+          localStorage.removeItem("flo_import_dismissed");
+          setIsImportDismissed(false);
+        }
+      } catch (err) {
+        console.error("Failed to check database transaction records:", err);
+      }
+    };
+    checkEmptyDB();
+  }, []);
+
   const [transferConfig, setTransferConfig] = useState<{
     direction: "savings_to_expenditure" | "expenditure_to_savings";
     amount: string;
@@ -101,6 +134,39 @@ export function Dashboard() {
             savingsBalance={savingsAcc?.currentBalance ?? 0}
             onClick={() => navigate("/savings")}
           />
+
+          {/* Data Portability Section */}
+          {!isImportDismissed && (
+            <div className="fade-in-up delay-1 mt-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Database size={13} className="text-(--text-muted) shrink-0" />
+                  <h2 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] m-0">
+                    Data & Portability
+                  </h2>
+                </div>
+                <button
+                  onClick={handleDismissImportCard}
+                  className="btn-ghost p-1 min-h-0 h-auto flex items-center justify-center rounded-full text-(--text-muted) hover:text-(--text) cursor-pointer"
+                  title="Hide permanently"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="glass-card p-4 flex flex-col gap-3">
+                <p className="font-sans text-xs text-(--text-muted) m-0 leading-relaxed">
+                  Your data is stored locally. Import an existing CSV backup file to load your ledger.
+                </p>
+                <button
+                  onClick={() => setIsImportOpen(true)}
+                  className="btn-secondary w-full text-xs py-2 px-3 flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Upload size={13} />
+                  Import CSV
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Quick Presets */}
           {presets.length > 0 && (
@@ -185,6 +251,16 @@ export function Dashboard() {
             onSaved={() => {
               setShowMonthInit(false);
             }}
+          />
+
+          <ImportModal
+            isOpen={isImportOpen}
+            onClose={() => setIsImportOpen(false)}
+            onSuccess={() => {
+              localStorage.setItem("flo_import_dismissed", "true");
+              setIsImportDismissed(true);
+            }}
+            activeTab="all"
           />
         </>
       )}

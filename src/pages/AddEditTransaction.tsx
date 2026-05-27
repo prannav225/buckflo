@@ -65,11 +65,10 @@ export function AddEditTransaction() {
   return (
     <>
       {/* ── Page Header ─────────────────────────────────────────────────── */}
-      <div className="sub-header fade-in-up flex items-center justify-between mb-3">
+      <div className="sub-header p-0! fade-in-up flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <button
-            type="button"
-            className="btn-ghost p-1.5 rounded-full min-h-0 h-auto flex items-center justify-center"
+            className="p-0 min-h-0 h-auto flex text-(--text-muted)"
             onClick={() => navigate(-1)}
             title="Back"
             id="btn-back"

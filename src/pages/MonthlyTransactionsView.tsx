@@ -1,152 +1,48 @@
-import { useState, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Download, Search, X } from "lucide-react";
-import { useAccount, useMonthSetup, useTransactions, useRunningBalances, useOpeningBalanceReconstructor } from "../db/hooks";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Calendar, Download, Upload } from "lucide-react";
+import { TransactionFilters } from "../components/transactions/TransactionFilters";
 import { TransactionCard } from "../components/transactions/TransactionRow";
 import { MonthPicker } from "../components/MonthPicker";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
+import { ImportModal } from "../components/transactions/ImportModal";
 import { formatINR } from "../utils/currency";
-import { getCurrentMonthYear } from "../utils/dateUtils";
-import { exportTransactionsCSV } from "../utils/csvExport";
+import { useMonthlyTransactions } from "../hooks/useMonthlyTransactions";
 
 export function MonthlyTransactionsView() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const initialMonth = searchParams.get("month") || getCurrentMonthYear();
-  const [monthYear, setMonthYear] = useState(initialMonth);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const initialTab =
-    (searchParams.get("tab") as "all" | "expenditure" | "savings") || "all";
-  const [activeTab, setActiveTab] = useState<"all" | "expenditure" | "savings">(
-    initialTab,
-  );
-  const [pageSize, setPageSize] = useState(20);
-
-  const expendAcc = useAccount("expenditure");
-  const savingsAcc = useAccount("savings");
-
-  // Fetch month transactions
-  const expendTxs = useTransactions(expendAcc?.id, monthYear);
-  const savingsTxs = useTransactions(savingsAcc?.id, monthYear);
-
-  const monthSetupExpend = useMonthSetup(monthYear);
-
-  // Compute opening balance of Savings for that month using our custom hook
-  const savingsOpeningBalance = useOpeningBalanceReconstructor(
-    savingsAcc?.id,
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const {
     monthYear,
-  );
-
-  const runningBalancesExpend = useRunningBalances(
-    expendTxs,
-    monthSetupExpend?.openingBalance ?? 0,
-  );
-  const runningBalancesSavings = useRunningBalances(
-    savingsTxs,
-    savingsOpeningBalance,
-  );
-
-  const handleMonthChange = (newMonth: string) => {
-    setMonthYear(newMonth);
-    setSearchParams(
-      (prev) => {
-        prev.set("month", newMonth);
-        return prev;
-      },
-      { replace: true },
-    );
-  };
-
-  const handleTabChange = (tab: "all" | "expenditure" | "savings") => {
-    setActiveTab(tab);
-    setPageSize(20);
-    setSearchParams(
-      (prev) => {
-        prev.set("tab", tab);
-        return prev;
-      },
-      { replace: true },
-    );
-  };
-
-  const handleExport = () => {
-    const txsToExport =
-      activeTab === "expenditure"
-        ? expendTxs
-        : activeTab === "savings"
-          ? savingsTxs
-          : [...expendTxs, ...savingsTxs].sort((a, b) =>
-              b.date.localeCompare(a.date),
-            );
-    exportTransactionsCSV(txsToExport, `flo-${activeTab}-${monthYear}.csv`);
-  };
-
-  // Build items with original index and sort descending (newest first)
-  const allItems = useMemo(() => {
-    const expItems = expendTxs.map((tx, idx) => ({
-      tx,
-      runningBalance: runningBalancesExpend[idx],
-      accountType: "expenditure" as const,
-    }));
-
-    const savItems = savingsTxs.map((tx, idx) => ({
-      tx,
-      runningBalance: runningBalancesSavings[idx],
-      accountType: "savings" as const,
-    }));
-
-    return [...expItems, ...savItems].sort((a, b) => {
-      // Primary sort: Date descending (newest first)
-      if (b.tx.date !== a.tx.date) {
-        return b.tx.date.localeCompare(a.tx.date);
-      }
-      // Secondary sort: ID descending (newest entries first)
-      return (b.tx.id || 0) - (a.tx.id || 0);
-    });
-  }, [expendTxs, savingsTxs, runningBalancesExpend, runningBalancesSavings]);
-
-  // Filter based on active tab
-  const tabFilteredItems = useMemo(() => {
-    if (activeTab === "expenditure") {
-      return allItems.filter((item) => item.accountType === "expenditure");
-    }
-    if (activeTab === "savings") {
-      return allItems.filter((item) => item.accountType === "savings");
-    }
-    return allItems;
-  }, [allItems, activeTab]);
-
-  // Filter items based on search query (matches desc, category, or amount)
-  const searchedItems = useMemo(() => {
-    if (!searchQuery.trim()) return tabFilteredItems;
-    const q = searchQuery.toLowerCase();
-    return tabFilteredItems.filter((item) => {
-      const descMatch = item.tx.description.toLowerCase().includes(q);
-      const catMatch = item.tx.category
-        ? item.tx.category.toLowerCase().includes(q)
-        : false;
-      const amtMatch = item.tx.amount.toString().includes(q);
-      return descMatch || catMatch || amtMatch;
-    });
-  }, [tabFilteredItems, searchQuery]);
-
-  const hasMoreItems = searchedItems.length > pageSize;
-  const displayedItems = searchedItems.slice(0, pageSize);
-
-  const backUrl =
-    activeTab === "savings"
-      ? `/savings?month=${monthYear}`
-      : `/monthly?month=${monthYear}`;
+    searchQuery,
+    setSearchQuery,
+    minAmount,
+    setMinAmount,
+    maxAmount,
+    setMaxAmount,
+    sortBy,
+    setSortBy,
+    activeTab,
+    setPageSize,
+    expendAcc,
+    savingsAcc,
+    handleMonthChange,
+    handleTabChange,
+    handleExport,
+    tabFilteredItems,
+    filteredItems,
+    displayedItems,
+    hasMoreItems,
+    backUrl,
+  } = useMonthlyTransactions();
 
   return (
     <>
       {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="sub-header fade-in-up flex items-center justify-between mb-2">
+      <div className="sub-header p-0! fade-in-up flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <button
-            className="btn-ghost p-[6px] rounded-full min-h-0 h-auto flex items-center justify-center"
+            className="p-0 min-h-0 h-auto flex text-(--text-muted)"
             onClick={() => navigate(backUrl)}
             title="Back"
             id="btn-back"
@@ -155,16 +51,25 @@ export function MonthlyTransactionsView() {
           </button>
           <h2 className="sub-header-title m-0">All Transactions</h2>
         </div>
-        <button
-          className="btn-ghost"
-          onClick={handleExport}
-          disabled={tabFilteredItems.length === 0}
-          id="export-csv"
-          title="Export as CSV"
-        >
-          <Download size={16} />
-          CSV
-        </button>
+        <div className="flex gap-1 shrink-0">
+          <button
+            className="btn-ghost min-h-0 h-auto flex items-center justify-center rounded-lg"
+            onClick={() => setIsImportOpen(true)}
+            id="import-csv"
+            title="Import from CSV"
+          >
+            <Upload size={16} />
+          </button>
+          <button
+            className="btn-ghost p-1.5 min-h-0 h-auto flex items-center justify-center rounded-lg"
+            onClick={handleExport}
+            disabled={tabFilteredItems.length === 0}
+            id="export-csv"
+            title="Export as CSV"
+          >
+            <Download size={16} />
+          </button>
+        </div>
       </div>
 
       {/* ── Compact Month Filter ────────────────────────────────────────── */}
@@ -200,32 +105,19 @@ export function MonthlyTransactionsView() {
         className="fade-in-up delay-1 max-w-[320px] mx-auto mb-4"
       />
 
-      {/* ── Search Input ─────────────────────────────────────────────────── */}
+      {/* ── Search & Filter Controls ────────────────────────────────────────── */}
       {tabFilteredItems.length > 0 && (
-        <div className="glass-card fade-in-up delay-2 px-3 py-2 mb-4 flex items-center gap-2">
-          <Search size={16} className="text-(--text-muted) shrink-0" />
-          <input
-            type="text"
-            placeholder="Search description, category, or amount..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setPageSize(20);
-            }}
-            className="w-full bg-transparent border-none outline-none text-[0.875rem] text-(--text) py-1"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => {
-                setSearchQuery("");
-                setPageSize(20);
-              }}
-              className="bg-transparent border-none cursor-pointer p-1 flex items-center justify-center text-(--text-muted)"
-            >
-              <X size={14} />
-            </button>
-          )}
-        </div>
+        <TransactionFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          minAmount={minAmount}
+          setMinAmount={setMinAmount}
+          maxAmount={maxAmount}
+          setMaxAmount={setMaxAmount}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          onResetPage={() => setPageSize(20)}
+        />
       )}
 
       {/* ── Transaction List ──────────────────────────────────────────────── */}
@@ -238,23 +130,29 @@ export function MonthlyTransactionsView() {
               There are no transactions logged for this month.
             </p>
           </div>
-        ) : searchedItems.length === 0 ? (
+        ) : filteredItems.length === 0 ? (
           <div className="glass-card empty-state mt-3 py-6 px-4">
             <p className="empty-state-title text-[0.9375rem]">
               No matching results
             </p>
             <p className="empty-state-desc text-[0.8125rem]">
-              Try searching for something else.
+              Try searching or filtering for something else.
             </p>
           </div>
         ) : (
           <>
             <div className="flex items-center gap-2 mb-3 pl-1">
               <div
-                className={`w-[3px] h-[13px] rounded-full shrink-0 ${activeTab === "savings" ? "bg-(--credit)" : activeTab === "expenditure" ? "bg-(--accent)" : "bg-(--text-muted)"}`}
+                className={`w-[3px] h-[13px] rounded-full shrink-0 ${
+                  activeTab === "savings"
+                    ? "bg-(--credit)"
+                    : activeTab === "expenditure"
+                      ? "bg-(--accent)"
+                      : "bg-(--text-muted)"
+                }`}
               />
               <span className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em]">
-                Showing {displayedItems.length} of {searchedItems.length}{" "}
+                Showing {displayedItems.length} of {filteredItems.length}{" "}
                 Transactions
               </span>
             </div>
@@ -264,7 +162,9 @@ export function MonthlyTransactionsView() {
                   key={item.tx.id}
                   transaction={item.tx}
                   runningBalance={item.runningBalance}
-                  showRunningBalance={activeTab !== "all"}
+                  showRunningBalance={
+                    activeTab !== "all" && sortBy === "date_desc"
+                  }
                   showAccount={activeTab === "all"}
                 />
               ))}
@@ -280,6 +180,14 @@ export function MonthlyTransactionsView() {
           </>
         )}
       </div>
+      <ImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        onSuccess={() => {
+          // Reactively updated via Dexie hook listeners automatically
+        }}
+        activeTab={activeTab}
+      />
     </>
   );
 }

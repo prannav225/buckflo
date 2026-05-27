@@ -16,6 +16,10 @@ import {
 } from "./useAnalytics";
 import { getCurrentMonthYear } from "../utils/dateUtils";
 import { formatINR } from "../utils/currency";
+import { startOfDay, parseISO, differenceInDays } from "date-fns";
+import { updateSubscription } from "../db/database";
+import { advanceDueDate } from "../utils/autopay";
+import toast from "react-hot-toast";
 
 export interface NotificationItem {
   id: string;
@@ -35,6 +39,10 @@ export interface NotificationItem {
     label: string;
     onClick: () => void;
   };
+  actions?: Array<{
+    label: string;
+    onClick: () => void;
+  }>;
 }
 
 export function useNotificationHub(
@@ -86,6 +94,13 @@ export function useNotificationHub(
 
   // Saving goals
   const savingGoals = useLiveQuery(() => db.savingGoals.toArray(), [], []);
+
+  // Approved subscriptions
+  const approvedSubscriptions = useLiveQuery(
+    () => db.subscriptions.where("status").equals("active").toArray(),
+    [],
+    []
+  );
 
   // 2. Compile active notifications dynamically
   const activeAlerts = useMemo(() => {
@@ -249,6 +264,63 @@ export function useNotificationHub(
       }
     }
 
+    // G. Approved subscriptions autopay reminders (due in <= 7 days)
+    if (approvedSubscriptions) {
+      const today = startOfDay(new Date());
+      for (const sub of approvedSubscriptions) {
+        try {
+          const due = startOfDay(parseISO(sub.nextDueDate));
+          const daysLeft = differenceInDays(due, today);
+
+          if (daysLeft >= 0 && daysLeft <= 7) {
+            const handleSkip = async () => {
+              try {
+                const newDueDate = advanceDueDate(sub.nextDueDate, sub.frequency);
+                await updateSubscription(sub.id!, { nextDueDate: newDueDate });
+                toast.success(`Skipped: ${sub.name} advanced to ${newDueDate} ✓`);
+              } catch (err) {
+                toast.error("Failed to skip subscription.");
+              }
+            };
+
+            const handlePause = async () => {
+              try {
+                await updateSubscription(sub.id!, { status: "paused" });
+                toast.success(`Subscription '${sub.name}' paused successfully ✓`);
+              } catch (err) {
+                toast.error("Failed to pause subscription.");
+              }
+            };
+
+            const isDueTomorrow = daysLeft <= 1;
+
+            alerts.push({
+              id: `approved-sub-due-${sub.id}-${sub.nextDueDate}`,
+              type: isDueTomorrow ? "danger" : daysLeft <= 2 ? "warning" : "info",
+              category: "bills",
+              title: isDueTomorrow ? `Autopay Due Tomorrow: ${sub.name}` : `Upcoming Auto-Pay: ${sub.name}`,
+              description: isDueTomorrow
+                ? `Autopay for ${sub.name} (₹${sub.amount.toFixed(2)}) is due tomorrow. Action will be taken automatically.`
+                : `${formatINR(sub.amount)} is auto-renewing in ${daysLeft} days (${sub.nextDueDate}).`,
+              iconName: "sub",
+              actions: [
+                {
+                  label: "Skip Cycle",
+                  onClick: handleSkip,
+                },
+                {
+                  label: "Pause Autopay",
+                  onClick: handlePause,
+                },
+              ],
+            });
+          }
+        } catch {
+          // ignore parsing error
+        }
+      }
+    }
+
     return alerts;
   }, [
     budget,
@@ -260,6 +332,7 @@ export function useNotificationHub(
     advisor,
     wow,
     savingGoals,
+    approvedSubscriptions,
     navigate,
     setTransferConfig,
     setIsTransferOpen,
