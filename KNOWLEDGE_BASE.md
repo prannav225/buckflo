@@ -12,7 +12,9 @@ This document details the application architecture, database schemas, custom hoo
 
 - **Core**: React (TypeScript) + Vite
 - **Data Persistence**: IndexedDB managed via [Dexie.js](https://dexie.org/) for transparent transactional storage, utilizing reactive queries with `dexie-react-hooks`.
+- **Charting**: Unified under [Chart.js](https://www.chartjs.org/) and `react-chartjs-2` for rich, performance-optimized, and consistent financial trend visualization.
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) using modern CSS Custom Properties, glassmorphism systems, and theme variables.
+- **Visual Elements**: [Boring Avatars](https://github.com/hihayk/boring-avatars) for brand-tailored, deterministic SVG avatar generation.
 - **Utility Libraries**: `date-fns` for robust date math, `lucide-react` for iconography.
 - **Target Audience**: Users seeking clean separate tracking of everyday Expenditure vs long-term Savings.
 
@@ -22,11 +24,11 @@ This document details the application architecture, database schemas, custom hoo
 
 Below is the step-by-step operational guide for the application:
 
-### Step 1: Complete Onboarding & Month Initialization
-
-1.  On first load, swipe through the 5 onboarding screens to understand how flo manages your cash flow across two separate accounts (Expenditure and Savings).
-2.  If you choose **"Skip for now"**, the app loads the dashboard immediately but hides transactional tracking. To begin, tap **"Set Up Now"** inside the orange dashboard card.
-3.  Fill out the **New Month Setup** form:
+### Step 1: Complete Profile Setup & Onboarding
+1.  **Profile Setup Gate**: On first launch, you are prompted to input your display name. Special characters, spaces, and numbers are blocked, enforcing alphabet-only validation up to 20 characters. This name is used to generate a unique, brand-colored deterministic avatar.
+2.  **Onboarding slides**: Swipe through the slides to understand how flo manages your cash flow across two separate accounts (Expenditure and Savings).
+3.  If you choose **"Skip for now"** during month setup, the app loads the dashboard immediately but hides transactional tracking. To begin, tap **"Set Up Now"** inside the orange dashboard card.
+4.  Fill out the **New Month Setup** form:
     - **Expenditure Opening Balance**: Starting funds available for daily spending.
     - **Monthly Budget**: Total amount you plan to spend this month.
     - **Category Budgets** (Optional): Set individual budgets for standard categories.
@@ -34,25 +36,21 @@ Below is the step-by-step operational guide for the application:
     - **Opening Transfer** (Optional): Log a starting transfer from Savings to Expenditure.
 
 ### Step 2: Log Transactions & Use Shortcuts
-
 1.  **Manual Logging**: Tap the **`+`** button in the navigation header to log a transaction.
     - Select **Debit** (Expense), **Credit** (Income), or **Transfer** (Move cash between Savings and Expenditure).
     - Fill out the Amount, Category, Date, and Description.
 2.  **One-Tap Presets**: Once you log repeated transactions, the dashboard automatically surfaces them under **Quick Presets** (e.g. _"Coffee — ₹80"_). Tap any preset to log it instantly.
 
 ### Step 3: Track Burn Rate & Feed
-
 1.  **Dashboard Balance Card**: Shows your current Expenditure balance and remaining budget. It calculates a dynamic **Daily budget left** based on how many days are left in the month.
 2.  **Monthly Feed**: Navigate to the **Monthly** tab (`/monthly`) to view all daily transactions, check running balances after each transaction, and analyze visual budget progress bars per category.
 
 ### Step 4: Manage Savings Goals
-
 1.  Navigate to the **Savings** tab (`/savings`).
 2.  Tap **"Create Goal"** to define a savings target (description, target amount, optional deadline).
 3.  Allocate money directly into goals from your Savings account balance. The app calculates remaining funding required and highlights achieved goals.
 
 ### Step 5: Insights & Bill Notifications
-
 1.  Navigate to **Insights** (`/insights`):
     - **Overview Tab**: View week-over-week analytics, daily averages, and interactive category spending distribution.
     - **Subscriptions Tab**: Track bills. Tap **"Auto-Detect"** to let flo scan your history and identify recurring patterns automatically.
@@ -70,21 +68,21 @@ The directory structure is organized logically into modules:
 - `/` (Root): Configuration files (`package.json`, `tsconfig.json`, `vite.config.ts`, `vercel.json`) and entry points.
 - `/public/`: Static branding assets and web app manifestation files.
 - [`/src/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src): Core application logic.
-  - [`App.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/App.tsx): Entry container setting up the `ThemeProvider`, `TooltipProvider`, and notifications container.
+  - [`App.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/App.tsx): Entry container setting up contexts and notifications.
   - [`index.css`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/index.css): Main stylesheet housing CSS variables, glassmorphic layout rules, typography setups, and Tailwind imports.
   - [`components/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components): Shared components, sub-divided into domain directories:
-    - [`layout/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout): [`AppLayout.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/AppLayout.tsx) (global layout/header/theme controls), [`SplashScreen.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/SplashScreen.tsx) (animated welcome/loading screen), navigation controllers.
-    - [`ui/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/ui): Reusable interface controls ([`SegmentedControl.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/ui/SegmentedControl.tsx), custom dropdowns).
+    - [`layout/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout): [`AppLayout.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/AppLayout.tsx) (global header/notifications wrapper), [`BottomNav.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/BottomNav.tsx) (main layout tabs navigation), [`BrandedAvatar.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/BrandedAvatar.tsx) (deterministic boring-avatar wrapper), [`CustomDropdown.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/CustomDropdown.tsx) (upward-opening custom theme selector), [`SplashScreen.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/SplashScreen.tsx).
+    - [`ui/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/ui): Reusable interface controls.
     - [`transactions/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/transactions): Sheets, presets, cards, and row item renderers.
     - [`savings/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/savings): Goal allocation, lists, and form cards.
     - [`insights/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/insights): Sub-components for charts, subscriptions, and budget grids.
-    - [`features/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/features): Onboarding elements ([`OnboardingFlow.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/features/onboarding/OnboardingFlow.tsx)).
+    - [`features/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/features): Onboarding elements.
   - [`context/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/context): Global contexts such as [`ThemeContext.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/context/ThemeContext.tsx).
   - [`db/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/db): Core data schema setup ([`database.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/db/database.ts)) and hooks wrapper ([`hooks.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/db/hooks.ts)).
-  - [`hooks/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks): Smart analytics calculators ([`useAnalytics.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useAnalytics.ts)), event handlers, forms, and notification engines ([`useNotificationHub.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useNotificationHub.ts)).
-  - [`pages/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages): Screen controllers for views ([`Dashboard.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/Dashboard.tsx), [`MonthlyView.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/MonthlyView.tsx), [`Insights.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/Insights.tsx), [`SavingsView.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/SavingsView.tsx), [`PrivacyPolicy.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/PrivacyPolicy.tsx), [`TermsConditions.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/TermsConditions.tsx)).
+  - [`hooks/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks): Smart analytics calculators ([`useAnalytics.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useAnalytics.ts)), profile queries ([`useProfile.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useProfile.ts)), and notification engines ([`useNotificationHub.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useNotificationHub.ts)).
+  - [`pages/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages): Screen controllers for views ([`Dashboard.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/Dashboard.tsx), [`ProfilePage.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/ProfilePage.tsx), [`ProfileSetupPage.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/ProfileSetupPage.tsx), [`EditProfilePage.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/EditProfilePage.tsx), [`AboutPage.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/AboutPage.tsx), etc.).
   - [`routes/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/routes): Application navigation routing definitions.
-  - [`utils/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/utils): Core helpers for dates, currency formatting, exports, and categories.
+  - [`utils/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/utils): Core helpers for dates, currency formatting, exports, validations, and categories.
 
 ---
 
@@ -92,7 +90,7 @@ The directory structure is organized logically into modules:
 
 Data persistence relies on **IndexedDB** wrapped in Dexie. Configured in [`src/db/database.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/db/database.ts), the database name is `PocketLedgerDB`.
 
-### Table Schemas & Indexes
+### Table Schemas & Indexes (Upgraded to v6)
 
 - **`accounts`**: Stores account records. Seeded on setup with two accounts.
   - _Schema_: `{ id?: number, name: string, type: 'expenditure' | 'savings', currentBalance: number }`
@@ -109,6 +107,9 @@ Data persistence relies on **IndexedDB** wrapped in Dexie. Configured in [`src/d
 - **`subscriptions`**: Tracks recurring subscriptions.
   - _Schema_: `{ id?: number, name: string, amount: number, frequency: 'weekly' | 'monthly' | 'yearly', nextDueDate: string, category: string, status: 'active' | 'cancelled' | 'paused', autoDetected: boolean, notes?: string }`
   - _Indexes_: `++id, name, frequency, status, nextDueDate`
+- **`profile`**: Singleton table housing user preferences.
+  - _Schema_: `{ id?: number, displayName: string, currency: string, currencySymbol: string, theme: 'light' | 'dark' | 'system', createdAt: Date, updatedAt: Date }`
+  - _Indexes_: `++id`
 
 ### Auto-Population & Seed Logic
 
@@ -146,7 +147,7 @@ Tracks recurring billing patterns (detecting intervals between 25 and 35 days) o
 
 ### 4. Smart Surplus Allocation Advisor (`useSmartAllocationPrompt`)
 
-Calculates the user's average daily spend (burn rate) to project remaining spending for the month. If the user's current Expenditure balance exceeds the projected remaining spend by a safe margin of **₹1,000+**, it alerts the user with a recommendation to sweep the surplus safely into the Savings Account. It provides a "Move Now" shortcut button linking directly to the transfer console.
+Calculates the user's average daily spend (burn rate) to project remaining spending for the month. This check is strictly validated against the reconstructed monthly closing balance (`summary.closingBalance`) of the Expenditure Account (aligning with the Expenditure Balance displayed to the user). If the balance exceeds the projected remaining spend by a safe margin of **₹1,000+**, it recommends transferring the surplus to the Savings Account via a "Move Now" shortcut button.
 
 ### 5. Projected Budget Exhaustion Day (`useBurnRate`)
 
@@ -164,37 +165,31 @@ Matches current-month category debits against per-category budget allocations. S
 
 ## 6. Key Application Flows
 
-### Marketing Landing Page & PWA Install Flow
+### Marketing Landing Page & Onboarding Flow
 
 - On first load, if `flo_onboarded` is not set in `localStorage`, the app displays the **Marketing Landing Page** ([`LandingPage.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/LandingPage.tsx)).
-- The landing page presents:
-  - An interactive feature grid showcasing the 5 smart features of flo.
-  - A privacy callout emphasizing the app's offline-first structure.
-  - A dynamic PWA installer that hooks into the browser's `beforeinstallprompt` event to let users download the app, or displays guidance on adding it to the Home Screen.
-  - Footer links to `/privacy` and `/terms`.
 - Tapping **"Get Started"** or **"Launch App"** transitions the layout into the onboarding slides ([`OnboardingFlow.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/features/onboarding/OnboardingFlow.tsx)).
-- Once the user completes onboarding, subsequent visits bypass the Landing Page and show the Dashboard.
+- On completing onboarding, the app requires setting up a **Local User Profile** (name & deterministic avatar) before gating access to month initialization.
 
-### Onboarding & Skipped Setup Flow
+### Local User Profile Creation & Setup Gate
 
-- During the onboarding deck, if the user completes the flow, they configure their month parameters immediately.
-- If they select **"Skip for now"**, a `flo_skipped_setup_YYYY-MM` flag is set to true. The system hides the setup modal and displays a **"Set Up Now"** button directly inside the orange `DashboardHeroCard` at the top of the dashboard. Tapping this button launches the modal later.
+- If the singleton profile does not exist in IndexedDB, the app gates access and presents the **Profile Setup Page** ([`ProfileSetupPage.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/ProfileSetupPage.tsx)).
+- Enforces alphabet-only string sanitization on name inputs (up to 20 characters) and presents a reactive avatar preview utilizing brand colors: Orange (`#d97757`), Dark Orange (`#c2633e`), Sage Green (`#788c5d`), Warm Cream (`#e8e6dc`), and Dark Charcoal (`#141413`).
+- Submitting writes the singleton profile record to the database, completing the gate.
 
 ### Welcome / Splash Screen Flow
 
 - When the application mounts, `AppRoutes.tsx` displays the `SplashScreen` overlay.
 - The welcome screen animates the `flo` logo and a linear progress indicator for a minimum of 1.5 seconds.
-- Once the IndexedDB connection is established (`monthSetup` changes from `undefined` to loaded) and the 1.5s timer finishes, the screen transitions to an `opacity-0` fade-out and unmounts after 600ms, revealing the application underneath.
+- Once the IndexedDB connection is established and the 1.5s timer finishes, the screen transitions to an `opacity-0` fade-out and unmounts after 600ms, revealing the application underneath.
 
-### Theme System (Dark / Light Selector)
+### Theme System (Light / Dark / System Selector)
 
-Managed by [`ThemeContext.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/context/ThemeContext.tsx), the user can toggle the visual theme.
+Managed by [`ThemeContext.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/context/ThemeContext.tsx) in conjunction with user profile settings.
 
-- Tailwind CSS v4 is configured with:
-  ```css
-  @custom-variant dark (&:where(.dark, .dark *));
-  ```
-- Toggling theme adds/removes the `.dark` class from the `html` element. This prevents standard system `prefers-color-scheme` preferences from overriding manually chosen configurations.
+- Offers three modes: Light, Dark, and System (which binds to `prefers-color-scheme` listeners).
+- Persistent selections are synced with IndexedDB and localStorage, dynamically adding or removing the `.dark` class from the `html` element.
+- The selection is controlled via a custom-styled, upward-opening dropdown component (`CustomDropdown.tsx`) on the `/profile` page, preventing layout overflow on mobile screens.
 
 ---
 
@@ -224,8 +219,7 @@ For standard cards, overlays, and sheets, use:
 - Body text uses standard sans-serif: `"Inter", system-ui, sans-serif`.
 - Display currency values use a premium serif typography: `.amount-display { font-family: "Instrument Serif", Georgia, serif; }`.
 
-### 4. Codebase Button Guidelines
+### 4. Settings Card Groups & Dividers
 
-- **Primary Button (`.btn-primary`)**: Pill-shaped (`var(--r-pill)`), colored with `--accent`, displays white text, and uses a custom active transform scale of `0.96`.
-- **Secondary Button (`.btn-secondary`)**: Semi-transparent border card pill, transitions size and background, suited for secondary user choices.
-- **Ghost Button (`.btn-ghost`)**: Transparent backgrounds, muted labels, used for layout-neutral utilities.
+- Settings sections are consolidated inside grouped cards on `/profile`, styled with minimal, theme-adaptive styling.
+- List items inside cards are separated using thin border dividers (`divide-y divide-black/5 dark:divide-white/5`).
