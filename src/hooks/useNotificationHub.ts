@@ -83,7 +83,7 @@ export function useNotificationHub(
   const summary = useMonthSummary(allMonthTxs, monthSetup?.openingBalance ?? 0);
 
   const budget = monthSetup?.monthlyBudget ?? 0;
-  const spent = summary.totalDebited;
+  const spent = summary.totalExpense;
   const spentPct = budget > 0 ? (spent / budget) * 100 : 0;
 
   // Active alerts from useAnalytics
