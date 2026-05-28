@@ -507,13 +507,37 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
       if (!expendAcc || !savingsAcc) return [];
 
       const allTxs = await db.transactions.toArray();
+      const allSetups = await db.monthSetups.toArray();
       const today = new Date();
       const points: HistoricalDataPoint[] = [];
+
+      let earliestMonthYear = "9999-12";
+      for (const setup of allSetups) {
+        if (setup.monthYear < earliestMonthYear) {
+          earliestMonthYear = setup.monthYear;
+        }
+      }
+      for (const tx of allTxs) {
+        const txMonth = tx.date.substring(0, 7);
+        if (txMonth < earliestMonthYear) {
+          earliestMonthYear = txMonth;
+        }
+      }
 
       for (let i = monthsCount - 1; i >= 0; i--) {
         const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
         const mYear = format(d, "yyyy-MM");
         const label = format(d, "MMM");
+
+        if (mYear < earliestMonthYear) {
+          points.push({
+            label,
+            monthYear: mYear,
+            totalDebited: 0,
+            netWorth: 0,
+          });
+          continue;
+        }
 
         // 1. Calculate total debited in this month on expenditure account
         let totalExpense = 0;
