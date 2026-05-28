@@ -50,6 +50,51 @@ export interface Subscription {
   notes?: string;
 }
 
+export interface Category {
+  id?: number;
+  name: string;
+  color: string;
+  icon?: string; // optional emoji
+  isCustom: boolean;
+  createdAt: number;
+}
+
+export interface Preset {
+  id?: number;
+  name: string;
+  amount: number;
+  category: string;
+  accountId: number;
+  isCustom: boolean;
+  usageCount: number;
+  createdAt: number;
+}
+
+export interface Profile {
+  id?: number; // 1 (singleton — always a single record)
+  displayName: string;
+  currency: string;
+  currencySymbol: string;
+  theme: 'light' | 'dark' | 'system';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+
+// ─── Default Categories ──────────────────────────────────────────────────────
+
+export const DEFAULT_CATEGORIES: Omit<Category, 'id' | 'createdAt'>[] = [
+  { name: 'Food', color: '#d97757', isCustom: false },
+  { name: 'Transport', color: '#40a0c0', isCustom: false },
+  { name: 'Bills', color: '#e0a045', isCustom: false },
+  { name: 'Shopping', color: '#9060b0', isCustom: false },
+  { name: 'Healthcare', color: '#5a9e6f', isCustom: false },
+  { name: 'Entertainment', color: '#b04060', isCustom: false },
+  { name: 'Rent', color: '#a0a860', isCustom: false },
+  { name: 'Transfer', color: '#6b6b69', isCustom: false },
+  { name: 'Other', color: '#9d9d99', isCustom: false },
+];
+
 // ─── Database Class ──────────────────────────────────────────────────────────
 
 export class FloDB extends Dexie {
@@ -58,6 +103,10 @@ export class FloDB extends Dexie {
   transactions!: Table<Transaction, number>;
   savingGoals!: Table<SavingGoal, number>;
   subscriptions!: Table<Subscription, number>;
+  categories!: Table<Category, number>;
+  presets!: Table<Preset, number>;
+  profile!: Table<Profile, number>;
+
 
   constructor() {
     super('PocketLedgerDB');
@@ -83,12 +132,59 @@ export class FloDB extends Dexie {
       subscriptions: '++id, name, frequency, status, nextDueDate',
     });
 
-    // Seed default accounts on first install
+    // v4: Add categories table
+    this.version(4).stores({
+      accounts: '++id, type',
+      monthSetups: '++id, monthYear, accountId, [accountId+monthYear]',
+      transactions: '++id, date, accountId, type, [accountId+date]',
+      savingGoals: '++id, name, targetAmount, currentAllocated, deadline',
+      subscriptions: '++id, name, frequency, status, nextDueDate',
+      categories: '++id, name, isCustom',
+    }).upgrade(async (trans) => {
+      // Seed default categories for existing users upgrading from v3
+      const catCount = await trans.table('categories').count();
+      if (catCount === 0) {
+        const now = Date.now();
+        await trans.table('categories').bulkAdd(
+          DEFAULT_CATEGORIES.map((c, i) => ({ ...c, createdAt: now + i }))
+        );
+      }
+    });
+
+    // v5: Add presets table + compound index on subscriptions for uniqueness
+    this.version(5).stores({
+      accounts: '++id, type',
+      monthSetups: '++id, monthYear, accountId, [accountId+monthYear]',
+      transactions: '++id, date, accountId, type, [accountId+date]',
+      savingGoals: '++id, name, targetAmount, currentAllocated, deadline',
+      subscriptions: '++id, name, frequency, status, nextDueDate, [name+amount]',
+      categories: '++id, name, isCustom',
+      presets: '++id, name, category, accountId, isCustom, usageCount',
+    });
+
+    // v6: Add profile table
+    this.version(6).stores({
+      accounts: '++id, type',
+      monthSetups: '++id, monthYear, accountId, [accountId+monthYear]',
+      transactions: '++id, date, accountId, type, [accountId+date]',
+      savingGoals: '++id, name, targetAmount, currentAllocated, deadline',
+      subscriptions: '++id, name, frequency, status, nextDueDate, [name+amount]',
+      categories: '++id, name, isCustom',
+      presets: '++id, name, category, accountId, isCustom, usageCount',
+      profile: 'id',
+    });
+
+
+    // Seed default accounts + categories on first install
     this.on('populate', async () => {
       await this.accounts.bulkAdd([
         { name: 'Expenditure Account', type: 'expenditure', currentBalance: 0 },
         { name: 'Savings Account', type: 'savings', currentBalance: 0 },
       ]);
+      const now = Date.now();
+      await this.categories.bulkAdd(
+        DEFAULT_CATEGORIES.map((c, i) => ({ ...c, createdAt: now + i }))
+      );
     });
   }
 }
@@ -280,6 +376,36 @@ export async function deleteSubscription(id: number): Promise<void> {
   await db.subscriptions.delete(id);
 }
 
+// ─── Categories ──────────────────────────────────────────────────────────────
+
+export async function addCategory(cat: Omit<Category, 'id' | 'createdAt'>): Promise<number> {
+  return db.categories.add({ ...cat, createdAt: Date.now() }) as Promise<number>;
+}
+
+export async function deleteCategory(id: number): Promise<void> {
+  await db.categories.delete(id);
+}
+
+// ─── Presets ─────────────────────────────────────────────────────────────────
+
+export async function addPreset(preset: Omit<Preset, 'id' | 'createdAt'>): Promise<number> {
+  return db.presets.add({ ...preset, createdAt: Date.now() }) as Promise<number>;
+}
+
+export async function updatePreset(id: number, preset: Partial<Preset>): Promise<void> {
+  await db.presets.update(id, preset);
+}
+
+export async function deletePreset(id: number): Promise<void> {
+  await db.presets.delete(id);
+}
+
+export async function incrementPresetUsage(id: number): Promise<void> {
+  await db.presets.where('id').equals(id).modify((p) => {
+    p.usageCount = (p.usageCount || 0) + 1;
+  });
+}
+
 /**
  * Scan transactions table for description + similar amount appearing 2+ times across different months.
  * Populates subscriptions table with autoDetected: true.
@@ -322,9 +448,12 @@ export async function runSubscriptionAutoDetection(): Promise<number> {
     const amount = sampleTx.amount;
     const category = sampleTx.category || 'Other';
 
-    // Check if a subscription with the same name already exists
+    // Check if a subscription with the same name AND similar amount already exists (any status)
     const existing = await db.subscriptions
-      .filter(s => s.name.toLowerCase() === name.toLowerCase())
+      .filter(s =>
+        s.name.toLowerCase() === name.toLowerCase() &&
+        Math.round(s.amount / 5) * 5 === Math.round(amount / 5) * 5
+      )
       .first();
 
     if (!existing) {

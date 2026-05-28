@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, ChevronLeft, CreditCard, PiggyBank } from "lucide-react";
+import { useProfile } from "../../../hooks/useProfile";
+
 
 interface OnboardingFlowProps {
   onComplete: (skipSetup?: boolean) => void;
@@ -12,6 +14,8 @@ export function OnboardingFlow({
   currentMonthName,
 }: OnboardingFlowProps) {
   const [currentScreen, setCurrentScreen] = useState(0);
+  const { profile } = useProfile();
+
 
   // Keyboard navigation
   useEffect(() => {
@@ -247,8 +251,9 @@ export function OnboardingFlow({
                       onClick={() => onComplete(false)}
                       className="btn-primary w-full"
                     >
-                      Set Up This Month
+                      {profile?.displayName ? `Start tracking, ${profile.displayName}` : "Set Up This Month"}
                     </button>
+
                     <button
                       onClick={() => onComplete(true)}
                       className="btn-ghost w-full py-3 text-sm font-semibold hover:text-(--text) active:scale-95 transition-all"

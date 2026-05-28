@@ -6,12 +6,14 @@ import { TransactionCard } from "../components/transactions/TransactionRow";
 import { MonthPicker } from "../components/MonthPicker";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
 import { ImportModal } from "../components/transactions/ImportModal";
+import { ExportSheet } from "../components/transactions/ExportSheet";
 import { formatINR } from "../utils/currency";
 import { useMonthlyTransactions } from "../hooks/useMonthlyTransactions";
 
 export function MonthlyTransactionsView() {
   const navigate = useNavigate();
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
   const {
     monthYear,
     searchQuery,
@@ -28,7 +30,6 @@ export function MonthlyTransactionsView() {
     savingsAcc,
     handleMonthChange,
     handleTabChange,
-    handleExport,
     tabFilteredItems,
     filteredItems,
     displayedItems,
@@ -62,7 +63,7 @@ export function MonthlyTransactionsView() {
           </button>
           <button
             className="btn-ghost p-1.5 min-h-0 h-auto flex items-center justify-center rounded-lg"
-            onClick={handleExport}
+            onClick={() => setIsExportOpen(true)}
             disabled={tabFilteredItems.length === 0}
             id="export-csv"
             title="Export as CSV"
@@ -187,6 +188,11 @@ export function MonthlyTransactionsView() {
           // Reactively updated via Dexie hook listeners automatically
         }}
         activeTab={activeTab}
+      />
+      <ExportSheet
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        defaultAccount={activeTab}
       />
     </>
   );

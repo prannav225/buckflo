@@ -133,12 +133,16 @@ export function useRunningBalances(
 export function useMonthSummary(
   transactions: Transaction[],
   openingBalance: number,
-): { totalDebited: number; totalCredited: number; closingBalance: number } {
+): { totalDebited: number; totalExpense: number; totalCredited: number; closingBalance: number } {
   let totalDebited = 0;
+  let totalExpense = 0;
   let totalCredited = 0;
 
   for (const tx of transactions) {
-    if (tx.type === "debit") totalDebited += tx.amount;
+    if (tx.type === "debit") {
+      totalDebited += tx.amount;
+      if (tx.category !== "Transfer") totalExpense += tx.amount;
+    }
     else totalCredited += tx.amount;
   }
 
@@ -149,6 +153,7 @@ export function useMonthSummary(
   ).toFixed(2);
   return {
     totalDebited: +totalDebited.toFixed(2),
+    totalExpense: +totalExpense.toFixed(2),
     totalCredited: +totalCredited.toFixed(2),
     closingBalance,
   };

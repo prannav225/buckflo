@@ -14,14 +14,8 @@ import { formatINR } from "../utils/currency";
 import { getCurrentMonthYear, formatMonthYear } from "../utils/dateUtils";
 import { exportTransactionsCSV } from "../utils/csvExport";
 import { useHistoricalData } from "../hooks/useAnalytics";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from "recharts";
+import { Line } from "react-chartjs-2";
+import { commonOptions } from "../utils/chartConfig";
 import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
 import { RecentTransactionsList } from "../components/monthly/RecentTransactionsList";
 import { Tooltip as UITooltip } from "../components/ui/Tooltip";
@@ -128,65 +122,36 @@ export function MonthlyView() {
                 className="h-[160px] mt-3 w-full"
                 onClick={(e) => e.stopPropagation()}
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={historicalData}
-                    margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="colorSpend"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="var(--accent)"
-                          stopOpacity={0.2}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="var(--accent)"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <XAxis
-                      dataKey="label"
-                      stroke="var(--text-muted)"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <YAxis
-                      stroke="var(--text-muted)"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(v) => `₹${v}`}
-                    />
-                    <Tooltip
-                      formatter={(value) => [formatINR(Number(value)), "Spend"]}
-                      contentStyle={{
-                        background: "var(--bg-glass-strong)",
-                        border: "var(--glass-border)",
-                        borderRadius: "var(--r-md)",
-                        color: "var(--text)",
-                        fontSize: "12px",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="totalDebited"
-                      stroke="var(--accent)"
-                      strokeWidth={2.5}
-                      fillOpacity={1}
-                      fill="url(#colorSpend)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <Line
+                  data={{
+                    labels: historicalData.map((d) => d.label),
+                    datasets: [
+                      {
+                        label: "Spend",
+                        data: historicalData.map((d) => d.totalDebited),
+                        borderColor: "#d97757", // var(--accent)
+                        backgroundColor: (context) => {
+                          const ctx = context.chart.ctx;
+                          const gradient = ctx.createLinearGradient(
+                            0,
+                            0,
+                            0,
+                            130,
+                          );
+                          gradient.addColorStop(0, "rgba(217, 119, 87, 0.2)");
+                          gradient.addColorStop(1, "rgba(217, 119, 87, 0)");
+                          return gradient;
+                        },
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        borderWidth: 2.5,
+                      },
+                    ],
+                  }}
+                  options={commonOptions}
+                />
               </div>
             )}
           </div>

@@ -278,7 +278,7 @@ export function useNotificationHub(
                 const newDueDate = advanceDueDate(sub.nextDueDate, sub.frequency);
                 await updateSubscription(sub.id!, { nextDueDate: newDueDate });
                 toast.success(`Skipped: ${sub.name} advanced to ${newDueDate} ✓`);
-              } catch (err) {
+              } catch {
                 toast.error("Failed to skip subscription.");
               }
             };
@@ -287,7 +287,7 @@ export function useNotificationHub(
               try {
                 await updateSubscription(sub.id!, { status: "paused" });
                 toast.success(`Subscription '${sub.name}' paused successfully ✓`);
-              } catch (err) {
+              } catch {
                 toast.error("Failed to pause subscription.");
               }
             };

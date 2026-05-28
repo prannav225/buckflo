@@ -1,12 +1,20 @@
 import { NavLink } from "react-router-dom";
-import { Calendar, PiggyBank, Home, Plus, BarChart2 } from "lucide-react";
+import { Calendar, Home, Plus, BarChart2 } from "lucide-react";
+import { BrandedAvatar } from "./BrandedAvatar";
+import { useProfile } from "../../hooks/useProfile";
+
+function ProfileAvatar({ size }: { size: number }) {
+  const { profile } = useProfile();
+  const displayName = profile?.displayName || "flo";
+  return <BrandedAvatar name={displayName} size={size} />;
+}
 
 const navItems = [
   { to: "/", end: true, label: "Home", id: "nav-home", Icon: Home },
   { to: "/monthly", label: "Monthly", id: "nav-monthly", Icon: Calendar },
   { to: "/add", label: "Add entry", id: "nav-add", Icon: Plus, isFab: true },
   { to: "/insights", label: "Insights", id: "nav-insights", Icon: BarChart2 },
-  { to: "/savings", label: "Savings", id: "nav-savings", Icon: PiggyBank },
+  { to: "/profile", label: "Profile", id: "nav-profile", isProfile: true },
 ];
 
 export function BottomNav() {
@@ -21,7 +29,7 @@ export function BottomNav() {
         className="flex items-center gap-0.5 p-[6px_8px] bg-(--bg-glass-strong) [-webkit-backdrop-filter:blur(32px)_saturate(200%)] [backdrop-filter:blur(32px)_saturate(200%)] border border-black/8 dark:border-white/6 rounded-(--r-pill) shadow-(--glass-shadow-lg) pointer-events-auto nav-pill"
         aria-label="Main navigation"
       >
-        {navItems.map(({ to, end, label, id, Icon, isFab }) => (
+        {navItems.map(({ to, end, label, id, Icon, isFab, isProfile }) => (
           <NavLink
             key={id}
             to={to}
@@ -38,10 +46,15 @@ export function BottomNav() {
             aria-label={label}
             id={id}
           >
-            <Icon size={20} strokeWidth={1.8} />
+            {isProfile ? (
+              <ProfileAvatar size={20} />
+            ) : (
+              Icon && <Icon size={20} strokeWidth={1.8} />
+            )}
           </NavLink>
         ))}
       </nav>
     </div>
   );
 }
+

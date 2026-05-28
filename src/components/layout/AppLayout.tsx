@@ -1,7 +1,6 @@
 import { type ReactNode, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { useTheme } from "../../context/ThemeContext";
-import { Sun, Moon, Bell } from "lucide-react";
+import { Bell } from "lucide-react";
 import { BottomNav } from "./BottomNav";
 import { useNotificationHub } from "../../hooks/useNotificationHub";
 import { NotificationSheet } from "./NotificationSheet";
@@ -17,7 +16,6 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { theme, toggleTheme } = useTheme();
   const { pathname } = useLocation();
   const isLegalPage = pathname === "/privacy" || pathname === "/terms";
 
@@ -73,18 +71,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   flo
                 </span>
               </div>
-              <div className="inline-flex items-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-(--r-pill) p-1 shadow-(--glass-shadow) pointer-events-auto gap-1 transition-[transform,box-shadow] duration-200 ease-out active:translate-y-0">
-                <button
-                  onClick={toggleTheme}
-                  className="inline-flex items-center justify-center w-8 h-8 bg-transparent border-0 rounded-full text-(--text-secondary) cursor-pointer transition-[background,color,transform] duration-150 active:scale-90 outline-none"
-                  aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-                  title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-                  id="theme-switcher"
-                >
-                  {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-                </button>
-                <div className="w-px h-4 bg-(--border)" />
-
+              <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) pointer-events-auto transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
                 <button
                   onClick={openNotifications}
                   className="inline-flex items-center justify-center w-8 h-8 bg-transparent border-0 rounded-full text-(--text-secondary) cursor-pointer transition-[background,color,transform] duration-150 active:scale-90 outline-none relative"

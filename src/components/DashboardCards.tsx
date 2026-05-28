@@ -2,6 +2,7 @@ import { Calendar, PiggyBank, TrendingDown, ChevronRight } from "lucide-react";
 import { formatINR } from "../utils/currency";
 import { formatMonthYear } from "../utils/dateUtils";
 import type { MonthSetup } from "../db/database";
+import type { MonthComparisonResult } from "../hooks/useMonthComparison";
 
 interface DashboardHeroCardProps {
   balance: number;
@@ -16,6 +17,8 @@ interface DashboardHeroCardProps {
   dailyRemaining: number;
   onTopUp: () => void;
   onSetup?: () => void;
+  monthComparison?: MonthComparisonResult;
+  displayName?: string;
 }
 
 export function DashboardHeroCard({
@@ -31,6 +34,8 @@ export function DashboardHeroCard({
   dailyRemaining,
   onTopUp,
   onSetup,
+  monthComparison,
+  displayName,
 }: DashboardHeroCardProps) {
   return (
     <div
@@ -41,6 +46,12 @@ export function DashboardHeroCard({
     >
       <div className="hero-card-orb-lg" />
       <div className="hero-card-orb-sm" />
+
+      {displayName && (
+        <div className="font-sans text-[11px] text-white/65 font-medium tracking-wide mb-1 select-none">
+          Hey {displayName}
+        </div>
+      )}
 
       {/* Label row */}
       <div className="flex items-center justify-between mb-1.5">
@@ -94,6 +105,26 @@ export function DashboardHeroCard({
               </>
             )}
           </div>
+          {/* Month-over-Month Comparison */}
+          {monthComparison?.hasLastMonthData && (
+            <div className="font-sans text-[11px] mt-1.5" style={{ lineHeight: 1.4 }}>
+              {monthComparison.direction === 'up' && (
+                <span className="text-[rgba(255,200,180,0.9)]">
+                  ↑ {monthComparison.percentChange}% more than this time last month
+                </span>
+              )}
+              {monthComparison.direction === 'down' && (
+                <span className="text-[rgba(180,220,160,0.9)]">
+                  ↓ {monthComparison.percentChange}% less than this time last month
+                </span>
+              )}
+              {monthComparison.direction === 'neutral' && (
+                <span className="text-[rgba(255,255,255,0.55)]">
+                  ≈ On track with last month
+                </span>
+              )}
+            </div>
+          )}
         </div>
       ) : !monthSetup && onSetup ? (
         <div className="mb-4.5 relative z-10">

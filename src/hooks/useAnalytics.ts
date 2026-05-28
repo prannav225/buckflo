@@ -224,96 +224,149 @@ export interface FrequentPreset {
   description: string;
   amount: number;
   category: string;
+  isCustom: boolean;
+  id?: number;
 }
 
 const FALLBACK_PRESETS: FrequentPreset[] = [
-  { description: "Coffee", amount: 80, category: "Food" },
-  { description: "Metro Fare", amount: 50, category: "Transport" },
-  { description: "Groceries", amount: 500, category: "Shopping" },
-  { description: "Lunch Thali", amount: 150, category: "Food" },
+  { description: "Coffee", amount: 80, category: "Food", isCustom: false },
+  { description: "Metro Fare", amount: 50, category: "Transport", isCustom: false },
+  { description: "Groceries", amount: 500, category: "Shopping", isCustom: false },
+  { description: "Lunch Thali", amount: 150, category: "Food", isCustom: false },
 ];
 
-export function useFrequentPresets(limit = 4): FrequentPreset[] {
+export function useFrequentPresets(limit = 6): FrequentPreset[] {
   const expendAcc = useAccount("expenditure");
 
   return useLiveQuery(
     async () => {
-      if (!expendAcc?.id) return FALLBACK_PRESETS.slice(0, limit);
+      // 1. Fetch custom presets from DB
+      const customPresets = await db.presets.toArray();
+      const customMapped: (FrequentPreset & { sortScore: number })[] = customPresets.map((p) => ({
+        description: p.name,
+        amount: p.amount,
+        category: p.category,
+        isCustom: true,
+        id: p.id,
+        sortScore: p.usageCount + 2, // +2 base so new custom presets appear alongside used auto ones
+      }));
 
-      // Query past transactions to calculate frequency
+      if (!expendAcc?.id) {
+        // No account yet — just return custom + fallbacks
+        const combined: FrequentPreset[] = customMapped.map((p) => {
+          const res: FrequentPreset = {
+            description: p.description,
+            amount: p.amount,
+            category: p.category,
+            isCustom: p.isCustom,
+          };
+          if (p.id !== undefined) res.id = p.id;
+          return res;
+        });
+        if (combined.length < limit) {
+          for (const fb of FALLBACK_PRESETS) {
+            if (combined.length >= limit) break;
+            if (!combined.some((p) => p.description.toLowerCase() === fb.description.toLowerCase())) {
+              combined.push(fb);
+            }
+          }
+        }
+        return combined.slice(0, limit);
+      }
+
+      // 2. Query past transactions to calculate frequency for auto-detection
       const txs = await db.transactions
         .where("accountId")
         .equals(expendAcc.id)
         .filter((t) => t.type === "debit")
         .toArray();
 
-      if (txs.length === 0) return FALLBACK_PRESETS.slice(0, limit);
+      const autoPresets: (FrequentPreset & { sortScore: number })[] = [];
 
-      // Group and count occurrences of combination of description + category (ignoring amount differences)
-      const freqMap = new Map<
-        string,
-        {
-          desc: string;
-          cat: string;
-          count: number;
-          lastAmount: number;
-          lastCreatedAt: number;
-        }
-      >();
-
-      for (const tx of txs) {
-        const descNorm = tx.description.trim();
-        const catVal = tx.category || "Other";
-        const key = `${descNorm.toLowerCase()}_${catVal.toLowerCase()}`;
-
-        const existing = freqMap.get(key);
-        if (existing) {
-          existing.count += 1;
-          // Keep the amount of the most recently logged transaction of this pattern
-          if (tx.createdAt > existing.lastCreatedAt) {
-            existing.lastAmount = tx.amount;
-            existing.lastCreatedAt = tx.createdAt;
+      if (txs.length > 0) {
+        const freqMap = new Map<
+          string,
+          {
+            desc: string;
+            cat: string;
+            count: number;
+            lastAmount: number;
+            lastCreatedAt: number;
           }
-        } else {
-          freqMap.set(key, {
-            desc: descNorm,
-            cat: catVal,
-            count: 1,
-            lastAmount: tx.amount,
-            lastCreatedAt: tx.createdAt,
-          });
+        >();
+
+        for (const tx of txs) {
+          const descNorm = tx.description.trim();
+          const catVal = tx.category || "Other";
+          const key = `${descNorm.toLowerCase()}_${catVal.toLowerCase()}`;
+
+          const existing = freqMap.get(key);
+          if (existing) {
+            existing.count += 1;
+            if (tx.createdAt > existing.lastCreatedAt) {
+              existing.lastAmount = tx.amount;
+              existing.lastCreatedAt = tx.createdAt;
+            }
+          } else {
+            freqMap.set(key, {
+              desc: descNorm,
+              cat: catVal,
+              count: 1,
+              lastAmount: tx.amount,
+              lastCreatedAt: tx.createdAt,
+            });
+          }
         }
-      }
 
-      // Convert map to array, filter items logged at least twice, and sort by frequency descending
-      const sortedFreq = Array.from(freqMap.values())
-        .filter((item) => item.count >= 2)
-        .sort((a, b) => b.count - a.count);
+        const sortedFreq = Array.from(freqMap.values())
+          .filter((item) => item.count >= 2)
+          .sort((a, b) => b.count - a.count);
 
-      // Map to FrequentPreset format using the last logged amount
-      const presets: FrequentPreset[] = sortedFreq.map((item) => ({
-        description: item.desc,
-        amount: item.lastAmount,
-        category: item.cat,
-      }));
-
-      // If we don't have enough presets, backfill with fallbacks that don't duplicate existing ones
-      if (presets.length < limit) {
-        for (const fallback of FALLBACK_PRESETS) {
-          if (presets.length >= limit) break;
-          // Check if fallback description is already present
-          const isDuplicate = presets.some(
-            (p) =>
-              p.description.toLowerCase() ===
-              fallback.description.toLowerCase(),
+        for (const item of sortedFreq) {
+          // Skip if a custom preset with same name already exists
+          const isDuplicate = customMapped.some(
+            (cp) => cp.description.toLowerCase() === item.desc.toLowerCase(),
           );
           if (!isDuplicate) {
-            presets.push(fallback);
+            autoPresets.push({
+              description: item.desc,
+              amount: item.lastAmount,
+              category: item.cat,
+              isCustom: false,
+              sortScore: item.count,
+            });
           }
         }
       }
 
-      return presets.slice(0, limit);
+      // 3. Merge custom + auto, sort by usage frequency
+      const merged: FrequentPreset[] = [...customMapped, ...autoPresets]
+        .sort((a, b) => b.sortScore - a.sortScore)
+        .map((p) => {
+          const res: FrequentPreset = {
+            description: p.description,
+            amount: p.amount,
+            category: p.category,
+            isCustom: p.isCustom,
+          };
+          if (p.id !== undefined) res.id = p.id;
+          return res;
+        });
+
+      // 4. Backfill with fallbacks if needed
+      if (merged.length < limit) {
+        for (const fallback of FALLBACK_PRESETS) {
+          if (merged.length >= limit) break;
+          const isDuplicate = merged.some(
+            (p) => p.description.toLowerCase() === fallback.description.toLowerCase(),
+          );
+          if (!isDuplicate) {
+            merged.push(fallback);
+          }
+        }
+      }
+
+      return merged.slice(0, limit);
     },
     [expendAcc?.id, limit],
     FALLBACK_PRESETS.slice(0, limit),
@@ -391,11 +444,15 @@ export interface SmartAllocationResult {
 export function useSmartAllocationPrompt(): SmartAllocationResult | null {
   const expendAcc = useAccount("expenditure");
   const monthYear = getCurrentMonthYear();
+  const monthSetup = useMonthSetup(monthYear);
   const transactions = useTransactions(expendAcc?.id, monthYear);
-  const summary = useMonthSummary(transactions, 0);
+  const summary = useMonthSummary(transactions, monthSetup?.openingBalance ?? 0);
 
   return useMemo(() => {
     if (!expendAcc?.id) return null;
+
+    // Use reconstructed closing balance to match the dashboard's display balance
+    const currentBalance = summary.closingBalance;
 
     // Check localStorage for dismissal (valid for 24 hours)
     const dismissedTime = localStorage.getItem("flo_advisor_dismissed");
@@ -404,7 +461,7 @@ export function useSmartAllocationPrompt(): SmartAllocationResult | null {
         shouldShow: false,
         surplus: 0,
         suggestedAmount: 0,
-        expenditureBalance: expendAcc.currentBalance,
+        expenditureBalance: currentBalance,
         projectedSpend: 0,
       };
     }
@@ -413,12 +470,12 @@ export function useSmartAllocationPrompt(): SmartAllocationResult | null {
     const daysElapsed = getDaysElapsedInMonth();
     const daysRemaining = Math.max(0, totalDays - daysElapsed);
 
-    const totalDebited = summary.totalDebited;
+    const totalDebited = summary.totalExpense;
     const avgDailySpend = totalDebited / daysElapsed;
     const projectedRemainingSpend = avgDailySpend * daysRemaining;
-    const surplus = expendAcc.currentBalance - projectedRemainingSpend;
+    const surplus = currentBalance - projectedRemainingSpend;
 
-    const shouldShow = surplus > 1000 && expendAcc.currentBalance > 1000;
+    const shouldShow = surplus > 1000 && currentBalance > 1000;
     const suggestedAmount = shouldShow
       ? Math.max(500, Math.floor((surplus * 0.8) / 500) * 500)
       : 0;
@@ -427,7 +484,7 @@ export function useSmartAllocationPrompt(): SmartAllocationResult | null {
       shouldShow,
       surplus: +surplus.toFixed(2),
       suggestedAmount,
-      expenditureBalance: expendAcc.currentBalance,
+      expenditureBalance: currentBalance,
       projectedSpend: +projectedRemainingSpend.toFixed(2),
     };
   }, [expendAcc, summary]);
@@ -459,14 +516,11 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
         const label = format(d, "MMM");
 
         // 1. Calculate total debited in this month on expenditure account
-        let totalDebited = 0;
-        for (const tx of allTxs) {
-          if (
-            tx.accountId === expendAcc.id &&
-            tx.type === "debit" &&
-            tx.date.startsWith(mYear)
-          ) {
-            totalDebited += tx.amount;
+        let totalExpense = 0;
+
+        for (const tx of allTxs.filter(t => t.accountId === expendAcc.id && t.date.startsWith(mYear))) {
+          if (tx.type === "debit") {
+            if (tx.category !== "Transfer") totalExpense += tx.amount;
           }
         }
 
@@ -497,7 +551,7 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
         points.push({
           label,
           monthYear: mYear,
-          totalDebited: +totalDebited.toFixed(2),
+          totalDebited: +totalExpense.toFixed(2),
           netWorth: +(expBal + savBal).toFixed(2),
         });
       }

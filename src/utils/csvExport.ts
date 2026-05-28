@@ -3,19 +3,20 @@ import { formatDate } from './dateUtils';
 
 /**
  * Export a list of transactions as a CSV file.
- * Columns: Date, Description, Amount (matching Google Sheets format)
+ * Columns: Date, Description, Category, Amount, Type, Account
  */
 export function exportTransactionsCSV(
-  transactions: Transaction[],
+  transactions: (Transaction & { accountName?: string })[],
   filename = 'flo-export.csv',
 ): void {
-  const header = ['Date', 'Description', 'Category', 'Amount', 'Type'];
+  const header = ['Date', 'Description', 'Category', 'Amount', 'Type', 'Account'];
   const rows = transactions.map((tx) => [
     formatDate(tx.date),
     `"${tx.description.replace(/"/g, '""')}"`, // escape double quotes
     `"${(tx.category || '').replace(/"/g, '""')}"`, // escape double quotes in category
     tx.type === 'debit' ? `-${tx.amount.toFixed(2)}` : tx.amount.toFixed(2),
     tx.type,
+    `"${(tx.accountName || '').replace(/"/g, '""')}"`, // escape double quotes in account
   ]);
 
   const csvContent = [header.join(','), ...rows.map((r) => r.join(','))].join('\n');

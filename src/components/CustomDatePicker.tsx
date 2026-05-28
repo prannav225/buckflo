@@ -6,6 +6,8 @@ interface CustomDatePickerProps {
   id?: string;
   value: string; // "YYYY-MM-DD"
   onChange: (val: string) => void;
+  align?: "left" | "right" | "center";
+  direction?: "up" | "down";
 }
 
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -28,6 +30,8 @@ export function CustomDatePicker({
   id,
   value,
   onChange,
+  align = "left",
+  direction = "down",
 }: CustomDatePickerProps) {
   const {
     open,
@@ -63,7 +67,9 @@ export function CustomDatePicker({
 
       {/* Custom dropdown calendar */}
       {open && (
-        <div className="glass-card-strong pop-in absolute bottom-[calc(100%+8px)] left-0 right-0 z-[900] p-4 bg-(--bg-surface) shadow-[var(--glass-shadow-lg)] flex flex-col gap-3 border border-black/8 dark:border-white/6 [backdrop-filter:var(--glass-blur)] [-webkit-backdrop-filter:var(--glass-blur)]">
+        <div
+          className={`glass-card-strong pop-in absolute z-900 p-4 bg-(--bg-surface) shadow-(--glass-shadow-lg) flex flex-col gap-3 border border-black/8 dark:border-white/6 [backdrop-filter:var(--glass-blur)] [-webkit-backdrop-filter:var(--glass-blur)] w-[260px] ${direction === "up" ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"} ${align === "left" ? "left-0" : align === "right" ? "right-0" : "left-1/2 -translate-x-1/2"}`}
+        >
           {/* Header row */}
           <div className="flex items-center justify-between">
             <span className="font-semibold text-[0.9375rem] text-(--text)">
@@ -73,7 +79,7 @@ export function CustomDatePicker({
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="btn-ghost flex items-center justify-center w-9 h-9 rounded-[var(--r-sm)] border-none bg-transparent text-(--text-secondary) cursor-pointer transition-colors p-0"
+                className="btn-ghost flex items-center justify-center w-9 h-9 rounded-(--r-sm) border-none bg-transparent text-(--text-secondary) cursor-pointer transition-colors p-0"
                 aria-label="Previous Month"
               >
                 <ChevronLeft size={20} />
@@ -81,7 +87,7 @@ export function CustomDatePicker({
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="btn-ghost flex items-center justify-center w-9 h-9 rounded-[var(--r-sm)] border-none bg-transparent text-(--text-secondary) cursor-pointer transition-colors p-0"
+                className="btn-ghost flex items-center justify-center w-9 h-9 rounded-(--r-sm) border-none bg-transparent text-(--text-secondary) cursor-pointer transition-colors p-0"
                 aria-label="Next Month"
               >
                 <ChevronRight size={20} />
@@ -122,7 +128,7 @@ export function CustomDatePicker({
                     isToday && !isSelected
                       ? "border-[1.5px] border-(--accent)! font-semibold"
                       : ""
-                  } ${!dayObj.isCurrentMonth ? "!text-(--text-muted) opacity-40" : ""}`}
+                  } ${!dayObj.isCurrentMonth ? "text-(--text-muted)! opacity-40" : ""}`}
                 >
                   {dayObj.day}
                 </button>

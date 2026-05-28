@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { PiggyBank, Download, Plus, Target, ChevronRight } from "lucide-react";
+import { PiggyBank, Plus, Target, ChevronRight, ArrowLeft } from "lucide-react";
 import { type SavingGoal } from "../db/database";
 import {
   useAccount,
@@ -13,7 +13,6 @@ import { TransactionCard } from "../components/transactions/TransactionRow";
 import { MonthPicker } from "../components/MonthPicker";
 import { formatINR } from "../utils/currency";
 import { getCurrentMonthYear, formatMonthYear } from "../utils/dateUtils";
-import { exportTransactionsCSV } from "../utils/csvExport";
 import { CreateGoalSheet } from "../components/savings/CreateGoalSheet";
 import { ManageGoalSheet } from "../components/savings/ManageGoalSheet";
 import { SavingsGoalCard } from "../components/savings/SavingsGoalCard";
@@ -51,10 +50,6 @@ export function SavingsView() {
     currentSavingsBalance,
   } = useSavingsGoals();
 
-  const handleExport = () => {
-    exportTransactionsCSV(transactions, `flo-savings-${monthYear}.csv`);
-  };
-
   // Staggered delay classes based on current month layout
   const summaryDelay = isCurrentMonth ? "delay-2" : "delay-1";
   const listDelay = isCurrentMonth ? "delay-3" : "delay-2";
@@ -72,17 +67,17 @@ export function SavingsView() {
     <>
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="sub-header fade-in-up flex items-center justify-between mb-2">
-        <h2 className="sub-header-title m-0">Savings</h2>
-        <button
-          className="btn-ghost"
-          onClick={handleExport}
-          disabled={transactions.length === 0}
-          id="savings-export-csv"
-          title="Export as CSV"
-        >
-          <Download size={16} />
-          CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            className="p-0 min-h-0 h-auto flex text-(--text-muted) cursor-pointer"
+            onClick={() => navigate(-1)}
+            title="Back"
+            id="btn-back"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <h2 className="sub-header-title m-0">Savings</h2>
+        </div>
       </div>
 
       {/* ── Compact Month Filter ────────────────────────────────────────── */}

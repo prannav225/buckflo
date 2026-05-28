@@ -15,7 +15,7 @@ import { formatINR } from "../utils/currency";
 import { CustomDatePicker } from "../components/CustomDatePicker";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
 
-import { CATEGORIES } from "../utils/categories";
+import { useCategories } from "../hooks/useCategories";
 
 export function AddEditTransaction() {
   const navigate = useNavigate();
@@ -42,6 +42,7 @@ export function AddEditTransaction() {
     handleDelete,
   } = useTransactionForm();
 
+  const categories = useCategories();
   const amountInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus amount on mount for add mode (after data load)
@@ -231,17 +232,19 @@ export function AddEditTransaction() {
               id="category-pills-scroll"
               className="chip-scroll flex gap-2 overflow-x-auto pb-1 w-full touch-pan-x"
             >
-              {CATEGORIES.map((c) => (
+              {categories
+                .filter((c) => c.name !== "Transfer")
+                .map((c) => (
                 <button
-                  key={c}
+                  key={c.id ?? c.name}
                   type="button"
                   className={`chip whitespace-nowrap py-2 px-4 text-[0.8125rem] ${
-                    category === c ? "chip-active" : ""
+                    category === c.name ? "chip-active" : ""
                   }`}
-                  onClick={() => setCategory(category === c ? "" : c)}
-                  id={`page-cat-${c.toLowerCase()}`}
+                  onClick={() => setCategory(category === c.name ? "" : c.name)}
+                  id={`page-cat-${c.name.toLowerCase()}`}
                 >
-                  {c}
+                  {c.name}
                 </button>
               ))}
             </div>

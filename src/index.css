@@ -127,6 +127,15 @@ body {
     color 0.2s;
 }
 
+html, body {
+  touch-action: pan-x pan-y;
+  -ms-touch-action: pan-x pan-y;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
 h1,
 h2,
 h3,
@@ -309,6 +318,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .input-field::placeholder {
   color: var(--text-muted);
 }
+.input-field:disabled {
+  opacity: 0.6;
+  background: var(--border);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
 
 /* ─── Label ──────────────────────────────────────────────────────────────────── */
 .label {
@@ -516,10 +532,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-bottom-right-radius: 0;
   padding: 16px 24px calc(24px + env(safe-area-inset-bottom, 16px)); /* Safe padding for notches */
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.24);
+  max-height: 88vh; /* Fallback for older browsers without dvh support */
   max-height: 88dvh; /* Leave top space like a true sheet */
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  overscroll-behavior-y: contain; /* Prevent body rubber-banding on scroll */
+  -webkit-overflow-scrolling: touch;
+  display: block;
   animation: slideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1); /* Direct slideUp from translateY(100%) */
   scrollbar-width: none;
 }
