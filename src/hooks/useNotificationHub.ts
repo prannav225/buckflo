@@ -51,7 +51,7 @@ export function useNotificationHub(
     direction: "savings_to_expenditure" | "expenditure_to_savings";
     amount: string;
     note: string;
-  }) => void
+  }) => void,
 ) {
   const navigate = useNavigate();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -99,7 +99,7 @@ export function useNotificationHub(
   const approvedSubscriptions = useLiveQuery(
     () => db.subscriptions.where("status").equals("active").toArray(),
     [],
-    []
+    [],
   );
 
   // 2. Compile active notifications dynamically
@@ -275,9 +275,14 @@ export function useNotificationHub(
           if (daysLeft >= 0 && daysLeft <= 7) {
             const handleSkip = async () => {
               try {
-                const newDueDate = advanceDueDate(sub.nextDueDate, sub.frequency);
+                const newDueDate = advanceDueDate(
+                  sub.nextDueDate,
+                  sub.frequency,
+                );
                 await updateSubscription(sub.id!, { nextDueDate: newDueDate });
-                toast.success(`Skipped: ${sub.name} advanced to ${newDueDate} ✓`);
+                toast.success(
+                  `Skipped: ${sub.name} advanced to ${newDueDate} ✓`,
+                );
               } catch {
                 toast.error("Failed to skip subscription.");
               }
@@ -286,7 +291,9 @@ export function useNotificationHub(
             const handlePause = async () => {
               try {
                 await updateSubscription(sub.id!, { status: "paused" });
-                toast.success(`Subscription '${sub.name}' paused successfully ✓`);
+                toast.success(
+                  `Subscription '${sub.name}' paused successfully ✓`,
+                );
               } catch {
                 toast.error("Failed to pause subscription.");
               }
@@ -296,9 +303,15 @@ export function useNotificationHub(
 
             alerts.push({
               id: `approved-sub-due-${sub.id}-${sub.nextDueDate}`,
-              type: isDueTomorrow ? "danger" : daysLeft <= 2 ? "warning" : "info",
+              type: isDueTomorrow
+                ? "danger"
+                : daysLeft <= 2
+                  ? "warning"
+                  : "info",
               category: "bills",
-              title: isDueTomorrow ? `Autopay Due Tomorrow: ${sub.name}` : `Upcoming Auto-Pay: ${sub.name}`,
+              title: isDueTomorrow
+                ? `Autopay Due Tomorrow: ${sub.name}`
+                : `Upcoming Auto-Pay: ${sub.name}`,
               description: isDueTomorrow
                 ? `Autopay for ${sub.name} (₹${sub.amount.toFixed(2)}) is due tomorrow. Action will be taken automatically.`
                 : `${formatINR(sub.amount)} is auto-renewing in ${daysLeft} days (${sub.nextDueDate}).`,
@@ -341,7 +354,7 @@ export function useNotificationHub(
   // Compile currently visible alerts
   const visibleAlerts = useMemo(() => {
     return activeAlerts.filter(
-      (alert) => !dismissedAlertKeys.includes(alert.id)
+      (alert) => !dismissedAlertKeys.includes(alert.id),
     );
   }, [activeAlerts, dismissedAlertKeys]);
 
@@ -362,12 +375,12 @@ export function useNotificationHub(
     // Clean up dismissed alerts from localStorage/state that are no longer active
     const activeIdsSet = new Set(activeIds);
     const cleanedDismissed = dismissedAlertKeys.filter((id) =>
-      activeIdsSet.has(id)
+      activeIdsSet.has(id),
     );
     if (cleanedDismissed.length !== dismissedAlertKeys.length) {
       localStorage.setItem(
         "flo_dismissed_alerts",
-        JSON.stringify(cleanedDismissed)
+        JSON.stringify(cleanedDismissed),
       );
       setDismissedAlertKeys(cleanedDismissed);
     }

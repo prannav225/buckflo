@@ -153,7 +153,7 @@ export function Tooltip({
         createPortal(
           <div
             ref={tooltipRef}
-            className={`fixed z-9999 max-w-[240px] p-3 bg-[#2a2927] border border-(--accent)/40 rounded-lg shadow-xl shadow-black/20 text-[#f5f5f3] text-xs font-sans animate-fade-in pointer-events-auto leading-relaxed`}
+            className={`absolute z-9999 max-w-[240px] p-3 bg-[#2a2927] border border-(--accent)/40 rounded-lg shadow-xl shadow-black/20 text-[#f5f5f3] text-xs font-sans animate-fade-in pointer-events-auto leading-relaxed`}
             style={{
               top: `${coords.top}px`,
               left: `${coords.left}px`,
