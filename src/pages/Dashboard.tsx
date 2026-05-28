@@ -55,6 +55,7 @@ export function Dashboard() {
           (tx) =>
             tx.category !== "adjustment" &&
             tx.category !== "transfer" &&
+            tx.category !== "Transfer" &&
             tx.category !== "opening-transfer"
         );
         if (realTxs.length === 0) {

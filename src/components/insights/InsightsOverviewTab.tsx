@@ -17,7 +17,12 @@ export function InsightsOverviewTab() {
   const categorySpend: Record<string, number> = {};
   let totalExpense = 0;
   for (const tx of currentMonthTxs) {
-    if (tx.type === "debit" && tx.category !== "Transfer") {
+    if (
+      tx.type === "debit" &&
+      tx.category !== "transfer" &&
+      tx.category !== "Transfer" &&
+      tx.category !== "opening-transfer"
+    ) {
       const cat = tx.category || "Other";
       categorySpend[cat] = (categorySpend[cat] || 0) + tx.amount;
       totalExpense += tx.amount;

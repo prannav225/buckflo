@@ -73,7 +73,10 @@ export function TransactionCard({
             <span className="whitespace-nowrap text-xs text-(--text-secondary)">
               {formatDate(tx.date)}
             </span>
-            {tx.category && tx.category !== "transfer" && tx.category !== "opening-transfer" && (
+            {tx.category &&
+              tx.category !== "transfer" &&
+              tx.category !== "Transfer" &&
+              tx.category !== "opening-transfer" && (
               <span
                 className="inline-flex items-center rounded-(--r-pill) px-2 py-0.5 text-[10px] font-medium leading-[1.4]"
                 style={{

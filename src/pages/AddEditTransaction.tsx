@@ -232,9 +232,7 @@ export function AddEditTransaction() {
               id="category-pills-scroll"
               className="chip-scroll flex gap-2 overflow-x-auto pb-1 w-full touch-pan-x"
             >
-              {categories
-                .filter((c) => c.name !== "Transfer")
-                .map((c) => (
+              {categories.map((c) => (
                 <button
                   key={c.id ?? c.name}
                   type="button"

@@ -544,7 +544,13 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
 
         for (const tx of allTxs.filter(t => t.accountId === expendAcc.id && t.date.startsWith(mYear))) {
           if (tx.type === "debit") {
-            if (tx.category !== "Transfer") totalExpense += tx.amount;
+            if (
+              tx.category !== "transfer" &&
+              tx.category !== "Transfer" &&
+              tx.category !== "opening-transfer"
+            ) {
+              totalExpense += tx.amount;
+            }
           }
         }
 

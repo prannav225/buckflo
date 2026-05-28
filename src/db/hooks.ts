@@ -141,7 +141,13 @@ export function useMonthSummary(
   for (const tx of transactions) {
     if (tx.type === "debit") {
       totalDebited += tx.amount;
-      if (tx.category !== "Transfer") totalExpense += tx.amount;
+      if (
+        tx.category !== "transfer" &&
+        tx.category !== "Transfer" &&
+        tx.category !== "opening-transfer"
+      ) {
+        totalExpense += tx.amount;
+      }
     }
     else totalCredited += tx.amount;
   }
