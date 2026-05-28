@@ -1,26 +1,18 @@
 import { NavLink } from "react-router-dom";
-import { Calendar, Home, Plus, BarChart2 } from "lucide-react";
-import { BrandedAvatar } from "./BrandedAvatar";
-import { useProfile } from "../../hooks/useProfile";
-
-function ProfileAvatar({ size }: { size: number }) {
-  const { profile } = useProfile();
-  const displayName = profile?.displayName || "flo";
-  return <BrandedAvatar name={displayName} size={size} />;
-}
+import { Calendar, Home, Plus, BarChart2, History } from "lucide-react";
 
 const navItems = [
   { to: "/", end: true, label: "Home", id: "nav-home", Icon: Home },
-  { to: "/monthly", label: "Monthly", id: "nav-monthly", Icon: Calendar },
+  { to: "/monthly", end: true, label: "Monthly", id: "nav-monthly", Icon: Calendar },
   { to: "/add", label: "Add entry", id: "nav-add", Icon: Plus, isFab: true },
   { to: "/insights", label: "Insights", id: "nav-insights", Icon: BarChart2 },
-  { to: "/profile", label: "Profile", id: "nav-profile", isProfile: true },
+  { to: "/monthly/transactions", label: "History", id: "nav-history", Icon: History },
 ];
 
 export function BottomNav() {
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 h-[calc(110px+env(safe-area-inset-bottom,0))] bg-linear-to-t from-(--bg) via-(--bg)/15 to-transparent z-100 pointer-events-none flex justify-center items-end pb-[calc(16px+env(safe-area-inset-bottom,0))] transition-[opacity,transform] duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] nav-wrapper"
+      className="fixed bottom-0 left-0 right-0 h-[calc(110px+env(safe-area-inset-bottom,0))] bg-linear-to-t from-(--bg) via-(--bg)/15 to-transparent pointer-events-none flex justify-center items-end pb-[calc(16px+env(safe-area-inset-bottom,0))] nav-wrapper"
       role="navigation"
       aria-label="App navigation"
     >
@@ -29,7 +21,7 @@ export function BottomNav() {
         className="flex items-center gap-0.5 p-[6px_8px] bg-(--bg-glass-strong) [-webkit-backdrop-filter:blur(32px)_saturate(200%)] [backdrop-filter:blur(32px)_saturate(200%)] border border-black/8 dark:border-white/6 rounded-(--r-pill) shadow-(--glass-shadow-lg) pointer-events-auto nav-pill"
         aria-label="Main navigation"
       >
-        {navItems.map(({ to, end, label, id, Icon, isFab, isProfile }) => (
+        {navItems.map(({ to, end, label, id, Icon, isFab }) => (
           <NavLink
             key={id}
             to={to}
@@ -46,11 +38,7 @@ export function BottomNav() {
             aria-label={label}
             id={id}
           >
-            {isProfile ? (
-              <ProfileAvatar size={20} />
-            ) : (
-              Icon && <Icon size={20} strokeWidth={1.8} />
-            )}
+            {Icon && <Icon size={20} strokeWidth={1.8} />}
           </NavLink>
         ))}
       </nav>

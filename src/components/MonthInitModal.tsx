@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { updateSheetOpenState } from "../utils/modalHelper";
 import { formatMonthYear } from "../utils/dateUtils";
-import { CATEGORIES } from "../utils/categories";
+import { useCategories } from "../hooks/useCategories";
 import { useMonthInit } from "../hooks/useMonthInit";
 
 interface MonthInitModalProps {
@@ -55,10 +55,14 @@ function MonthInitContent({
     handleSubmit,
   } = useMonthInit({ onClose, monthYear, onSaved, isEdit });
 
+  const categoriesDb = useCategories();
+
   // Categories excluding 'Transfer' and 'Other' (not meaningful budget targets)
-  const budgetableCategories = CATEGORIES.filter(
-    (c) => c !== "Transfer" && c !== "Other",
-  );
+  const budgetableCategories = categoriesDb
+    .map((c) => c.name)
+    .filter(
+      (name) => name.toLowerCase() !== "transfer" && name.toLowerCase() !== "other",
+    );
 
   // Handle active overlay body class for inactive background visual dimming
   useEffect(() => {
@@ -183,71 +187,129 @@ function MonthInitContent({
             />
           </div>
 
-          {showCatBudgets && (
-            <div className="flex flex-col gap-2.5 mb-1">
-              {budgetableCategories.map((cat) => (
-                <div key={cat} className="flex items-center gap-2.5">
-                  <span className="font-sans text-[0.8125rem] font-medium text-(--text) min-w-[90px] shrink-0">
-                    {cat}
-                  </span>
-                  <div className="flex-1 flex items-center gap-1 bg-(--bg-glass-strong) rounded-(--r-md) px-2.5 border border-black/8 dark:border-white/6">
-                    <span className="text-[0.8125rem] text-(--text-muted) font-medium">
-                      ₹
-                    </span>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      placeholder="0"
-                      value={catBudgets[cat] || ""}
-                      onChange={(e) =>
-                        setCatBudgets((prev) => ({
-                          ...prev,
-                          [cat]: e.target.value,
-                        }))
-                      }
-                      onBlur={() => {
-                        const val = catBudgets[cat];
-                        if (val)
-                          handleBlur(val, (v) =>
-                            setCatBudgets((prev) => ({ ...prev, [cat]: v })),
-                          );
-                      }}
-                      className="border-none bg-transparent outline-none font-sans text-sm font-medium text-(--text) py-2 w-full"
-                    />
+          {(() => {
+            const activeCategories = budgetableCategories.filter(
+              (cat) => catBudgets[cat] !== undefined && catBudgets[cat] !== "" && catBudgets[cat] !== "0"
+            );
+            const inactiveCategories = budgetableCategories.filter(
+              (cat) => catBudgets[cat] === undefined || catBudgets[cat] === "" || catBudgets[cat] === "0"
+            );
+
+            return showCatBudgets && (
+              <div className="flex flex-col gap-4 mb-3">
+                {/* Active Category Budgets */}
+                {activeCategories.length > 0 && (
+                  <div className="flex flex-col gap-2.5">
+                    <div className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
+                      Active Budgets ({activeCategories.length})
+                    </div>
+                    {activeCategories.map((cat) => (
+                      <div key={cat} className="flex items-center gap-2.5 bg-black/2 dark:bg-white/2 p-2 rounded-xl border border-black/5 dark:border-white/5">
+                        <span className="font-sans text-[0.8125rem] font-medium text-(--text) min-w-[90px] shrink-0 pl-1">
+                          {cat}
+                        </span>
+                        <div className="flex-1 flex items-center gap-1 bg-(--bg-surface) rounded-(--r-md) px-2.5 border border-black/8 dark:border-white/6">
+                          <span className="text-[0.8125rem] text-(--text-muted) font-medium">
+                            ₹
+                          </span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="Enter limit"
+                            value={catBudgets[cat] || ""}
+                            onChange={(e) =>
+                              setCatBudgets((prev) => ({
+                                ...prev,
+                                [cat]: e.target.value,
+                              }))
+                            }
+                            onBlur={() => {
+                              const val = catBudgets[cat];
+                              if (val)
+                                handleBlur(val, (v) =>
+                                  setCatBudgets((prev) => ({ ...prev, [cat]: v })),
+                                );
+                            }}
+                            className="border-none bg-transparent outline-none font-sans text-sm font-semibold text-(--text) py-2 w-full"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCatBudgets((prev) => ({
+                              ...prev,
+                              [cat]: "0",
+                            }));
+                          }}
+                          className="btn-ghost p-1.5 min-h-0 h-auto rounded-full text-(--text-muted) hover:text-(--debit) cursor-pointer"
+                          title="Remove budget"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Inactive Categories (Pills to Add) */}
+                <div className="flex flex-col gap-2">
+                  <div className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
+                    {activeCategories.length > 0 ? "Add budget for other categories" : "Select categories to budget"}
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {inactiveCategories.map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => {
+                          setCatBudgets((prev) => ({
+                            ...prev,
+                            [cat]: "",
+                          }));
+                        }}
+                        className="px-3 py-1.5 text-xs font-medium rounded-full border border-black/8 dark:border-white/8 bg-black/3 dark:bg-white/4 text-(--text-secondary) hover:text-(--text) hover:bg-black/5 dark:hover:bg-white/6 hover:border-black/15 cursor-pointer transition-all flex items-center gap-1 select-none"
+                      >
+                        <span>+</span> {cat}
+                      </button>
+                    ))}
+                    {inactiveCategories.length === 0 && (
+                      <span className="text-xs text-(--text-muted) italic">All categories have budgets set.</span>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            );
+          })()}
 
-          {/* ── Savings (new setup only) ──────────────────── */}
+          {/* ── Savings ──────────────────── */}
+          <div className="divider my-5" />
+
+          <SectionHeader
+            icon={<PiggyBank size={15} className="text-(--credit)" />}
+            bgClassName="bg-[rgba(90,158,111,0.12)]"
+            label="Savings Account"
+          />
+
+          <div className="form-group">
+            <label htmlFor="modal-savings-balance" className="label">
+              Opening Balance (₹)&nbsp;
+              <span className="font-normal opacity-70">— optional</span>
+            </label>
+            <input
+              id="modal-savings-balance"
+              type="text"
+              inputMode="decimal"
+              placeholder="e.g. 1,50,000"
+              value={savingsBalance}
+              onChange={(e) => setSavingsBalance(e.target.value)}
+              onBlur={() => handleBlur(savingsBalance, setSavingsBalance)}
+              className="input-field"
+            />
+          </div>
+
+          {/* Transfer toggle (new setup only) */}
           {!isEdit && (
             <>
-              <div className="divider my-5" />
-
-              <SectionHeader
-                icon={<PiggyBank size={15} className="text-(--credit)" />}
-                bgClassName="bg-[rgba(90,158,111,0.12)]"
-                label="Savings Account"
-              />
-
-              <div className="form-group">
-                <label htmlFor="modal-savings-balance" className="label">
-                  Opening Balance (₹)&nbsp;
-                  <span className="font-normal opacity-70">— optional</span>
-                </label>
-                <input
-                  id="modal-savings-balance"
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="e.g. 1,50,000"
-                  value={savingsBalance}
-                  onChange={(e) => setSavingsBalance(e.target.value)}
-                  onBlur={() => handleBlur(savingsBalance, setSavingsBalance)}
-                  className="input-field"
-                />
-              </div>
-
               {/* Transfer toggle */}
               <div
                 className={`flex items-center gap-2.5 cursor-pointer py-2.5 px-0 select-none ${

@@ -1,67 +1,51 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Download } from "lucide-react";
 import {
   useAccount,
   useMonthSetup,
   useTransactions,
-  useRunningBalances,
   useMonthSummary,
+  useOpeningBalanceReconstructor,
 } from "../db/hooks";
 import { MonthPicker } from "../components/MonthPicker";
 import { MonthInitModal } from "../components/MonthInitModal";
 import { formatINR } from "../utils/currency";
 import { getCurrentMonthYear, formatMonthYear } from "../utils/dateUtils";
-import { exportTransactionsCSV } from "../utils/csvExport";
-import { useHistoricalData } from "../hooks/useAnalytics";
-import { Line } from "react-chartjs-2";
-import { commonOptions } from "../utils/chartConfig";
-import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
-import { RecentTransactionsList } from "../components/monthly/RecentTransactionsList";
-import { Tooltip as UITooltip } from "../components/ui/Tooltip";
+import { InsightsSubscriptionsTab } from "../components/insights/InsightsSubscriptionsTab";
+import { SubscriptionFormSheet } from "../components/insights/SubscriptionFormSheet";
+import type { Subscription } from "../db/database";
 
 export function MonthlyView() {
   const [searchParams, setSearchParams] = useSearchParams();
   const monthYear = searchParams.get("month") || getCurrentMonthYear();
-  const isCurrentMonth = monthYear === getCurrentMonthYear();
 
   const expendAcc = useAccount("expenditure");
   const monthSetup = useMonthSetup(monthYear);
   const transactions = useTransactions(expendAcc?.id, monthYear);
-  const runningBalances = useRunningBalances(
-    transactions,
-    monthSetup?.openingBalance ?? 0,
+
+  const reconstructedOpeningBalance = useOpeningBalanceReconstructor(
+    expendAcc?.id,
+    monthYear,
   );
+  const openingBalance = monthSetup?.openingBalance ?? reconstructedOpeningBalance;
+
   const summary = useMonthSummary(
     transactions,
-    monthSetup?.openingBalance ?? 0,
+    openingBalance,
   );
 
-  const [isChartExpanded, setIsChartExpanded] = useState(false);
-  const historicalData = useHistoricalData(6);
+  const spent = summary.totalExpense;
+  const budget = monthSetup?.monthlyBudget ?? 0;
+  const remaining = budget - spent;
+  const actualBalance = summary.closingBalance;
+  const spendableLeft = Math.max(0, Math.min(remaining, actualBalance));
+  const spentPct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+  const overBudget = spent > budget && budget > 0;
 
   const [showInitModal, setShowInitModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-
-  const handleExport = () => {
-    exportTransactionsCSV(transactions, `flo-${monthYear}.csv`);
-  };
-
-  // Spend breakdown by category (for debits only)
-  const categorySpend: { [key: string]: number } = {};
-  let totalExpense = 0;
-
-  for (const tx of transactions) {
-    if (tx.type === "debit") {
-      const cat = tx.category || "Other";
-      categorySpend[cat] = (categorySpend[cat] || 0) + tx.amount;
-      totalExpense += tx.amount;
-    }
-  }
-
-  const sortedCategories = Object.entries(categorySpend)
-    .map(([name, amount]) => ({ name, amount }))
-    .sort((a, b) => b.amount - a.amount);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingSub, setEditingSub] = useState<Subscription | null>(null);
 
   const handleMonthChange = (newMonth: string) => {
     setSearchParams({ month: newMonth }, { replace: true });
@@ -72,16 +56,6 @@ export function MonthlyView() {
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="sub-header fade-in-up flex items-center justify-between mb-2">
         <h2 className="sub-header-title m-0">Monthly</h2>
-        <button
-          className="btn-ghost"
-          onClick={handleExport}
-          disabled={transactions.length === 0}
-          id="export-csv"
-          title="Export as CSV"
-        >
-          <Download size={16} />
-          CSV
-        </button>
       </div>
 
       {/* ── Compact Month Filter ────────────────────────────────────────── */}
@@ -93,166 +67,132 @@ export function MonthlyView() {
         />
       </div>
 
-      {/* ── Summary Cards ────────────────────────────────────────────────── */}
-      {monthSetup ? (
-        <>
-          {/* Collapsible Spending Trend Chart */}
-          <div className="glass-card fade-in-up delay-1 mb-3 py-3 px-[18px] cursor-pointer">
-            <div
-              id="trend-chart-header"
-              className="flex items-start justify-between gap-3"
-              onClick={() => setIsChartExpanded(!isChartExpanded)}
-            >
-              <span className="text-xs font-semibold text-(--text-secondary) uppercase tracking-wider leading-[1.4]">
-                Spending Trend (6 Months)
-                <span className="inline-flex ml-[6px] align-bottom translate-y-px">
-                  <UITooltip
-                    id="tooltip_trend_chart"
-                    text="Tap to expand your 6-month spending trend."
-                    preferredPosition="top"
-                  />
-                </span>
-              </span>
-              <span className="text-xs text-(--accent) font-semibold whitespace-nowrap pt-px">
-                {isChartExpanded ? "Hide Chart" : "Show Trend"}
-              </span>
-            </div>
-            {isChartExpanded && historicalData.length > 0 && (
-              <div
-                className="h-[160px] mt-3 w-full"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Line
-                  data={{
-                    labels: historicalData.map((d) => d.label),
-                    datasets: [
-                      {
-                        label: "Spend",
-                        data: historicalData.map((d) => d.totalDebited),
-                        borderColor: "#d97757", // var(--accent)
-                        backgroundColor: (context) => {
-                          const ctx = context.chart.ctx;
-                          const gradient = ctx.createLinearGradient(
-                            0,
-                            0,
-                            0,
-                            130,
-                          );
-                          gradient.addColorStop(0, "rgba(217, 119, 87, 0.2)");
-                          gradient.addColorStop(1, "rgba(217, 119, 87, 0)");
-                          return gradient;
-                        },
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 4,
-                        borderWidth: 2.5,
-                      },
-                    ],
-                  }}
-                  options={commonOptions}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Consolidated 2x2 Summary Card */}
-          <div className="glass-card fade-in-up delay-1 mb-3 overflow-hidden">
-            <div className="flex items-center justify-between pt-3 pb-2 px-[18px] border-b border-(--border)">
-              <span className="text-xs font-semibold text-(--text-secondary) uppercase tracking-wider">
-                Summary
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  className="btn-ghost text-xs py-0.5 px-2 h-auto min-h-[unset]"
-                  onClick={() => setShowEditModal(true)}
-                  id="btn-edit-setup"
-                >
-                  Edit Setup
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-0 pb-3 px-3">
-              <div className="p-3 bg-[rgba(0,0,0,0.02)] rounded-(--r-md)">
-                <div className="label mb-[2px]">Opening Balance</div>
-                <div className="amount-display text-xl">
-                  {formatINR(monthSetup.openingBalance)}
-                </div>
-              </div>
-              <div className="p-3 bg-[rgba(0,0,0,0.02)] rounded-(--r-md)">
-                <div className="label mb-[2px]">Monthly Budget</div>
-                <div className="amount-display text-xl">
-                  {formatINR(monthSetup.monthlyBudget)}
-                </div>
-              </div>
-              <div className="p-3 bg-[rgba(224,85,69,0.04)] rounded-(--r-md)">
-                <div className="label mb-[2px]">Total Debited</div>
-                <div className="amount-display amount-debit text-xl">
-                  {formatINR(summary.totalDebited)}
-                </div>
-              </div>
-              <div className="p-3 bg-[rgba(90,158,111,0.04)] rounded-(--r-md)">
-                <div className="label mb-[2px]">Total Credited</div>
-                <div className="amount-display amount-credit text-xl">
-                  {formatINR(summary.totalCredited)}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Closing / Running balance */}
-          <div className="glass-card fade-in-up delay-2 py-4 px-5 mb-3 text-center">
-            <div className="label text-center mb-1">
-              {isCurrentMonth ? "Running Balance" : "Closing Balance"}
-            </div>
-            <div
-              id="running-balance-value"
-              className={`amount-display text-[2rem] ${
-                summary.closingBalance < 0 ? "text-(--debit)" : "text-(--text)"
-              }`}
-            >
-              {formatINR(summary.closingBalance)}
-            </div>
-          </div>
-
-          {/* Category-wise Spend Chart */}
-          <div id="category-budget-bars" className="relative">
-            <div className="absolute top-4 right-4 z-10">
-              <UITooltip
-                id="tooltip_category_budget"
-                text="Set per-category limits in Edit Setup. Bar turns red when you're close to the cap."
-                preferredPosition="top"
-              />
-            </div>
-            <BudgetOverviewCard
-              sortedCategories={sortedCategories}
-              monthSetup={monthSetup}
-              totalExpense={totalExpense}
-            />
-          </div>
-        </>
-      ) : (
-        <div className="glass-card fade-in-up delay-1 mb-3 text-center py-[28px] px-5">
-          <p className="text-(--text-secondary) m-0 mb-[14px] text-sm">
+      {/* ── Setup Prompt (rendered if monthSetup is missing) ── */}
+      {!monthSetup && (
+        <div className="glass-card fade-in-up delay-1 mb-4 text-center py-5.5 px-5">
+          <p className="text-(--text-secondary) m-0 mb-3.5 text-sm">
             No budget or opening balance setup found for{" "}
             {formatMonthYear(monthYear)}.
           </p>
-          <button
-            className="btn-primary text-[0.8125rem] py-2.5 px-5"
-            onClick={() => setShowInitModal(true)}
-            id="btn-init-month"
-          >
-            Configure {formatMonthYear(monthYear).split(" ")[0]} Setup
-          </button>
+
+          {spent > 0 && (
+            <div className="mb-4 bg-black/2 dark:bg-white/2 border border-black/5 dark:border-white/5 rounded-xl p-3.5 inline-block min-w-[220px]">
+              <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider block mb-1">
+                Total Spent This Month
+              </span>
+              <span className="font-display text-2xl font-bold text-(--debit) block">
+                {formatINR(spent)}
+              </span>
+            </div>
+          )}
+
+          <div>
+            <button
+              className="btn-primary text-[0.8125rem] py-2.5 px-5 h-auto min-h-0 cursor-pointer"
+              onClick={() => setShowInitModal(true)}
+              id="btn-init-month"
+            >
+              Configure {formatMonthYear(monthYear).split(" ")[0]} Setup
+            </button>
+          </div>
         </div>
       )}
 
-      {/* ── Transaction List ──────────────────────────────────────────────── */}
-      <RecentTransactionsList
-        transactions={transactions}
-        runningBalances={runningBalances}
-        monthYear={monthYear}
+      {/* ── Summary Cards ────────────────────────────────────────────────── */}
+      {monthSetup ? (
+        <>
+      {/* ── Monthly Hero Card ──────────────────────────────────────── */}
+      <div className="fade-in-up delay-1 mb-4.5 relative overflow-hidden bg-white/70 dark:bg-gradient-to-br dark:from-[#2e2e2c] dark:to-[#1f1f1e] text-(--text) dark:text-white border border-white/80 dark:border-white/5 rounded-(--r-2xl) p-5.5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] dark:shadow-lg [backdrop-filter:blur(20px)] [-webkit-backdrop-filter:blur(20px)]">
+        {/* Orbs for background depth */}
+        <div className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-orange-100/50 dark:bg-white/5 blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-36 h-36 rounded-full bg-orange-200/40 dark:bg-[rgba(217,119,87,0.1)] blur-2xl pointer-events-none" />
+        <div className="absolute -inset-full bg-gradient-to-tr from-transparent via-white/8 to-transparent rotate-45 pointer-events-none" />
+
+        {/* Header Label Row */}
+        <div className="flex justify-between items-center mb-1.5 font-sans text-[0.6875rem] font-semibold text-(--text-muted) dark:text-white/60 tracking-wider uppercase">
+          <span>Expenditure Balance</span>
+          <span>{formatMonthYear(monthYear)}</span>
+        </div>
+
+        {/* Big Balance Amount */}
+        <div className="amount-display text-[clamp(2.25rem,10vw,2.75rem)] text-(--text) dark:text-white mb-5">
+          {formatINR(summary.closingBalance)}
+        </div>
+
+        {/* Optional Budget Progress Bar */}
+        {monthSetup && budget > 0 && (
+          <div className="mb-5">
+            {/* Small Opening Balance & Monthly Budget display */}
+            <div className="flex justify-between font-sans text-[10px] text-(--text-muted) dark:text-white/50 mb-1.5 font-medium tracking-wide">
+              <span>Opening: {formatINR(openingBalance)}</span>
+              <span>Budget: {formatINR(budget)}</span>
+            </div>
+            
+            {/* Progress bar */}
+            <div className="h-1 bg-black/10 dark:bg-white/20 rounded-full overflow-hidden mb-2.5">
+              <div
+                className={`h-full rounded-full transition-[width] duration-500 ease-in-out ${
+                  overBudget ? "bg-(--debit)" : "bg-black/80 dark:bg-white/90"
+                }`}
+                style={{
+                  width: `${spentPct}%`,
+                }}
+              />
+            </div>
+
+            {/* Spent vs Left */}
+            <div className="flex justify-between font-sans text-xs text-(--text-secondary) dark:text-white/80 font-medium">
+              <span>
+                <strong className="text-sm font-bold text-(--text) dark:text-white tracking-tight">{formatINR(spent)}</strong> spent
+              </span>
+              <span>
+                {overBudget ? (
+                  <span className="text-(--debit) font-semibold">Exceeded</span>
+                ) : (
+                  <span className="text-(--text) dark:text-white/90 font-semibold">{formatINR(spendableLeft)} left</span>
+                )}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Bottom Cash Flow Metrics (Debits & Credits) */}
+        <div className="flex items-center justify-between border-t border-black/8 dark:border-white/10 pt-4 mt-1">
+          <div className="flex gap-4">
+            <div className="flex flex-col gap-0.5">
+              <span className="font-sans text-[9px] font-semibold text-(--text-muted) dark:text-white/50 uppercase tracking-wider">Total Debited</span>
+              <span className="text-sm font-bold text-(--debit) dark:text-[#eb9d85] font-sans">
+                -{formatINR(summary.totalDebited)}
+              </span>
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="font-sans text-[9px] font-semibold text-(--text-muted) dark:text-white/50 uppercase tracking-wider">Total Credited</span>
+              <span className="text-sm font-bold text-(--credit) dark:text-[#a7d3b5] font-sans">
+                +{formatINR(summary.totalCredited)}
+              </span>
+            </div>
+          </div>
+
+          {monthSetup && (
+            <button
+              className="px-3 py-1 text-xs font-semibold rounded-full bg-black/5 dark:bg-white/18 border border-black/10 dark:border-white/32 text-(--text) dark:text-white hover:bg-black/10 dark:hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+              onClick={() => setShowEditModal(true)}
+              id="btn-edit-setup"
+            >
+              Edit Setup
+            </button>
+          )}
+        </div>
+      </div>
+        </>
+      ) : null}
+
+      {/* ── Subscriptions Section (Replacing RecentTransactionsList) ────── */}
+      <InsightsSubscriptionsTab
+        openForm={(sub) => {
+          setEditingSub(sub);
+          setShowFormModal(true);
+        }}
       />
 
       {/* ── Setup / Edit Modals ──────────────────────────────────────────── */}
@@ -270,6 +210,15 @@ export function MonthlyView() {
         isEdit={true}
         onSaved={() => {}}
       />
+
+      {/* ── Manual Add / Edit Modal Overlay for Subscriptions ───────────── */}
+      {showFormModal && (
+        <SubscriptionFormSheet
+          showFormModal={showFormModal}
+          setShowFormModal={setShowFormModal}
+          editingSub={editingSub}
+        />
+      )}
     </>
   );
 }

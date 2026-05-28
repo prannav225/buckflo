@@ -25,7 +25,7 @@ const routesConfig = [
   {
     path: "/monthly/transactions",
     element: <MonthlyTransactionsView />,
-    isTab: false,
+    isTab: true,
   },
   { path: "/insights", element: <Insights />, isTab: true },
   { path: "/savings", element: <SavingsView />, isTab: false }, // Savings is now deep-linked
@@ -33,7 +33,7 @@ const routesConfig = [
   { path: "/edit/:id", element: <AddEditTransaction />, isTab: false },
   { path: "/privacy", element: <PrivacyPolicy />, isTab: false },
   { path: "/terms", element: <TermsConditions />, isTab: false },
-  { path: "/profile", element: <ProfilePage />, isTab: true }, // Profile page replaces Settings in BottomNav
+  { path: "/profile", element: <ProfilePage />, isTab: false }, // Profile page replaces Settings in BottomNav
   { path: "/profile/edit", element: <EditProfilePage />, isTab: false },
   { path: "/profile/about", element: <AboutPage />, isTab: false },
   {
@@ -42,7 +42,7 @@ const routesConfig = [
     isTab: false,
   },
   {
-    path: "/settings/categories",
+    path: "/profile/categories",
     element: <ManageCategoriesPage />,
     isTab: false,
   },

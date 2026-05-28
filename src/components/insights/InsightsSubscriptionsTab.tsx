@@ -1,6 +1,5 @@
 import { startOfDay, parseISO, differenceInDays, format } from "date-fns";
 import {
-  Lightbulb,
   Calendar,
   Clock,
   Play,
@@ -31,11 +30,9 @@ interface Props {
 export function InsightsSubscriptionsTab({ openForm }: Props) {
   const { confirm, dialog: confirmDialog } = useConfirm();
   const {
-    detectedSubs,
     approvedSubs,
     sortedSubs,
     totalCommitted,
-    handleApproveSub,
     handleDeleteSub,
     toggleStatus,
   } = useSubscriptionLogic();
@@ -74,53 +71,6 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
             active subscription(s)
           </div>
         </div>
-
-        {/* Auto-detected Subscriptions Banner */}
-        {detectedSubs.length > 0 && (
-          <div className="glass-card p-[16px_18px] bg-[rgba(217,119,87,0.05)] shadow-(--glass-shadow-lg)">
-            <div className="flex items-center gap-2 mb-2">
-              <Lightbulb size={18} color="var(--accent)" />
-              <h4 className="m-0 text-sm font-semibold text-(--text)">
-                Review Detected Subscriptions
-              </h4>
-            </div>
-            <p className="text-xs text-(--text-secondary) leading-relaxed m-[0_0_14px_0]">
-              We scanned your transaction records and found{" "}
-              {detectedSubs.length} potential subscription(s):
-            </p>
-            <div className="flex flex-col gap-2">
-              {detectedSubs.map((sub) => (
-                <div
-                  key={sub.id}
-                  className="flex items-center justify-between bg-(--bg-glass-strong) p-[10px_14px] rounded-(--r-md) border-(--glass-border)"
-                >
-                  <div>
-                    <div className="text-[0.8125rem] font-semibold text-(--text)">
-                      {sub.name}
-                    </div>
-                    <div className="text-[0.6875rem] text-(--text-muted) mt-0.5">
-                      {formatINR(sub.amount)} • {sub.category}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      className="btn-primary px-3 py-1.5 text-xs rounded-full h-auto shadow-none"
-                      onClick={() => handleApproveSub(sub.id!)}
-                    >
-                      Approve
-                    </button>
-                    <button
-                      className="btn-ghost px-3 py-1.5 text-xs text-(--text-muted)"
-                      onClick={() => handleDeleteSub(sub.id!)}
-                    >
-                      Ignore
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Subscription List Title & Add Button */}
         <div className="flex justify-between items-center mt-2.5">

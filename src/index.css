@@ -110,6 +110,7 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -152,6 +153,8 @@ h4 {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
+}
+main {
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     filter 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -210,6 +213,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 1;
+}
+
+.font-display {
+  font-family: "Instrument Serif", Georgia, serif !important;
 }
 
 /* ─── Buttons ────────────────────────────────────────────────────────────────── */
@@ -569,7 +576,7 @@ body.sheet-open {
     --bg
   ) !important; /* Ensure dynamic theme backing under scaled root */
 }
-body.sheet-open #root {
+body.sheet-open main {
   transform: scale(0.96) translateY(8px);
   filter: brightness(0.85) saturate(90%); /* Soft light-mode dimming */
   pointer-events: none;
@@ -583,22 +590,21 @@ body.sheet-open #root {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not(.light) body.sheet-open #root {
+  :root:not(.light) body.sheet-open main {
     filter: brightness(0.55) contrast(1.02) saturate(85%);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
   }
 }
-.dark body.sheet-open #root {
+.dark body.sheet-open main {
   filter: brightness(0.55) contrast(1.02) saturate(85%);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
-/* Hide navigation, header, and scrim overlays when modal bottom sheet is active */
-body.sheet-open .nav-wrapper {
-  opacity: 0;
-  transform: translateY(110px);
-  pointer-events: none;
+.nav-wrapper {
+  z-index: 100 !important;
 }
+
+/* Hide navigation, header, and scrim overlays when modal bottom sheet is active */
 body.sheet-open .header-scrim,
 body.sheet-open .page-header {
   opacity: 0;

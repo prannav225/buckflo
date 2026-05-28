@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Download, Upload } from "lucide-react";
+import { Calendar, Upload, Download } from "lucide-react";
 import { TransactionFilters } from "../components/transactions/TransactionFilters";
 import { TransactionCard } from "../components/transactions/TransactionRow";
 import { MonthPicker } from "../components/MonthPicker";
@@ -11,7 +10,6 @@ import { formatINR } from "../utils/currency";
 import { useMonthlyTransactions } from "../hooks/useMonthlyTransactions";
 
 export function MonthlyTransactionsView() {
-  const navigate = useNavigate();
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const {
@@ -26,33 +24,66 @@ export function MonthlyTransactionsView() {
     setSortBy,
     activeTab,
     setPageSize,
-    expendAcc,
-    savingsAcc,
     handleMonthChange,
     handleTabChange,
     tabFilteredItems,
     filteredItems,
     displayedItems,
     hasMoreItems,
-    backUrl,
   } = useMonthlyTransactions();
+
+  const expenses = filteredItems
+    .filter(
+      (item) =>
+        item.tx.type === "debit" &&
+        item.tx.category !== "transfer" &&
+        item.tx.category !== "Transfer" &&
+        item.tx.category !== "opening-transfer" &&
+        item.tx.category !== "adjustment"
+    )
+    .reduce((sum, item) => sum + item.tx.amount, 0);
+
+  const income = filteredItems
+    .filter(
+      (item) =>
+        item.tx.type === "credit" &&
+        item.tx.category !== "transfer" &&
+        item.tx.category !== "Transfer" &&
+        item.tx.category !== "opening-transfer" &&
+        item.tx.category !== "adjustment"
+    )
+    .reduce((sum, item) => sum + item.tx.amount, 0);
+
+  const transfersCredit = filteredItems
+    .filter(
+      (item) =>
+        item.tx.type === "credit" &&
+        (item.tx.category === "transfer" ||
+          item.tx.category === "Transfer" ||
+          item.tx.category === "opening-transfer")
+    )
+    .reduce((sum, item) => sum + item.tx.amount, 0);
+
+  const transfersDebit = filteredItems
+    .filter(
+      (item) =>
+        item.tx.type === "debit" &&
+        (item.tx.category === "transfer" ||
+          item.tx.category === "Transfer" ||
+          item.tx.category === "opening-transfer")
+    )
+    .reduce((sum, item) => sum + item.tx.amount, 0);
+
+  const netTransfers = transfersCredit - transfersDebit;
 
   return (
     <>
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="sub-header p-0! fade-in-up flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <button
-            className="p-0 min-h-0 h-auto flex text-(--text-muted)"
-            onClick={() => navigate(backUrl)}
-            title="Back"
-            id="btn-back"
-          >
-            <ArrowLeft size={20} />
-          </button>
           <h2 className="sub-header-title m-0">All Transactions</h2>
         </div>
-        <div className="flex gap-1 shrink-0">
+        <div className="flex gap-1.5 shrink-0">
           <button
             className="btn-ghost min-h-0 h-auto flex items-center justify-center rounded-lg"
             onClick={() => setIsImportOpen(true)}
@@ -62,11 +93,10 @@ export function MonthlyTransactionsView() {
             <Upload size={16} />
           </button>
           <button
-            className="btn-ghost p-1.5 min-h-0 h-auto flex items-center justify-center rounded-lg"
+            className="btn-ghost min-h-0 h-auto flex items-center justify-center rounded-lg"
             onClick={() => setIsExportOpen(true)}
-            disabled={tabFilteredItems.length === 0}
             id="export-csv"
-            title="Export as CSV"
+            title="Export to CSV"
           >
             <Download size={16} />
           </button>
@@ -82,18 +112,35 @@ export function MonthlyTransactionsView() {
         />
       </div>
 
-      {/* ── Dual Account Balances ────────────────────────────────────────── */}
-      <div className="fade-in-up delay-1 flex items-center justify-between px-1 mb-4 text-[0.8125rem] text-(--text-muted)">
-        <div>
-          Expenditure Balance:{" "}
-          <span className="text-(--text) font-semibold ml-0.5">
-            {formatINR(expendAcc?.currentBalance ?? 0)}
+      {/* ── Transaction Activity Indicators ────────────────────────────── */}
+      <div className="glass-card fade-in-up delay-1 grid grid-cols-3 gap-2 p-3.5 mb-4 text-[0.8125rem] text-center">
+        <div className="flex flex-col gap-0.5 border-r border-black/5 dark:border-white/5">
+          <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
+            Expenses
+          </span>
+          <span className="text-[0.9375rem] font-bold text-(--debit)">
+            -{formatINR(expenses)}
           </span>
         </div>
-        <div>
-          Savings Balance:{" "}
-          <span className="text-(--credit) font-semibold ml-0.5">
-            {formatINR(savingsAcc?.currentBalance ?? 0)}
+        <div className="flex flex-col gap-0.5 border-r border-black/5 dark:border-white/5">
+          <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
+            Income
+          </span>
+          <span className="text-[0.9375rem] font-bold text-(--credit)">
+            +{formatINR(income)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
+            Transfers
+          </span>
+          <span
+            className={`text-[0.9375rem] font-bold ${
+              netTransfers >= 0 ? "text-(--credit)" : "text-(--debit)"
+            }`}
+          >
+            {netTransfers >= 0 ? "+" : ""}
+            {formatINR(netTransfers)}
           </span>
         </div>
       </div>

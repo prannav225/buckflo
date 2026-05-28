@@ -6,6 +6,7 @@ import {
   useTransactions,
   useRunningBalances,
   useOpeningBalanceReconstructor,
+  useMonthSummary,
 } from "../db/hooks";
 import { getCurrentMonthYear } from "../utils/dateUtils";
 import { exportTransactionsCSV } from "../utils/csvExport";
@@ -38,7 +39,13 @@ export function useMonthlyTransactions() {
 
   const monthSetupExpend = useMonthSetup(monthYear);
 
-  // Compute opening balance of Savings for that month using our custom hook
+  // Compute reconstructed opening balances
+  const expendOpeningBalanceReconstructed = useOpeningBalanceReconstructor(
+    expendAcc?.id,
+    monthYear,
+  );
+  const expendOpeningBalance = monthSetupExpend?.openingBalance ?? expendOpeningBalanceReconstructed;
+
   const savingsOpeningBalance = useOpeningBalanceReconstructor(
     savingsAcc?.id,
     monthYear,
@@ -46,12 +53,19 @@ export function useMonthlyTransactions() {
 
   const runningBalancesExpend = useRunningBalances(
     expendTxs,
-    monthSetupExpend?.openingBalance ?? 0,
+    expendOpeningBalance,
   );
   const runningBalancesSavings = useRunningBalances(
     savingsTxs,
     savingsOpeningBalance,
   );
+
+  // Compute month-specific closing balances
+  const expendSummary = useMonthSummary(expendTxs, expendOpeningBalance);
+  const expendClosingBalance = expendSummary.closingBalance;
+
+  const savingsSummary = useMonthSummary(savingsTxs, savingsOpeningBalance);
+  const savingsClosingBalance = savingsSummary.closingBalance;
 
   const handleMonthChange = (newMonth: string) => {
     setMonthYear(newMonth);
@@ -194,6 +208,8 @@ export function useMonthlyTransactions() {
     setPageSize,
     expendAcc,
     savingsAcc,
+    expendClosingBalance,
+    savingsClosingBalance,
     handleMonthChange,
     handleTabChange,
     handleExport,

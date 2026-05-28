@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { db, recordTransfer, adjustBalance } from "../db/database";
-import { todayISO, formatMonthYear } from "../utils/dateUtils";
+import { db, recordTransfer } from "../db/database";
+import { todayISO, formatMonthYear, getMonthDateRange } from "../utils/dateUtils";
 import { formatNumber } from "../utils/currency";
 
 interface UseMonthInitProps {
@@ -43,7 +43,7 @@ export function useMonthInit({
       .where("monthYear")
       .equals(monthYear)
       .first()
-      .then((setup) => {
+      .then(async (setup) => {
         if (cancelled) return;
         if (setup) {
           setExpendBalance(formatNumber(setup.openingBalance, 2, 0));
@@ -60,6 +60,13 @@ export function useMonthInit({
             setShowCatBudgets(true);
           }
         }
+
+        // Load savings balance in edit mode
+        const savingsAcc = await db.accounts.where("type").equals("savings").first();
+        if (savingsAcc && !cancelled) {
+          setSavingsBalance(formatNumber(savingsAcc.currentBalance, 2, 0));
+        }
+
         setLoading(false);
       })
       .catch((err) => {
@@ -73,6 +80,29 @@ export function useMonthInit({
       cancelled = true;
     };
   }, [isEdit, monthYear]);
+
+  // In new setup mode: pre-populate with current balances from DB to prevent overwrites
+  useEffect(() => {
+    if (isEdit) return;
+
+    let cancelled = false;
+    Promise.all([
+      db.accounts.where("type").equals("expenditure").first(),
+      db.accounts.where("type").equals("savings").first(),
+    ]).then(([expendAcc, savingsAcc]) => {
+      if (cancelled) return;
+      if (expendAcc) {
+        setExpendBalance(formatNumber(expendAcc.currentBalance, 2, 0));
+      }
+      if (savingsAcc) {
+        setSavingsBalance(formatNumber(savingsAcc.currentBalance, 2, 0));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,7 +138,6 @@ export function useMonthInit({
 
         if (!existingSetup?.id) throw new Error("Setup record not found");
 
-        const diff = expBal - existingSetup.openingBalance;
         // Build categoryBudgets map from non-zero entries
         const categoryBudgets: Record<string, number> = {};
         for (const [cat, val] of Object.entries(catBudgets)) {
@@ -120,11 +149,50 @@ export function useMonthInit({
           monthlyBudget: monthBudget,
           categoryBudgets,
         });
-        if (diff !== 0) await adjustBalance(expendAcc.id, diff);
+        // Recalculate Expenditure Account current balance based on the new opening balance and existing transactions
+        const { startDate } = getMonthDateRange(monthYear);
+        const expendTxs = await db.transactions
+          .where("accountId")
+          .equals(expendAcc.id)
+          .filter((tx) => tx.date >= startDate)
+          .toArray();
+        let newExpendCurrent = expBal;
+        for (const tx of expendTxs) {
+          newExpendCurrent = tx.type === "credit" ? newExpendCurrent + tx.amount : newExpendCurrent - tx.amount;
+        }
+        await db.accounts.update(expendAcc.id, { currentBalance: +newExpendCurrent.toFixed(2) });
+
+        // Apply savings balance adjustment in edit mode if it changed
+        if (!isNaN(savBal) && savBal >= 0) {
+          const savDiff = savBal - savingsAcc.currentBalance;
+          if (savDiff !== 0) {
+            await db.transactions.add({
+              date: todayISO(),
+              description: "Savings balance adjustment",
+              amount: Math.abs(savDiff),
+              type: savDiff > 0 ? "credit" : "debit",
+              accountId: savingsAcc.id,
+              category: "adjustment",
+              createdAt: Date.now(),
+            });
+            await db.accounts.update(savingsAcc.id, { currentBalance: savBal });
+          }
+        }
 
         toast.success("Budget setup updated ✓");
       } else {
-        await db.accounts.update(expendAcc.id, { currentBalance: expBal });
+        // Calculate the current balance based on expBal (opening balance) and any transactions that already exist in the month
+        const { startDate } = getMonthDateRange(monthYear);
+        const existingTxs = await db.transactions
+          .where("accountId")
+          .equals(expendAcc.id)
+          .filter((tx) => tx.date >= startDate)
+          .toArray();
+        let currentExpendBalance = expBal;
+        for (const tx of existingTxs) {
+          currentExpendBalance = tx.type === "credit" ? currentExpendBalance + tx.amount : currentExpendBalance - tx.amount;
+        }
+        await db.accounts.update(expendAcc.id, { currentBalance: +currentExpendBalance.toFixed(2) });
         if (!isNaN(savBal) && savBal >= 0) {
           const diff = savBal - savingsAcc.currentBalance;
           if (diff !== 0) {

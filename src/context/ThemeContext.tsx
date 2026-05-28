@@ -1,10 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
-/* eslint-disable react-hooks/set-state-in-effect */
 import {
   createContext,
   useContext,
   useState,
   useEffect,
+  useCallback,
   type ReactNode,
 } from "react";
 
@@ -18,6 +18,26 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const applyTheme = (t: Theme) => {
+  const root = document.documentElement;
+  if (t === "system") {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (prefersDark) {
+      root.classList.add("dark");
+      root.classList.remove("light");
+    } else {
+      root.classList.add("light");
+      root.classList.remove("dark");
+    }
+  } else if (t === "dark") {
+    root.classList.add("dark");
+    root.classList.remove("light");
+  } else {
+    root.classList.add("light");
+    root.classList.remove("dark");
+  }
+};
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
@@ -30,36 +50,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return "system";
   });
 
-  const applyTheme = (t: Theme) => {
-    const root = document.documentElement;
-    if (t === "system") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (prefersDark) {
-        root.classList.add("dark");
-        root.classList.remove("light");
-      } else {
-        root.classList.add("light");
-        root.classList.remove("dark");
-      }
-    } else if (t === "dark") {
-      root.classList.add("dark");
-      root.classList.remove("light");
-    } else {
-      root.classList.add("light");
-      root.classList.remove("dark");
-    }
-  };
-
-  const setTheme = (nextTheme: Theme) => {
+  const setTheme = useCallback((nextTheme: Theme) => {
     setThemeState(nextTheme);
     localStorage.setItem("theme", nextTheme);
     applyTheme(nextTheme);
-  };
+  }, []);
 
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-  };
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const nextTheme = prev === "dark" ? "light" : "dark";
+      localStorage.setItem("theme", nextTheme);
+      applyTheme(nextTheme);
+      return nextTheme;
+    });
+  }, []);
 
   // Sync theme when system settings change (only if current theme is system)
   useEffect(() => {
@@ -101,7 +105,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         }
       });
     }).catch(err => console.error("Theme init error:", err));
-  }, []);
+  }, [setTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

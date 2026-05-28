@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { BottomNav } from "./BottomNav";
 import { useNotificationHub } from "../../hooks/useNotificationHub";
@@ -10,6 +10,9 @@ import { LandingPage } from "../../pages/LandingPage";
 import { format } from "date-fns";
 import { getCurrentMonthYear } from "../../utils/dateUtils";
 import { useAutopayTrigger } from "../../hooks/useAutopayTrigger";
+import { useProfile } from "../../hooks/useProfile";
+import { useDatabaseSync } from "../../hooks/useDatabaseSync";
+import { BrandedAvatar } from "./BrandedAvatar";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -17,6 +20,8 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { profile } = useProfile();
   const isLegalPage = pathname === "/privacy" || pathname === "/terms";
 
   const [isOnboarded, setIsOnboarded] = useState(
@@ -57,6 +62,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   } = useNotificationHub(setIsTransferOpen, setTransferConfig);
 
   useAutopayTrigger(isOnboarded);
+  useDatabaseSync(isOnboarded);
 
   return (
     <>
@@ -71,18 +77,29 @@ export function AppLayout({ children }: AppLayoutProps) {
                   flo
                 </span>
               </div>
-              <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) pointer-events-auto transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
+              <div className="flex items-center gap-2 pointer-events-auto">
+                <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
+                  <button
+                    onClick={openNotifications}
+                    className="inline-flex items-center justify-center w-8 h-8 bg-transparent border-0 rounded-full text-(--text-secondary) cursor-pointer transition-[background,color,transform] duration-150 active:scale-90 outline-none relative"
+                    aria-label="Open notifications"
+                    title="Notifications"
+                    id="header-notification-btn"
+                  >
+                    <Bell size={16} />
+                    {hasUnread && (
+                      <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-(--debit) rounded-full animate-[pulse-glow_2s_infinite] shadow-[0_0_0_0_rgba(217,119,87,0.7)]" />
+                    )}
+                  </button>
+                </div>
                 <button
-                  onClick={openNotifications}
-                  className="inline-flex items-center justify-center w-8 h-8 bg-transparent border-0 rounded-full text-(--text-secondary) cursor-pointer transition-[background,color,transform] duration-150 active:scale-90 outline-none relative"
-                  aria-label="Open notifications"
-                  title="Notifications"
-                  id="header-notification-btn"
+                  onClick={() => navigate("/profile")}
+                  className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer overflow-hidden p-0 outline-none"
+                  aria-label="Open profile"
+                  title="Profile"
+                  id="header-profile-btn"
                 >
-                  <Bell size={16} />
-                  {hasUnread && (
-                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-(--debit) rounded-full animate-[pulse-glow_2s_infinite] shadow-[0_0_0_0_rgba(217,119,87,0.7)]" />
-                  )}
+                  <BrandedAvatar name={profile?.displayName || "flo"} size={34} className="border-0 bg-transparent" />
                 </button>
               </div>
             </header>

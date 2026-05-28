@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, CreditCard, PiggyBank } from "lucide-react";
-import { addPreset } from "../../db/database";
+import { db, addPreset, updatePreset } from "../../db/database";
 import { useAccount } from "../../db/hooks";
 import { useCategories } from "../../hooks/useCategories";
 import { updateSheetOpenState } from "../../utils/modalHelper";
@@ -10,9 +11,10 @@ import toast from "react-hot-toast";
 interface CreatePresetSheetProps {
   isOpen: boolean;
   onClose: () => void;
+  presetToEdit?: { id?: number; description: string; amount: number; category: string; isCustom: boolean } | null;
 }
 
-export function CreatePresetSheet({ isOpen, onClose }: CreatePresetSheetProps) {
+export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePresetSheetProps) {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -30,6 +32,26 @@ export function CreatePresetSheet({ isOpen, onClose }: CreatePresetSheetProps) {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (presetToEdit) {
+      setName(presetToEdit.description);
+      setAmount(presetToEdit.amount.toString());
+      setCategory(presetToEdit.category);
+      if (presetToEdit.id !== undefined) {
+        db.presets.get(presetToEdit.id).then((p) => {
+          if (p) {
+            setAccountType(p.accountId === savingsAcc?.id ? "savings" : "expenditure");
+          }
+        });
+      }
+    } else {
+      setName("");
+      setAmount("");
+      setCategory("");
+      setAccountType("expenditure");
+    }
+  }, [presetToEdit, isOpen, savingsAcc]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !amount.trim()) return;
@@ -42,22 +64,32 @@ export function CreatePresetSheet({ isOpen, onClose }: CreatePresetSheetProps) {
 
     setSaving(true);
     try {
-      await addPreset({
-        name: name.trim(),
-        amount: parseFloat(amount),
-        category: category || "Other",
-        accountId,
-        isCustom: true,
-        usageCount: 0,
-      });
-      toast.success("Preset created");
+      if (presetToEdit && presetToEdit.id !== undefined) {
+        await updatePreset(presetToEdit.id, {
+          name: name.trim(),
+          amount: parseFloat(amount),
+          category: category || "Other",
+          accountId,
+        });
+        toast.success("Preset updated");
+      } else {
+        await addPreset({
+          name: name.trim(),
+          amount: parseFloat(amount),
+          category: category || "Other",
+          accountId,
+          isCustom: true,
+          usageCount: 0,
+        });
+        toast.success("Preset created");
+      }
       setName("");
       setAmount("");
       setCategory("");
       setAccountType("expenditure");
       onClose();
     } catch {
-      toast.error("Failed to create preset");
+      toast.error("Failed to save preset");
     } finally {
       setSaving(false);
     }
@@ -71,7 +103,9 @@ export function CreatePresetSheet({ isOpen, onClose }: CreatePresetSheetProps) {
         <div className="sheet-handle" />
 
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-bold text-(--text) m-0">Create Preset</h3>
+          <h3 className="text-lg font-bold text-(--text) m-0">
+            {presetToEdit ? "Edit Preset" : "Create Preset"}
+          </h3>
           <button
             type="button"
             onClick={onClose}
@@ -165,7 +199,7 @@ export function CreatePresetSheet({ isOpen, onClose }: CreatePresetSheetProps) {
             className="btn-primary w-full py-3.5 mt-2"
             disabled={saving || !name.trim() || !amount.trim()}
           >
-            {saving ? "Creating…" : "Create Preset"}
+            {saving ? "Saving…" : presetToEdit ? "Save Changes" : "Create Preset"}
           </button>
         </form>
       </div>

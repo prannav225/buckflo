@@ -1,4 +1,4 @@
-import { Calendar, PiggyBank, TrendingDown, ChevronRight } from "lucide-react";
+import { PiggyBank, TrendingDown, ChevronRight } from "lucide-react";
 import { formatINR } from "../utils/currency";
 import { formatMonthYear } from "../utils/dateUtils";
 import type { MonthSetup } from "../db/database";
@@ -8,34 +8,28 @@ interface DashboardHeroCardProps {
   balance: number;
   monthSetup: MonthSetup | null;
   monthYear: string;
-  daysLeft: number;
   spent: number;
   budget: number;
-  remaining: number;
   spentPct: number;
   overBudget: boolean;
   dailyRemaining: number;
   onTopUp: () => void;
   onSetup?: () => void;
   monthComparison?: MonthComparisonResult;
-  displayName?: string;
 }
 
 export function DashboardHeroCard({
   balance,
   monthSetup,
   monthYear,
-  daysLeft,
   spent,
   budget,
-  remaining,
   spentPct,
   overBudget,
   dailyRemaining,
   onTopUp,
   onSetup,
   monthComparison,
-  displayName,
 }: DashboardHeroCardProps) {
   return (
     <div
@@ -46,12 +40,6 @@ export function DashboardHeroCard({
     >
       <div className="hero-card-orb-lg" />
       <div className="hero-card-orb-sm" />
-
-      {displayName && (
-        <div className="font-sans text-[11px] text-white/65 font-medium tracking-wide mb-1 select-none">
-          Hey {displayName}
-        </div>
-      )}
 
       {/* Label row */}
       <div className="flex items-center justify-between mb-1.5">
@@ -70,20 +58,8 @@ export function DashboardHeroCard({
 
       {/* Budget progress */}
       {monthSetup && budget > 0 ? (
-        <div className="mb-4.5">
-          <div className="flex justify-between mb-1.5 font-sans text-xs text-white/72 font-medium">
-            <span>
-              {formatINR(spent)} spent of {formatINR(budget)}
-            </span>
-            {overBudget ? (
-              <span className="text-[#ffc2c2] flex items-center gap-0.75 font-semibold">
-                <TrendingDown size={12} /> Budget exceeded
-              </span>
-            ) : (
-              <span>{formatINR(remaining)} left</span>
-            )}
-          </div>
-          <div className="h-1 bg-white/22 rounded-full overflow-hidden mb-2">
+        <div className="mb-5">
+          <div className="h-1 bg-white/22 rounded-full overflow-hidden mb-3">
             <div
               className={`h-full rounded-full transition-[width] duration-500 ease-in-out ${
                 overBudget ? "bg-[#ff8a8a]" : "bg-white/88"
@@ -91,43 +67,23 @@ export function DashboardHeroCard({
               style={{ width: `${spentPct}%` }}
             />
           </div>
-          <div className="font-sans text-xs text-white/85 font-medium">
-            {overBudget ? (
-              <span className="text-[#ffc2c2]">
-                Consider topping up from Savings.
-              </span>
-            ) : (
-              <>
-                Daily budget left:{" "}
-                <span id="daily-budget-left" className="font-bold">
-                  {formatINR(dailyRemaining)}/day
+          <div className="flex justify-between items-baseline font-sans text-xs text-white/80 font-medium">
+            <span>
+              <span className="text-[0.9375rem] font-bold text-white tracking-tight">{formatINR(spent)} spent</span> of {formatINR(budget)}
+            </span>
+            <span>
+              {overBudget ? (
+                <span className="text-[#ffc2c2] flex items-center gap-0.75 font-semibold">
+                  <TrendingDown size={12} /> Budget exceeded
                 </span>
-              </>
-            )}
+              ) : (
+                <span className="text-white/90 font-semibold">{formatINR(dailyRemaining)}/day left</span>
+              )}
+            </span>
           </div>
-          {/* Month-over-Month Comparison */}
-          {monthComparison?.hasLastMonthData && (
-            <div className="font-sans text-[11px] mt-1.5" style={{ lineHeight: 1.4 }}>
-              {monthComparison.direction === 'up' && (
-                <span className="text-[rgba(255,200,180,0.9)]">
-                  ↑ {monthComparison.percentChange}% more than this time last month
-                </span>
-              )}
-              {monthComparison.direction === 'down' && (
-                <span className="text-[rgba(180,220,160,0.9)]">
-                  ↓ {monthComparison.percentChange}% less than this time last month
-                </span>
-              )}
-              {monthComparison.direction === 'neutral' && (
-                <span className="text-[rgba(255,255,255,0.55)]">
-                  ≈ On track with last month
-                </span>
-              )}
-            </div>
-          )}
         </div>
       ) : !monthSetup && onSetup ? (
-        <div className="mb-4.5 relative z-10">
+        <div className="mb-5 relative z-10">
           <p className="font-sans text-xs text-white/80 mb-0 leading-relaxed">
             Your month is not set up yet. Initialize it now to track your daily budget and opening balance.
           </p>
@@ -135,18 +91,33 @@ export function DashboardHeroCard({
       ) : null}
 
       {/* Footer row */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.25 font-sans text-[0.8125rem] text-white/62">
-          <Calendar size={13} />
-          <span>
-            {daysLeft} day{daysLeft !== 1 ? "s" : ""} remaining
-          </span>
+      <div className="flex items-center justify-between min-h-[36px]">
+        <div className="flex-1 min-w-0 pr-2">
+          {monthComparison?.hasLastMonthData && (
+            <div className="font-sans text-[11px] font-semibold select-none">
+              {monthComparison.direction === 'up' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 text-[rgba(255,220,205,0.95)] border border-white/15 shadow-sm truncate max-w-full">
+                  ↑ {monthComparison.percentChange}% vs last month
+                </span>
+              )}
+              {monthComparison.direction === 'down' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 text-[rgba(200,255,200,0.95)] border border-white/15 shadow-sm truncate max-w-full">
+                  ↓ {monthComparison.percentChange}% vs last month
+                </span>
+              )}
+              {monthComparison.direction === 'neutral' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 text-white/70 border border-white/10 shadow-sm truncate max-w-full">
+                  ≈ On track vs last month
+                </span>
+              )}
+            </div>
+          )}
         </div>
         {!monthSetup && onSetup ? (
           <button
             onClick={onSetup}
             id="btn-prompt-setup"
-            className="flex items-center gap-1.5 bg-white text-(--accent-dark) rounded-full font-sans text-[0.8125rem] font-bold py-2 px-4.5 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.12)] active:scale-98 transition-transform outline-none focus:outline-none"
+            className="shrink-0 flex items-center gap-1.5 bg-white text-(--accent-dark) rounded-full font-sans text-[0.8125rem] font-bold py-2 px-4.5 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.12)] active:scale-98 transition-transform outline-none focus:outline-none"
           >
             Set Up Now
           </button>
@@ -154,10 +125,10 @@ export function DashboardHeroCard({
           <button
             onClick={onTopUp}
             id="btn-load-savings"
-            className={`flex items-center gap-1.5 [backdrop-filter:blur(12px)] [-webkit-backdrop-filter:blur(12px)] rounded-full font-sans text-[0.8125rem] font-semibold py-2 px-4.5 cursor-pointer transition-[background,transform] active:scale-98 tracking-tight ${
+            className={`shrink-0 flex items-center gap-1.5 [backdrop-filter:blur(12px)] [-webkit-backdrop-filter:blur(12px)] rounded-full font-sans text-[0.8125rem] font-semibold py-2 px-4 cursor-pointer transition-[background,transform] active:scale-98 tracking-tight ${
               overBudget
                 ? "bg-white border-none text-[#b82d23] shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
-                : "bg-white/18 border border-white/32 text-white"
+                : "bg-white/18 border border-white/32 text-white hover:bg-white/25"
             }`}
           >
             <PiggyBank size={14} /> Top up

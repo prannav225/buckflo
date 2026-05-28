@@ -161,7 +161,7 @@ export function ProfilePage() {
           <div className="glass-card overflow-hidden divide-y divide-black/5 dark:divide-white/5">
             {/* Categories */}
             <div
-              onClick={() => navigate("/settings/categories")}
+              onClick={() => navigate("/profile/categories")}
               className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
               id="profile-row-categories"
             >

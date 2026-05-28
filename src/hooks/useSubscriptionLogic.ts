@@ -1,29 +1,23 @@
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useSubscriptions } from '../db/hooks';
-import { updateSubscription, deleteSubscription, runSubscriptionAutoDetection, type Subscription } from '../db/database';
+import { db, updateSubscription, deleteSubscription, type Subscription } from '../db/database';
 
 export function useSubscriptionLogic() {
   const subscriptions = useSubscriptions();
 
-  // Run auto-detection on mount
+  // Delete all auto-detected subscriptions on mount to clean up database
   useEffect(() => {
-    runSubscriptionAutoDetection().then((count) => {
-      if (count > 0) {
-        toast.success(`Auto-detected ${count} recurring subscription(s)!`);
-      }
-    });
+    db.subscriptions
+      .filter((s) => s.autoDetected === true)
+      .primaryKeys()
+      .then((keys) => {
+        if (keys.length > 0) {
+          db.subscriptions.bulkDelete(keys).catch(console.error);
+        }
+      })
+      .catch(console.error);
   }, []);
-
-  const handleApproveSub = async (id: number) => {
-    try {
-      await updateSubscription(id, { autoDetected: false });
-      toast.success("Subscription approved ✓");
-    } catch (err) {
-      toast.error("Failed to approve subscription");
-      console.error(err);
-    }
-  };
 
   const handleDeleteSub = async (id: number) => {
     try {
@@ -51,7 +45,6 @@ export function useSubscriptionLogic() {
     }
   };
 
-  const detectedSubs = subscriptions.filter((s) => s.autoDetected === true);
   const approvedSubs = subscriptions.filter((s) => s.autoDetected !== true);
 
   const sortedSubs = [...approvedSubs].sort((a, b) =>
@@ -63,11 +56,9 @@ export function useSubscriptionLogic() {
     .reduce((sum, s) => sum + s.amount, 0);
 
   return {
-    detectedSubs,
     approvedSubs,
     sortedSubs,
     totalCommitted,
-    handleApproveSub,
     handleDeleteSub,
     toggleStatus,
   };

@@ -147,7 +147,7 @@ export function mapRowsToTransactions(rows: string[][]): ParsedCSVRow[] {
     if (isNaN(amount)) continue;
 
     // Detect type and adjust amount sign
-    let type: "debit" | "credit" = "debit";
+    let type: "debit" | "credit";
     const typeStr = rawType.toLowerCase().trim();
     
     if (typeStr === "credit" || typeStr === "income") {

@@ -66,8 +66,9 @@ export function ImportModal({ isOpen, onClose, onSuccess, activeTab }: ImportMod
           throw new Error("No valid transactions found in the CSV file.");
         }
         setParsedRows(mapped);
-      } catch (err: any) {
-        setErrorMsg(err.message || "Failed to parse CSV file.");
+      } catch (err) {
+        const error = err as Error;
+        setErrorMsg(error.message || "Failed to parse CSV file.");
         setParsedRows([]);
         setFile(null);
       }
@@ -88,7 +89,7 @@ export function ImportModal({ isOpen, onClose, onSuccess, activeTab }: ImportMod
           target: {
             files: e.dataTransfer.files,
           },
-        } as any;
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
         handleFileChange(fakeEvent);
       } else {
         setErrorMsg("Please drop a valid CSV file.");
@@ -123,8 +124,9 @@ export function ImportModal({ isOpen, onClose, onSuccess, activeTab }: ImportMod
 
       onSuccess();
       handleCancel();
-    } catch (err: any) {
-      toast.error(err.message || "Import failed.");
+    } catch (err) {
+      const error = err as Error;
+      toast.error(error.message || "Import failed.");
     } finally {
       setIsImporting(false);
     }

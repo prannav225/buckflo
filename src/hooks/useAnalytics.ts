@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db/database";
 import {
@@ -219,7 +219,6 @@ export function useWeekOverWeek(): WoWResult {
   );
 }
 
-// ─── 4. Frequent Presets Hook ────────────────────────────────────────────────
 export interface FrequentPreset {
   description: string;
   amount: number;
@@ -228,123 +227,73 @@ export interface FrequentPreset {
   id?: number;
 }
 
-const FALLBACK_PRESETS: FrequentPreset[] = [
-  { description: "Coffee", amount: 80, category: "Food", isCustom: false },
-  { description: "Metro Fare", amount: 50, category: "Transport", isCustom: false },
-  { description: "Groceries", amount: 500, category: "Shopping", isCustom: false },
-  { description: "Lunch Thali", amount: 150, category: "Food", isCustom: false },
-];
+let isSeedingPresets = false;
 
 export function useFrequentPresets(limit = 6): FrequentPreset[] {
-  const expendAcc = useAccount("expenditure");
+
+  // Seed default presets if empty using a side-effect (outside liveQuery read-only context)
+  useEffect(() => {
+    const seedAndDeduplicate = async () => {
+      if (isSeedingPresets) return;
+      isSeedingPresets = true;
+      try {
+        // 1. Run deduplication on existing presets (clean up already created duplicates)
+        const allPresets = await db.presets.toArray();
+        const seen = new Set<string>();
+        const toDelete: number[] = [];
+        
+        for (const p of allPresets) {
+          // Uniqueness key based on lowercased name + amount + category
+          const key = `${p.name.trim().toLowerCase()}_${p.amount}_${p.category.trim().toLowerCase()}`;
+          if (seen.has(key)) {
+            if (p.id !== undefined) {
+              toDelete.push(p.id);
+            }
+          } else {
+            seen.add(key);
+          }
+        }
+        
+        if (toDelete.length > 0) {
+          await db.presets.bulkDelete(toDelete);
+        }
+
+        // 2. Seed default presets if the database is completely empty
+        const presetCount = await db.presets.count();
+        if (presetCount === 0) {
+          const expendAccDb = await db.accounts.where("type").equals("expenditure").first();
+          if (expendAccDb?.id) {
+            const now = Date.now();
+            await db.presets.bulkAdd([
+              { name: "Coffee", amount: 80, category: "Food", accountId: expendAccDb.id, isCustom: false, usageCount: 0, createdAt: now },
+              { name: "Metro Fare", amount: 50, category: "Transport", accountId: expendAccDb.id, isCustom: false, usageCount: 0, createdAt: now + 1 },
+            ]);
+          }
+        }
+      } catch (err) {
+        console.error("Error seeding or deduplicating presets:", err);
+      } finally {
+        isSeedingPresets = false;
+      }
+    };
+    seedAndDeduplicate().catch(console.error);
+  }, []);
 
   return useLiveQuery(
     async () => {
-      // 1. Fetch custom presets from DB
       const customPresets = await db.presets.toArray();
-      const customMapped: (FrequentPreset & { sortScore: number })[] = customPresets.map((p) => ({
-        description: p.name,
-        amount: p.amount,
-        category: p.category,
-        isCustom: true,
-        id: p.id,
-        sortScore: p.usageCount + 2, // +2 base so new custom presets appear alongside used auto ones
-      }));
-
-      if (!expendAcc?.id) {
-        // No account yet — just return custom + fallbacks
-        const combined: FrequentPreset[] = customMapped.map((p) => {
-          const res: FrequentPreset = {
-            description: p.description,
-            amount: p.amount,
-            category: p.category,
-            isCustom: p.isCustom,
-          };
-          if (p.id !== undefined) res.id = p.id;
-          return res;
-        });
-        if (combined.length < limit) {
-          for (const fb of FALLBACK_PRESETS) {
-            if (combined.length >= limit) break;
-            if (!combined.some((p) => p.description.toLowerCase() === fb.description.toLowerCase())) {
-              combined.push(fb);
-            }
+      
+      // Sort: presets with higher usageCount first, then newest first
+      const sortedPresets = [...customPresets]
+        .sort((a, b) => {
+          if (b.usageCount !== a.usageCount) {
+            return (b.usageCount || 0) - (a.usageCount || 0);
           }
-        }
-        return combined.slice(0, limit);
-      }
-
-      // 2. Query past transactions to calculate frequency for auto-detection
-      const txs = await db.transactions
-        .where("accountId")
-        .equals(expendAcc.id)
-        .filter((t) => t.type === "debit")
-        .toArray();
-
-      const autoPresets: (FrequentPreset & { sortScore: number })[] = [];
-
-      if (txs.length > 0) {
-        const freqMap = new Map<
-          string,
-          {
-            desc: string;
-            cat: string;
-            count: number;
-            lastAmount: number;
-            lastCreatedAt: number;
-          }
-        >();
-
-        for (const tx of txs) {
-          const descNorm = tx.description.trim();
-          const catVal = tx.category || "Other";
-          const key = `${descNorm.toLowerCase()}_${catVal.toLowerCase()}`;
-
-          const existing = freqMap.get(key);
-          if (existing) {
-            existing.count += 1;
-            if (tx.createdAt > existing.lastCreatedAt) {
-              existing.lastAmount = tx.amount;
-              existing.lastCreatedAt = tx.createdAt;
-            }
-          } else {
-            freqMap.set(key, {
-              desc: descNorm,
-              cat: catVal,
-              count: 1,
-              lastAmount: tx.amount,
-              lastCreatedAt: tx.createdAt,
-            });
-          }
-        }
-
-        const sortedFreq = Array.from(freqMap.values())
-          .filter((item) => item.count >= 2)
-          .sort((a, b) => b.count - a.count);
-
-        for (const item of sortedFreq) {
-          // Skip if a custom preset with same name already exists
-          const isDuplicate = customMapped.some(
-            (cp) => cp.description.toLowerCase() === item.desc.toLowerCase(),
-          );
-          if (!isDuplicate) {
-            autoPresets.push({
-              description: item.desc,
-              amount: item.lastAmount,
-              category: item.cat,
-              isCustom: false,
-              sortScore: item.count,
-            });
-          }
-        }
-      }
-
-      // 3. Merge custom + auto, sort by usage frequency
-      const merged: FrequentPreset[] = [...customMapped, ...autoPresets]
-        .sort((a, b) => b.sortScore - a.sortScore)
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        })
         .map((p) => {
           const res: FrequentPreset = {
-            description: p.description,
+            description: p.name,
             amount: p.amount,
             category: p.category,
             isCustom: p.isCustom,
@@ -353,23 +302,10 @@ export function useFrequentPresets(limit = 6): FrequentPreset[] {
           return res;
         });
 
-      // 4. Backfill with fallbacks if needed
-      if (merged.length < limit) {
-        for (const fallback of FALLBACK_PRESETS) {
-          if (merged.length >= limit) break;
-          const isDuplicate = merged.some(
-            (p) => p.description.toLowerCase() === fallback.description.toLowerCase(),
-          );
-          if (!isDuplicate) {
-            merged.push(fallback);
-          }
-        }
-      }
-
-      return merged.slice(0, limit);
+      return sortedPresets.slice(0, limit);
     },
-    [expendAcc?.id, limit],
-    FALLBACK_PRESETS.slice(0, limit),
+    [limit],
+    [],
   );
 }
 

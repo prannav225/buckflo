@@ -98,7 +98,7 @@ export function SavingsView() {
         <div className="flex items-center gap-2 mb-1.5">
           <PiggyBank size={14} color="rgba(255,255,255,0.65)" />
           <span className="font-sans text-[0.6875rem] font-semibold text-[rgba(255,255,255,0.65)] tracking-[0.08em] uppercase">
-            {isCurrentMonth ? "Savings Balance" : "Savings Closing Balance"}
+            Savings Balance
           </span>
         </div>
 
