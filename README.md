@@ -8,15 +8,16 @@ Flo provides a premium, frictionless experience for tracking your daily expendit
 
 - **Absolute Privacy (Offline-First):** All data is stored locally on your device using IndexedDB. No servers, no accounts, no data harvesting.
 - **Personalized Profile Setup:** Quick onboarding that creates a local user profile, with alphabet-only name validation and unique, brand-colored deterministic SVG avatars (via `boring-avatars`).
-- **Consolidated Settings & Theme Control:** Minimalist settings grouped into elegant list rows with dividers. Includes a custom-designed upward-opening theme dropdown selector to choose between Light, Dark, and System modes.
+- **Consolidated Profile & Theme Control:** Minimalist profile settings grouped into elegant list rows with dividers. Includes a custom-designed upward-opening theme dropdown selector to choose between Light, Dark, and System modes.
 - **Dual-Account Architecture:** Seamlessly manage and transfer funds between your day-to-day **Expenditure** account and your long-term **Savings** account.
+- **Database Self-Healing (Auto-Reconciliation):** Ensures 100% balance integrity with automated transaction-based background audits on application load, correcting account desynchronizations instantly.
 - **Smart Budget Tracking:**
   - Set opening balances and monthly spending budgets.
   - Automatically calculates your **daily remaining budget** to keep you on track.
-  - Visual warnings and UI shifts when spending exceeds your monthly limit.
+  - Displays proactive indicators such as month-to-date activity metrics and monthly budget status badges even in unconfigured months.
 - **Advanced Interactive Charts:** Rich visualizations using Chart.js, configured with compact currency suffix formatting (e.g., `₹1k`, `₹10k`, `₹1.5M`) on the Y-axes for cleaner layouts while maintaining precise details in tooltips.
 - **Installable PWA:** Install Pocket Ledger directly to your iOS or Android home screen, or your Desktop, for a fully native app experience.
-- **Data Portability:** Easily import or export your transaction history via CSV files for external analysis.
+- **Enhanced CSV Portability:** Perform transaction history imports and custom exports directly from the main transaction feed header. Export configuration supports custom ranges, specific months, or all-time histories across specific accounts.
 
 ## Tech Stack
 

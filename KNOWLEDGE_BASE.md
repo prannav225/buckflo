@@ -53,7 +53,7 @@ Below is the step-by-step operational guide for the application:
 ### Step 5: Insights & Bill Notifications
 1.  Navigate to **Insights** (`/insights`):
     - **Overview Tab**: View week-over-week analytics, daily averages, and interactive category spending distribution.
-    - **Subscriptions Tab**: Track bills. Tap **"Auto-Detect"** to let flo scan your history and identify recurring patterns automatically.
+    - **Subscriptions Tab**: Track committed monthly subscriptions and bills, showing upcoming due dates and payment status.
 2.  **Notification Hub**: Tap the Bell icon in the header to check alerts:
     - Category budget threshold warnings (80% and 100%+ spent).
     - Bill reminders (due within 7 days).
@@ -127,6 +127,14 @@ Operations modifying balances utilize transactional helper functions to enforce 
 - `updateTransaction(id, updated)`: Calculates the differential between old and new transaction details, reverts the old balance impact, applies the new balance modification, and updates the record.
 - `deleteTransaction(id)`: Reverts the balance impact of the transaction and deletes it. If it was a transfer, it searches for the sibling transaction with the same `transferId` and deletes both.
 
+### Database Balance Reconciliation (Self-Healing on Load)
+
+To prevent discrepancies between stored account balances and transaction totals:
+- **`useDatabaseSync` Hook**: Loaded on app startup inside `AppLayout.tsx`. It runs a one-time background reconciliation.
+- **Savings Account**: Sums all historical savings transactions to recalculate and correct the Savings Account balance.
+- **Expenditure Account**: Recalculates balance by taking the active month's `MonthSetup.openingBalance` plus/minus all transactions recorded within the active month.
+- Overwrites the accounts' `currentBalance` values only if a mismatch is found.
+
 ---
 
 ## 5. Smart Features List
@@ -137,9 +145,11 @@ Operations modifying balances utilize transactional helper functions to enforce 
 
 Instead of hardcoding shortcuts, the app groups historical debit transactions by description and category. Combinations logged at least **twice** are sorted by frequency (descending) and surfaced on the dashboard as one-tap log buttons, using the amount of the most recently logged entry.
 
-### 2. Subscription Active Scanning (`runSubscriptionAutoDetection`)
+### 2. CSV Data Portability & Interactive Actions
 
-Scans historical data for debits with the same description and similar amounts (rounded to the nearest 5) occurring in at least **two separate months**. It automatically populates the `subscriptions` table and schedules a predicted due date based on the user's historical cadence.
+Directly accessible on the **All Transactions** tab header:
+- **CSV Import**: Upload external bank sheets, automatically parsing date formats, amounts, and mapping account types/categories. Includes auto-detection of row-level account declarations.
+- **CSV Export**: Fully customizable export tool allowing users to export transaction histories by date ranges (Current Month, Specific Month, Custom Date Range, All Time) or by specific accounts (Expenditure, Savings, All).
 
 ### 3. Urgency-Based Bill Alerts (`useSubscriptionAlerts`)
 
