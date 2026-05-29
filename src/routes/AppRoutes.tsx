@@ -41,6 +41,17 @@ const routesConfig = [
 
 function LandingPageWrapper({ hasProfile }: { hasProfile: boolean }) {
   const navigate = useNavigate();
+
+  // Synchronous check to avoid any visual flicker on load
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (navigator as unknown as { standalone?: boolean }).standalone ||
+    document.referrer.includes("android-app://");
+
+  if (isStandalone && hasProfile) {
+    return <Navigate to="/home" replace />;
+  }
+
   return (
     <LandingPage
       onStart={() => {
