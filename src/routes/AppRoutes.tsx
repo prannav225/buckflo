@@ -29,8 +29,6 @@ const routesConfig = [
   { path: "/savings", element: <SavingsView />, isTab: false }, // Savings is now deep-linked
   { path: "/add", element: <AddEditTransaction />, isTab: false },
   { path: "/edit/:id", element: <AddEditTransaction />, isTab: false },
-  { path: "/privacy", element: <PrivacyPolicy />, isTab: false },
-  { path: "/terms", element: <TermsConditions />, isTab: false },
   { path: "/profile", element: <ProfilePage />, isTab: false }, // Profile page replaces Settings in BottomNav
   { path: "/profile/edit", element: <EditProfilePage />, isTab: false },
   { path: "/profile/about", element: <AboutPage />, isTab: false },
@@ -75,6 +73,26 @@ export function AppRoutes() {
         path="/setup"
         element={
           !hasProfile ? <ProfileSetupPage /> : <Navigate to="/home" replace />
+        }
+      />
+      <Route
+        path="/privacy"
+        element={
+          <AppLayout>
+            <div className="page-transition-sheet">
+              <PrivacyPolicy />
+            </div>
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/terms"
+        element={
+          <AppLayout>
+            <div className="page-transition-sheet">
+              <TermsConditions />
+            </div>
+          </AppLayout>
         }
       />
       <Route

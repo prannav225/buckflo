@@ -18,6 +18,7 @@ import { useTheme } from "../context/ThemeContext";
 import { IPhoneMockup } from "../components/landing/IPhoneMockup";
 import { FeatureCard } from "../components/landing/FeatureCard";
 import { FAQItem } from "../components/landing/FAQItem";
+import { PixelBanner } from "../components/layout/PixelBanner";
 
 interface LandingPageProps {
   onStart: () => void;
@@ -69,9 +70,16 @@ export function LandingPage({ onStart }: LandingPageProps) {
   };
 
   return (
-    <div className="fade-in w-full pb-24 pt-4 px-4 sm:px-6 lg:px-8">
+    <div className="fade-in w-full pb-24 pt-4 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* ── Ambient Pixel Matrix Background ─────────────────────────────────── */}
+      <div className="absolute top-0 left-0 right-0 h-[700px] opacity-40 dark:opacity-20 pointer-events-none select-none flex justify-center z-0">
+        <div className="w-[800px] h-full max-w-[100vw] relative [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)]">
+          <PixelBanner seed="flo-landing-ambient" />
+        </div>
+      </div>
+
       {/* ── Minimal Header ────────────────────────────────────────────────── */}
-      <header className="flex justify-between items-center mb-16 sm:mb-24 max-w-[1100px] mx-auto">
+      <header className="flex justify-between items-center mb-16 sm:mb-24 max-w-[1100px] mx-auto relative z-10">
         <div className="font-display text-2xl text-(--accent) tracking-wider leading-none italic font-bold select-none">
           flo
         </div>
@@ -162,72 +170,78 @@ export function LandingPage({ onStart }: LandingPageProps) {
       </section>
 
       {/* ── Key Smart Features Section (Apple-style Grid layout) ───────────────── */}
-      <section className="mb-24">
-        <div className="text-center mb-16">
-          <div className="text-xs uppercase tracking-[0.15em] text-(--text-muted) font-semibold mb-3">
-            Engineered for Clarity
-          </div>
-          <h3 className="text-3xl sm:text-4xl font-bold tracking-tight text-(--text) font-display">
-            Advanced Analytical Features
-          </h3>
+      <section className="mb-24 relative overflow-hidden py-12">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] opacity-100 dark:opacity-100 pointer-events-none select-none z-0 [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_60%)]">
+          <PixelBanner seed="features-matrix-core" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-black/8 dark:border-white/6 mx-auto max-w-[1100px]">
-          <FeatureCard
-            icon={<Wallet size={16} className="text-(--accent)" />}
-            title="Two Accounts, One View"
-            desc="Keep a separate Expenditure account for daily burns and a Savings account for goals. flo updates balances transactionally."
-            borderClasses="border-r border-b border-black/8 dark:border-white/6"
-          />
-          <FeatureCard
-            icon={<TrendingDown size={16} className="text-(--debit)" />}
-            title="Burn Rate & Projections"
-            desc="Predicts budget exhaustion days and calculates dynamic daily limits based on month-to-date spending velocity."
-            borderClasses="border-r border-b border-black/8 dark:border-white/6"
-          />
-          <FeatureCard
-            icon={<Sparkles size={16} className="text-(--accent)" />}
-            title="Auto-Preset Logger"
-            desc="Learns your repetitive expenses (like coffee or fares) and populates one-tap buttons on your home feed to log in under a second."
-            borderClasses="border-r border-b border-black/8 dark:border-white/6 md:border-r-0 lg:border-r"
-          />
-          <FeatureCard
-            icon={<Calendar size={16} className="text-(--credit)" />}
-            title="Automatic Subscription Scan"
-            desc="Scans database logs to auto-detect monthly subscriptions, alerting you 7 days before recurring payments are due."
-            borderClasses="border-r border-b border-black/8 dark:border-white/6 lg:border-r"
-          />
-
-          {/* Allocation Advisor - Spans 2 columns on medium & large layouts */}
-          <div className="md:col-span-2 lg:col-span-2 p-8 border-r border-b border-black/8 dark:border-white/6 flex flex-col md:flex-row gap-8 items-start md:items-center justify-between hover:bg-neutral-500/2 dark:hover:bg-neutral-500/1 transition-colors duration-300">
-            <div className="max-w-[420px] text-left">
-              <div className="w-8 h-8 rounded-lg bg-neutral-200/50 dark:bg-neutral-800/30 flex items-center justify-center mb-4 shrink-0">
-                <Shield size={16} className="text-[#9b5de5]" />
-              </div>
-              <h4 className="text-base font-bold text-(--text) mb-2 tracking-tight">
-                Smart Surplus Allocation Advisor
-              </h4>
-              <p className="text-[12px] text-(--text-secondary) leading-relaxed">
-                Evaluates average spend and detects idle cash. Advisor
-                recommends how much surplus you can safely move to your savings
-                to optimize interest and goal planning.
-              </p>
+        <div className="relative z-10">
+          <div className="text-center mb-16">
+            <div className="text-xs uppercase tracking-[0.15em] text-(--text-muted) font-semibold mb-3">
+              Engineered for Clarity
             </div>
+            <h3 className="text-3xl sm:text-4xl font-bold tracking-tight text-(--text) font-display">
+              Advanced Analytical Features
+            </h3>
+          </div>
 
-            {/* Advisor Mini Mock Interface */}
-            <div className="w-full md:w-auto shrink-0 bg-black/4 dark:bg-white/4 border border-black/5 dark:border-white/5 rounded-xl p-3.5 text-xs flex flex-col gap-2 max-w-[240px] shadow-2xs text-left">
-              <div className="flex items-center gap-1.5 text-[#9b5de5] font-bold text-[9px] uppercase tracking-wider">
-                <span>💡 Advisor Recommendation</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-black/8 dark:border-white/6 mx-auto max-w-[1100px]">
+            <FeatureCard
+              icon={<Wallet size={16} className="text-(--accent)" />}
+              title="Two Accounts, One View"
+              desc="Keep a separate Expenditure account for daily burns and a Savings account for goals. flo updates balances transactionally."
+              borderClasses="border-r border-b border-black/8 dark:border-white/6"
+            />
+            <FeatureCard
+              icon={<TrendingDown size={16} className="text-(--debit)" />}
+              title="Burn Rate & Projections"
+              desc="Predicts budget exhaustion days and calculates dynamic daily limits based on month-to-date spending velocity."
+              borderClasses="border-r border-b border-black/8 dark:border-white/6"
+            />
+            <FeatureCard
+              icon={<Sparkles size={16} className="text-(--accent)" />}
+              title="Auto-Preset Logger"
+              desc="Learns your repetitive expenses (like coffee or fares) and populates one-tap buttons on your home feed to log in under a second."
+              borderClasses="border-r border-b border-black/8 dark:border-white/6 md:border-r-0 lg:border-r"
+            />
+            <FeatureCard
+              icon={<Calendar size={16} className="text-(--credit)" />}
+              title="Automatic Subscription Scan"
+              desc="Scans database logs to auto-detect monthly subscriptions, alerting you 7 days before recurring payments are due."
+              borderClasses="border-r border-b border-black/8 dark:border-white/6 lg:border-r"
+            />
+
+            {/* Allocation Advisor - Spans 2 columns on medium & large layouts */}
+            <div className="md:col-span-2 lg:col-span-2 p-8 border-r border-b border-black/8 dark:border-white/6 flex flex-col md:flex-row gap-8 items-start md:items-center justify-between hover:bg-neutral-500/2 dark:hover:bg-neutral-500/1 transition-colors duration-300">
+              <div className="max-w-[420px] text-left">
+                <div className="w-8 h-8 rounded-lg bg-neutral-200/50 dark:bg-neutral-800/30 flex items-center justify-center mb-4 shrink-0">
+                  <Shield size={16} className="text-[#9b5de5]" />
+                </div>
+                <h4 className="text-base font-bold text-(--text) mb-2 tracking-tight">
+                  Smart Surplus Allocation Advisor
+                </h4>
+                <p className="text-[12px] text-(--text-secondary) leading-relaxed">
+                  Evaluates average spend and detects idle cash. Advisor
+                  recommends how much surplus you can safely move to your
+                  savings to optimize interest and goal planning.
+                </p>
               </div>
-              <p className="text-[10px] text-(--text-secondary) m-0 leading-normal">
-                You have a safe surplus of{" "}
-                <strong className="text-(--text)">₹4,200</strong>. Sweep into
-                Savings?
-              </p>
-              <div className="flex justify-end mt-1">
-                <button className="py-1 px-3 rounded-full bg-[#9b5de5] text-white font-bold text-[9px] border-0 hover:opacity-90 active:scale-95 transition-all">
-                  Move Now
-                </button>
+
+              {/* Advisor Mini Mock Interface */}
+              <div className="w-full md:w-auto shrink-0 bg-black/4 dark:bg-white/4 border border-black/5 dark:border-white/5 rounded-xl p-3.5 text-xs flex flex-col gap-2 max-w-[240px] shadow-2xs text-left">
+                <div className="flex items-center gap-1.5 text-[#9b5de5] font-bold text-[9px] uppercase tracking-wider">
+                  <span>💡 Advisor Recommendation</span>
+                </div>
+                <p className="text-[10px] text-(--text-secondary) m-0 leading-normal">
+                  You have a safe surplus of{" "}
+                  <strong className="text-(--text)">₹4,200</strong>. Sweep into
+                  Savings?
+                </p>
+                <div className="flex justify-end mt-1">
+                  <button className="py-1 px-3 rounded-full bg-[#9b5de5] text-white font-bold text-[9px] border-0 hover:opacity-90 active:scale-95 transition-all">
+                    Move Now
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -294,33 +308,39 @@ export function LandingPage({ onStart }: LandingPageProps) {
       </section>
 
       {/* ── FAQ Section (NEW SECTION) ────────────────────────────────────── */}
-      <section className="py-24 border-t border-black/8 dark:border-white/6 max-w-[800px] mx-auto text-left">
-        <div className="text-center mb-16">
-          <div className="text-xs uppercase tracking-[0.15em] text-(--text-muted) font-semibold mb-3">
-            Common Enquiries
-          </div>
-          <h3 className="text-3xl font-bold tracking-tight text-(--text) font-display">
-            Frequently Asked Questions
-          </h3>
+      <section className="py-24 border-t border-black/8 dark:border-white/6 max-w-[800px] mx-auto text-left relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[150%] opacity-100 dark:opacity-100 pointer-events-none select-none z-0 mask-[radial-gradient(ellipse_at_center,black_10%,transparent_60%)]">
+          <PixelBanner seed="faq-answers-pixels" />
         </div>
 
-        <div className="flex flex-col border-t border-black/8 dark:border-white/6">
-          <FAQItem
-            q="How does flo store my data without a server?"
-            a="flo uses IndexedDB, a powerful browser-native database. All your accounts, balances, goals, and transactions are stored directly on your phone or computer. The application does not have a backend server, meaning your private financial transactions cannot be leaked or tracked."
-          />
-          <FAQItem
-            q="Can I access my ledger on multiple devices?"
-            a="Because flo prioritizes absolute privacy and data stewardship, there is no automatic cloud syncing. Your ledger is stored locally on each device. To back up your history or review it elsewhere, you can export your transactions to a CSV file from the monthly and savings pages."
-          />
-          <FAQItem
-            q="How do I install the app on my phone?"
-            a="On iOS, open the link in Safari, tap the 'Share' icon, and select 'Add to Home Screen'. On Android, open the link in Chrome and click the 'Download PWA' button or select 'Install App' from the browser menu. Once added, it runs as a native standalone application."
-          />
-          <FAQItem
-            q="Is the ledger free to use?"
-            a="Yes, flo is 100% free, open, and client-side software. Since we do not host servers, run databases, or collect advertising metrics, our operational costs are non-existent, letting us distribute this premium finance ledger freely."
-          />
+        <div className="relative z-10">
+          <div className="text-center mb-16">
+            <div className="text-xs uppercase tracking-[0.15em] text-(--text-muted) font-semibold mb-3">
+              Common Enquiries
+            </div>
+            <h3 className="text-3xl font-bold tracking-tight text-(--text) font-display">
+              Frequently Asked Questions
+            </h3>
+          </div>
+
+          <div className="flex flex-col border-t border-black/8 dark:border-white/6">
+            <FAQItem
+              q="How does flo store my data without a server?"
+              a="flo uses IndexedDB, a powerful browser-native database. All your accounts, balances, goals, and transactions are stored directly on your phone or computer. The application does not have a backend server, meaning your private financial transactions cannot be leaked or tracked."
+            />
+            <FAQItem
+              q="Can I access my ledger on multiple devices?"
+              a="Because flo prioritizes absolute privacy and data stewardship, there is no automatic cloud syncing. Your ledger is stored locally on each device. To back up your history or review it elsewhere, you can export your transactions to a CSV file from the monthly and savings pages."
+            />
+            <FAQItem
+              q="How do I install the app on my phone?"
+              a="On iOS, open the link in Safari, tap the 'Share' icon, and select 'Add to Home Screen'. On Android, open the link in Chrome and click the 'Download PWA' button or select 'Install App' from the browser menu. Once added, it runs as a native standalone application."
+            />
+            <FAQItem
+              q="Is the ledger free to use?"
+              a="Yes, flo is 100% free, open, and client-side software. Since we do not host servers, run databases, or collect advertising metrics, our operational costs are non-existent, letting us distribute this premium finance ledger freely."
+            />
+          </div>
         </div>
       </section>
 
