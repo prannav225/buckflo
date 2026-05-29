@@ -16,6 +16,8 @@ import {
 import { useProfile } from "../hooks/useProfile";
 import { useTheme, type Theme } from "../context/ThemeContext";
 import { useAccount } from "../db/hooks";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../db/database";
 import { formatINR } from "../utils/currency";
 import { getCurrentMonthYear } from "../utils/dateUtils";
 import { ExportSheet } from "../components/transactions/ExportSheet";
@@ -29,6 +31,8 @@ const themeOptions = [
   { value: "dark" as const, label: "Dark" },
   { value: "system" as const, label: "System" },
 ];
+
+import { PixelBanner } from "../components/layout/PixelBanner";
 
 export function ProfilePage() {
   const navigate = useNavigate();
@@ -57,33 +61,50 @@ export function ProfilePage() {
     : "May 2026";
 
   const currentMonth = getCurrentMonthYear();
+  const transactionCount = useLiveQuery(() => db.transactions.count(), []) ?? 0;
 
   return (
     <>
       <div className="flex flex-col gap-6 fade-in-up">
-        {/* Profile Header */}
-        <div className="flex flex-col items-center text-center mt-4">
+        {/* Profile Header (Seamless translucent band, not a card) */}
+        <div className="profile-header-card">
+          <PixelBanner
+            seed={`${displayName}-${profile?.createdAt ? new Date(profile.createdAt).getTime() : "0"}`}
+          />
           <div
-            onClick={() => navigate("/profile/edit")}
-            className="cursor-pointer flex flex-col items-center select-none group"
+            className="cursor-pointer flex flex-col items-center select-none group relative z-10 w-full px-6 py-4"
             id="profile-header-trigger"
           >
-            <div className="relative select-none">
+            <div className="relative select-none mb-3.5">
               <BrandedAvatar
                 name={displayName}
-                size={80}
-                className="shadow-md transition-transform duration-200 group-hover:scale-105 active:scale-95"
+                size={88}
+                className="shadow-md transition-transform duration-200 group-hover:scale-105 active:scale-95 border-4 border-white dark:border-[#2d2d2c]"
               />
-              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-(--accent) text-white border-2 border-(--bg) flex items-center justify-center shadow-md transition-transform duration-200 group-hover:scale-105 active:scale-95">
-                <Pencil size={11} strokeWidth={2.5} />
-              </div>
+              <button
+                type="button"
+                className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-(--accent) text-white border-2 border-white dark:border-[#2d2d2c] flex items-center justify-center shadow-md transition-transform duration-200 hover:scale-110 active:scale-90 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate("/profile/edit");
+                }}
+                aria-label="Edit Profile Name"
+              >
+                <Pencil size={12} strokeWidth={2.5} />
+              </button>
             </div>
-            <h2 className="font-display text-2xl font-bold text-(--text) mt-3 mb-0.5 tracking-wide group-hover:text-(--accent) transition-colors">
+            <h2 className="font-display text-3xl italic font-light! text-(--text) m-0 tracking-normal">
               {displayName}
             </h2>
-            <p className="m-0 text-xs text-(--text-muted)">
-              Member since {memberSince}
-            </p>
+            <div className="mt-2.5 flex flex-col gap-1 items-center">
+              <p className="m-0 text-xs text-(--text-muted) font-medium">
+                Member since {memberSince}
+              </p>
+              <p className="m-0 text-xs text-(--accent) font-semibold tracking-wide">
+                {transactionCount}{" "}
+                {transactionCount === 1 ? "transaction" : "transactions"} logged
+              </p>
+            </div>
           </div>
         </div>
 

@@ -937,6 +937,21 @@ body.sheet-open .page-header {
   animation: fade-in 0.3s ease-out forwards;
 }
 
+@keyframes fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.animate-fade-out {
+  animation: fade-out 0.3s ease-in forwards;
+}
+
 @keyframes loading-bar {
   0% {
     transform: translateX(-100%);
@@ -948,4 +963,40 @@ body.sheet-open .page-header {
 
 .animate-loading-bar {
   animation: loading-bar 1.5s infinite linear;
+}
+
+/* ─── Profile Header Card (Seamless translucent band) ───────────────────── */
+.profile-header-card {
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(242, 237, 228, 0.65) 15%,
+    rgba(242, 237, 228, 0.65) 85%,
+    transparent
+  );
+  padding: 24px 0 28px 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: calc(100% + 32px); /* Stretch to bleed into main padding */
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+.dark .profile-header-card {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(37, 37, 36, 0.7) 15%,
+    rgba(37, 37, 36, 0.7) 85%,
+    transparent
+  );
+}
+
+.profile-banner-pixel {
+  fill: var(--accent);
+  transition: opacity 0.3s ease;
 }

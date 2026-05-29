@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, Wallet, Upload, Database, X, Plus } from "lucide-react";
 import { db, deletePreset, incrementPresetUsage } from "../db/database";
@@ -90,9 +90,21 @@ export function Dashboard() {
 
   const monthYear = getCurrentMonthYear();
 
+  const isMonthSkipped =
+    localStorage.getItem(`flo_skipped_setup_${monthYear}`) === "true";
+  const monthSetup = useMonthSetup(monthYear);
+  const hasAutoPrompted = useRef(false);
+
+  useEffect(() => {
+    // If we loaded the month setup (=== null means it doesn't exist) and user hasn't explicitly skipped it
+    if (monthSetup === null && !isMonthSkipped && !showMonthInit && !hasAutoPrompted.current) {
+      setShowMonthInit(true);
+      hasAutoPrompted.current = true;
+    }
+  }, [monthSetup, isMonthSkipped, showMonthInit]);
+
   const expendAcc = useAccount("expenditure");
   const savingsAcc = useAccount("savings");
-  const monthSetup = useMonthSetup(monthYear);
   const recentTxs = useRecentTransactions(undefined, 5);
   const allMonthTxs = useTransactions(expendAcc?.id, monthYear);
   const summary = useMonthSummary(allMonthTxs, monthSetup?.openingBalance ?? 0);
@@ -165,7 +177,7 @@ export function Dashboard() {
             overBudget={overBudget}
             dailyRemaining={dailyRemaining}
             onTopUp={handleTopUp}
-            onSetup={() => setShowMonthInit(true)}
+            onSetup={isMonthSkipped ? undefined : () => setShowMonthInit(true)}
             monthComparison={monthComparison}
           />
 

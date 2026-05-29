@@ -6,7 +6,7 @@ import {
   updateSubscription,
   type Subscription,
 } from "../../db/database";
-import { CATEGORIES } from "../../utils/categories";
+import { useCategories } from "../../hooks/useCategories";
 import { SegmentedControl } from "../ui/SegmentedControl";
 
 interface Props {
@@ -20,6 +20,7 @@ export function SubscriptionFormSheet({
   setShowFormModal,
   editingSub,
 }: Props) {
+  const categories = useCategories();
   // Form states
   const [formName, setFormName] = useState(editingSub ? editingSub.name : "");
   const [formAmount, setFormAmount] = useState(
@@ -157,31 +158,36 @@ export function SubscriptionFormSheet({
             </div>
           </div>
 
-          {/* Next Due Date & Category */}
-          <div className="form-row">
-            <div className="form-group flex-[1.2]">
-              <span className="label">Next Due Date</span>
-              <input
-                type="date"
-                value={formDueDate}
-                onChange={(e) => setFormDueDate(e.target.value)}
-                className="input-field"
-                required
-              />
-            </div>
-            <div className="form-group flex-1">
-              <span className="label">Category</span>
-              <select
-                value={formCategory}
-                onChange={(e) => setFormCategory(e.target.value)}
-                className="input-field bg-(--bg-glass) h-12 px-4"
-              >
-                {CATEGORIES.filter((c) => c !== "Transfer").map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
+          {/* Next Due Date */}
+          <div className="form-group">
+            <span className="label">Next Due Date</span>
+            <input
+              type="date"
+              value={formDueDate}
+              onChange={(e) => setFormDueDate(e.target.value)}
+              className="input-field"
+              required
+            />
+          </div>
+
+          {/* Category */}
+          <div className="form-group">
+            <span className="label">Category</span>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {categories
+                .filter((c) => c.name !== "Transfer" && c.name !== "transfer")
+                .map((c) => (
+                  <button
+                    key={c.id ?? c.name}
+                    type="button"
+                    className={`chip py-2 px-4 text-[0.8125rem] ${
+                      formCategory === c.name ? "chip-active" : ""
+                    }`}
+                    onClick={() => setFormCategory(c.name)}
+                  >
+                    {c.name}
+                  </button>
                 ))}
-              </select>
             </div>
           </div>
 
@@ -191,7 +197,7 @@ export function SubscriptionFormSheet({
             <SegmentedControl
               options={["active", "paused", "cancelled"] as const}
               value={formStatus}
-              onChange={setFormStatus}
+              onChange={(v) => setFormStatus(v)}
               idPrefix="status"
               className="max-w-[320px]"
             />

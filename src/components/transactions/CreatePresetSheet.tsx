@@ -150,14 +150,14 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
           {/* Category */}
           <div className="form-group m-0">
             <span className="label">Category</span>
-            <div className="chip-scroll flex gap-2 overflow-x-auto pb-1 w-full touch-pan-x">
+            <div className="flex flex-wrap gap-2 pt-1">
               {categories
-                .filter((c) => c.name !== "Transfer")
+                .filter((c) => c.name !== "Transfer" && c.name !== "transfer")
                 .map((c) => (
                   <button
-                    key={c.id}
+                    key={c.id ?? c.name}
                     type="button"
-                    className={`chip whitespace-nowrap py-2 px-4 text-[0.8125rem] ${
+                    className={`chip py-2 px-4 text-[0.8125rem] ${
                       category === c.name ? "chip-active" : ""
                     }`}
                     onClick={() => setCategory(category === c.name ? "" : c.name)}

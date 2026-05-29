@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { Calendar, Home, Plus, BarChart2, History } from "lucide-react";
 
 const navItems = [
-  { to: "/", end: true, label: "Home", id: "nav-home", Icon: Home },
+  { to: "/home", end: false, label: "Home", id: "nav-home", Icon: Home },
   { to: "/monthly", end: true, label: "Monthly", id: "nav-monthly", Icon: Calendar },
   { to: "/add", label: "Add entry", id: "nav-add", Icon: Plus, isFab: true },
   { to: "/insights", label: "Insights", id: "nav-insights", Icon: BarChart2 },
