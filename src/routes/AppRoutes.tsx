@@ -37,11 +37,6 @@ const routesConfig = [
   { path: "/profile/edit", element: <EditProfilePage />, isTab: false },
   { path: "/profile/about", element: <AboutPage />, isTab: false },
   {
-    path: "/settings",
-    element: <Navigate to="/profile" replace />,
-    isTab: false,
-  },
-  {
     path: "/profile/categories",
     element: <ManageCategoriesPage />,
     isTab: false,

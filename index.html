@@ -1,22 +1,10 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <script>
-      (function() {
-        const saved = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (saved === 'dark' || (!saved && prefersDark)) {
-          document.documentElement.classList.add('dark');
-          document.documentElement.classList.remove('light');
-        } else {
-          document.documentElement.classList.add('light');
-          document.documentElement.classList.remove('dark');
-        }
-      })();
-    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#d97757" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f8f6" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1f1f1e" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="flo" />
@@ -29,13 +17,35 @@
 
     <style>
       /* Prevent FOUC */
-      html { background-color: #eeeae4; }
-      html.dark { background-color: #0d0c0b; }
+      html { background-color: #f8f8f6; }
+      html.dark { background-color: #1f1f1e; }
       @keyframes spin {
         from { transform: rotate(0deg); }
         to   { transform: rotate(360deg); }
       }
     </style>
+    <script>
+      (function() {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = saved === 'dark' || (!saved && prefersDark);
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else {
+          document.documentElement.classList.add('light');
+          document.documentElement.classList.remove('dark');
+        }
+        const metas = document.querySelectorAll('meta[name="theme-color"]');
+        const color = isDark ? "#1f1f1e" : "#f8f8f6";
+        metas.forEach(meta => {
+          meta.setAttribute("content", color);
+          if (saved) {
+            meta.removeAttribute("media");
+          }
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

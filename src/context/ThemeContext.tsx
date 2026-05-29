@@ -20,21 +20,39 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const applyTheme = (t: Theme) => {
   const root = document.documentElement;
+  let isDark: boolean;
+  
   if (t === "system") {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (prefersDark) {
-      root.classList.add("dark");
-      root.classList.remove("light");
-    } else {
-      root.classList.add("light");
-      root.classList.remove("dark");
-    }
-  } else if (t === "dark") {
+    isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  } else {
+    isDark = t === "dark";
+  }
+
+  if (isDark) {
     root.classList.add("dark");
     root.classList.remove("light");
   } else {
     root.classList.add("light");
     root.classList.remove("dark");
+  }
+
+  if (typeof window !== "undefined") {
+    const metas = document.querySelectorAll('meta[name="theme-color"]');
+    const color = isDark ? "#1f1f1e" : "#f8f8f6";
+    metas.forEach((meta) => {
+      meta.setAttribute("content", color);
+      const saved = localStorage.getItem("theme");
+      if (saved && saved !== "system") {
+        meta.removeAttribute("media");
+      } else {
+        const content = meta.getAttribute("content");
+        if (content === "#f8f8f6") {
+          meta.setAttribute("media", "(prefers-color-scheme: light)");
+        } else if (content === "#1f1f1e") {
+          meta.setAttribute("media", "(prefers-color-scheme: dark)");
+        }
+      }
+    });
   }
 };
 

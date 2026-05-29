@@ -39,7 +39,7 @@ export function MonthlyTransactionsView() {
         item.tx.category !== "transfer" &&
         item.tx.category !== "Transfer" &&
         item.tx.category !== "opening-transfer" &&
-        item.tx.category !== "adjustment"
+        item.tx.category !== "adjustment",
     )
     .reduce((sum, item) => sum + item.tx.amount, 0);
 
@@ -50,7 +50,7 @@ export function MonthlyTransactionsView() {
         item.tx.category !== "transfer" &&
         item.tx.category !== "Transfer" &&
         item.tx.category !== "opening-transfer" &&
-        item.tx.category !== "adjustment"
+        item.tx.category !== "adjustment",
     )
     .reduce((sum, item) => sum + item.tx.amount, 0);
 
@@ -60,7 +60,7 @@ export function MonthlyTransactionsView() {
         item.tx.type === "credit" &&
         (item.tx.category === "transfer" ||
           item.tx.category === "Transfer" ||
-          item.tx.category === "opening-transfer")
+          item.tx.category === "opening-transfer"),
     )
     .reduce((sum, item) => sum + item.tx.amount, 0);
 
@@ -70,7 +70,7 @@ export function MonthlyTransactionsView() {
         item.tx.type === "debit" &&
         (item.tx.category === "transfer" ||
           item.tx.category === "Transfer" ||
-          item.tx.category === "opening-transfer")
+          item.tx.category === "opening-transfer"),
     )
     .reduce((sum, item) => sum + item.tx.amount, 0);
 
@@ -219,7 +219,7 @@ export function MonthlyTransactionsView() {
             </div>
             {hasMoreItems && (
               <button
-                className="btn-secondary w-full mt-4"
+                className="btn-secondary w-full mt-4 py-2!"
                 onClick={() => setPageSize((prev) => prev + 20)}
               >
                 Load More
