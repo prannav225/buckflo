@@ -171,7 +171,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
 
       {/* ── Key Smart Features Section (Apple-style Grid layout) ───────────────── */}
       <section className="mb-24 relative overflow-hidden py-12">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] opacity-100 dark:opacity-100 pointer-events-none select-none z-0 [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_60%)]">
+        <div className="absolute -top-25 left-1/2 -translate-x-1/2 w-[1200px] h-[800px] opacity-100 dark:opacity-100 pointer-events-none select-none z-0 mask-[radial-gradient(ellipse_at_center,black_10%,transparent_60%)]">
           <PixelBanner seed="features-matrix-core" />
         </div>
 
@@ -309,7 +309,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
 
       {/* ── FAQ Section (NEW SECTION) ────────────────────────────────────── */}
       <section className="py-24 border-t border-black/8 dark:border-white/6 max-w-[800px] mx-auto text-left relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[150%] opacity-100 dark:opacity-100 pointer-events-none select-none z-0 mask-[radial-gradient(ellipse_at_center,black_10%,transparent_60%)]">
+        <div className="absolute -top-25 left-1/2 -translate-x-1/2 w-full h-[150%] opacity-100 dark:opacity-100 pointer-events-none select-none z-0 mask-[radial-gradient(ellipse_at_center,black_10%,transparent_60%)]">
           <PixelBanner seed="faq-answers-pixels" />
         </div>
 
