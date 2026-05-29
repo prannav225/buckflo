@@ -11,6 +11,8 @@ interface TransactionFiltersProps {
   setMaxAmount: (val: string) => void;
   sortBy: "date_desc" | "amount_desc" | "amount_asc";
   setSortBy: (val: "date_desc" | "amount_desc" | "amount_asc") => void;
+  txTypeFilter: "all" | "expense" | "income" | "transfer";
+  setTxTypeFilter: (val: "all" | "expense" | "income" | "transfer") => void;
   onResetPage: () => void;
 }
 
@@ -23,6 +25,8 @@ export function TransactionFilters({
   setMaxAmount,
   sortBy,
   setSortBy,
+  txTypeFilter,
+  setTxTypeFilter,
   onResetPage,
 }: TransactionFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
@@ -146,6 +150,23 @@ export function TransactionFilters({
             </div>
           </div>
 
+          {/* Transaction Type Filter */}
+          <div className="text-left">
+            <label className="block text-(--text-muted) font-semibold mb-1.5">
+              Transaction Type
+            </label>
+            <SegmentedControl
+              options={["all", "expense", "income", "transfer"] as const}
+              value={txTypeFilter}
+              onChange={(val) => {
+                setTxTypeFilter(val);
+                onResetPage();
+              }}
+              idPrefix="tx-type"
+              className="w-full"
+            />
+          </div>
+
           {/* Sorting Options */}
           <div className="text-left">
             <label className="block text-(--text-muted) font-semibold mb-1.5">
@@ -169,13 +190,14 @@ export function TransactionFilters({
           </div>
 
           {/* Reset Filters */}
-          {(minAmount || maxAmount || sortBy !== "date_desc") && (
+          {(minAmount || maxAmount || sortBy !== "date_desc" || txTypeFilter !== "all") && (
             <div className="flex justify-end pt-1 border-t border-black/5 dark:border-white/5">
               <button
                 onClick={() => {
                   setMinAmount("");
                   setMaxAmount("");
                   setSortBy("date_desc");
+                  setTxTypeFilter("all");
                   onResetPage();
                 }}
                 className="text-(--accent) hover:underline font-semibold border-0 bg-transparent cursor-pointer p-0 font-sans text-xs"

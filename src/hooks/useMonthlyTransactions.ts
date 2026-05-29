@@ -22,6 +22,9 @@ export function useMonthlyTransactions() {
   const [sortBy, setSortBy] = useState<
     "date_desc" | "amount_desc" | "amount_asc"
   >("date_desc");
+  const [txTypeFilter, setTxTypeFilter] = useState<
+    "all" | "expense" | "income" | "transfer"
+  >("all");
 
   const initialTab =
     (searchParams.get("tab") as "all" | "expenditure" | "savings") || "all";
@@ -137,9 +140,26 @@ export function useMonthlyTransactions() {
     return allItems;
   }, [allItems, activeTab]);
 
-  // Filter items based on search query and cost range limits
+  // Filter items based on search query, cost range limits, and type
   const filteredItems = useMemo(() => {
     let items = tabFilteredItems;
+
+    // 0. Transaction Type Filter
+    if (txTypeFilter !== "all") {
+      items = items.filter((item) => {
+        const isTransfer =
+          item.tx.category === "transfer" ||
+          item.tx.category === "Transfer" ||
+          item.tx.category === "opening-transfer";
+
+        if (txTypeFilter === "transfer") return isTransfer;
+        if (isTransfer) return false;
+
+        if (txTypeFilter === "expense") return item.tx.type === "debit";
+        if (txTypeFilter === "income") return item.tx.type === "credit";
+        return true;
+      });
+    }
 
     // 1. Search Query filter
     if (searchQuery.trim()) {
@@ -184,7 +204,7 @@ export function useMonthlyTransactions() {
       }
       return (b.tx.id || 0) - (a.tx.id || 0);
     });
-  }, [tabFilteredItems, searchQuery, minAmount, maxAmount, sortBy]);
+  }, [tabFilteredItems, searchQuery, minAmount, maxAmount, sortBy, txTypeFilter]);
 
   const hasMoreItems = filteredItems.length > pageSize;
   const displayedItems = filteredItems.slice(0, pageSize);
@@ -204,6 +224,8 @@ export function useMonthlyTransactions() {
     setMaxAmount,
     sortBy,
     setSortBy,
+    txTypeFilter,
+    setTxTypeFilter,
     activeTab,
     setPageSize,
     expendAcc,

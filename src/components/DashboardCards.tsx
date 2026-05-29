@@ -69,7 +69,10 @@ export function DashboardHeroCard({
           </div>
           <div className="flex justify-between items-baseline font-sans text-xs text-white/80 font-medium">
             <span>
-              <span className="text-[0.9375rem] font-bold text-white tracking-tight">{formatINR(spent)} spent</span> of {formatINR(budget)}
+              <span className="text-[0.9375rem] font-bold text-white tracking-tight">
+                {formatINR(spent)} spent
+              </span>{" "}
+              of {formatINR(budget)}
             </span>
             <span>
               {overBudget ? (
@@ -77,7 +80,9 @@ export function DashboardHeroCard({
                   <TrendingDown size={12} /> Budget exceeded
                 </span>
               ) : (
-                <span className="text-white/90 font-semibold">{formatINR(dailyRemaining)}/day left</span>
+                <span className="text-white/90 font-semibold">
+                  {formatINR(dailyRemaining)}/day left
+                </span>
               )}
             </span>
           </div>
@@ -85,7 +90,8 @@ export function DashboardHeroCard({
       ) : !monthSetup && onSetup ? (
         <div className="mb-5 relative z-10">
           <p className="font-sans text-xs text-white/80 mb-0 leading-relaxed">
-            Your month is not set up yet. Initialize it now to track your daily budget and opening balance.
+            Your month is not set up yet. Initialize it now to track your daily
+            budget and opening balance.
           </p>
         </div>
       ) : null}
@@ -95,17 +101,17 @@ export function DashboardHeroCard({
         <div className="flex-1 min-w-0 pr-2">
           {monthComparison?.hasLastMonthData && (
             <div className="font-sans text-[11px] font-semibold select-none">
-              {monthComparison.direction === 'up' && (
+              {monthComparison.direction === "up" && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 text-[rgba(255,220,205,0.95)] border border-white/15 shadow-sm truncate max-w-full">
                   ↑ {monthComparison.percentChange}% vs last month
                 </span>
               )}
-              {monthComparison.direction === 'down' && (
+              {monthComparison.direction === "down" && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 text-[rgba(200,255,200,0.95)] border border-white/15 shadow-sm truncate max-w-full">
                   ↓ {monthComparison.percentChange}% vs last month
                 </span>
               )}
-              {monthComparison.direction === 'neutral' && (
+              {monthComparison.direction === "neutral" && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 text-white/70 border border-white/10 shadow-sm truncate max-w-full">
                   ≈ On track vs last month
                 </span>
@@ -131,7 +137,7 @@ export function DashboardHeroCard({
                 : "bg-white/18 border border-white/32 text-white hover:bg-white/25"
             }`}
           >
-            <PiggyBank size={14} /> Top up
+            <PiggyBank size={14} /> Transfer
           </button>
         )}
       </div>
@@ -201,7 +207,8 @@ export function SetupPromptCard({ monthYear, onAction }: SetupPromptCardProps) {
           Initialize {formatMonthYear(monthYear)}
         </h2>
         <p className="font-sans text-xs text-white/80 max-w-[280px] leading-relaxed">
-          Set up your expenditure budget and opening account balances to begin tracking your cash flow.
+          Set up your expenditure budget and opening account balances to begin
+          tracking your cash flow.
         </p>
       </div>
 

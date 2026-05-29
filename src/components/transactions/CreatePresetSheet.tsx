@@ -184,7 +184,7 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
               <button
                 type="button"
                 className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                  accountType === "savings" ? "chip-active" : ""
+                  accountType === "savings" ? "chip-active-green" : ""
                 }`}
                 onClick={() => setAccountType("savings")}
               >

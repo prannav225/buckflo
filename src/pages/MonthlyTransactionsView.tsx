@@ -22,6 +22,8 @@ export function MonthlyTransactionsView() {
     setMaxAmount,
     sortBy,
     setSortBy,
+    txTypeFilter,
+    setTxTypeFilter,
     activeTab,
     setPageSize,
     handleMonthChange,
@@ -164,6 +166,8 @@ export function MonthlyTransactionsView() {
           setMaxAmount={setMaxAmount}
           sortBy={sortBy}
           setSortBy={setSortBy}
+          txTypeFilter={txTypeFilter}
+          setTxTypeFilter={setTxTypeFilter}
           onResetPage={() => setPageSize(20)}
         />
       )}

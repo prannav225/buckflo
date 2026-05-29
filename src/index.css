@@ -400,6 +400,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   box-shadow: 0 4px 12px rgba(217, 119, 87, 0.25);
 }
 
+.chip-active-green {
+  background: var(--credit) !important;
+  border-color: var(--credit) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(90, 158, 111, 0.25);
+}
+
 .nav-item {
   display: flex;
   flex-direction: column;

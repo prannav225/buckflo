@@ -24,9 +24,30 @@ export function useTransferForm({
     "savings_to_expenditure" | "expenditure_to_savings"
   >(defaultDirection);
   const [amount, setAmount] = useState(defaultAmount);
-  const [note, setNote] = useState(defaultNote);
+  const [note, setNote] = useState(
+    defaultNote ||
+      (defaultDirection === "savings_to_expenditure"
+        ? "Transfer to Expenditure"
+        : "Transfer to Savings")
+  );
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Automatically update the default note text when direction changes
+  useEffect(() => {
+    setNote((prev) => {
+      if (
+        !prev ||
+        prev === "Transfer to Expenditure" ||
+        prev === "Transfer to Savings"
+      ) {
+        return direction === "savings_to_expenditure"
+          ? "Transfer to Expenditure"
+          : "Transfer to Savings";
+      }
+      return prev;
+    });
+  }, [direction]);
 
   // Focus input on mount
   useEffect(() => {

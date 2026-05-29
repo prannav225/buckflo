@@ -214,7 +214,7 @@ export function ExportSheet({
               </button>
               <button
                 type="button"
-                className={`chip py-2 px-4 ${accountType === "savings" ? "chip-active" : ""}`}
+                className={`chip py-2 px-4 ${accountType === "savings" ? "chip-active-green" : ""}`}
                 onClick={() => setAccountType("savings")}
               >
                 Savings

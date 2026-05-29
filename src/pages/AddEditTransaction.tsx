@@ -241,7 +241,7 @@ export function AddEditTransaction() {
                   <button
                     type="button"
                     className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                      accountId === savingsAcc.id ? "chip-active" : ""
+                      accountId === savingsAcc.id ? "chip-active-green" : ""
                     }`}
                     onClick={() => setAccountId(savingsAcc.id!)}
                     id="page-acc-savings"
