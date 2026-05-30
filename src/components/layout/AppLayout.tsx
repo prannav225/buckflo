@@ -34,14 +34,16 @@ export function AppLayout({ children }: AppLayoutProps) {
     pathname === "/profile/categories";
 
   const [isOnboarded, setIsOnboarded] = useState(
-    () => localStorage.getItem("flo_onboarded") === "true",
+    () =>
+      localStorage.getItem("buckflo_onboarded") === "true" ||
+      localStorage.getItem("flo_onboarded") === "true",
   );
 
   const handleOnboardingComplete = (skipSetup?: boolean) => {
-    localStorage.setItem("flo_onboarded", "true");
+    localStorage.setItem("buckflo_onboarded", "true");
     if (skipSetup) {
       localStorage.setItem(
-        `flo_skipped_setup_${getCurrentMonthYear()}`,
+        `buckflo_skipped_setup_${getCurrentMonthYear()}`,
         "true",
       );
     }
@@ -89,10 +91,12 @@ export function AppLayout({ children }: AppLayoutProps) {
             {/* ── Persistent Global Header ────────────────────────────────────────── */}
             {isMainPage && (
               <header className="sticky top-[calc(12px+env(safe-area-inset-top,0))] z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-(--r-pill) px-5 py-1.5 shadow-(--glass-shadow) pointer-events-auto transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
-                  <span className="font-display text-2xl text-(--accent-dark) dark:text-(--accent) tracking-wider leading-none italic">
-                    flo
-                  </span>
+                <div className="pointer-events-auto transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
+                  <img
+                    src="/buckflo_favicon.png"
+                    alt="buckflo"
+                    className="w-14 h-14 object-contain rounded-full"
+                  />
                 </div>
                 <div className="flex items-center gap-2 pointer-events-auto">
                   <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
@@ -116,7 +120,11 @@ export function AppLayout({ children }: AppLayoutProps) {
                     title="Profile"
                     id="header-profile-btn"
                   >
-                    <BrandedAvatar name={profile?.displayName || "flo"} size={34} className="border-0 bg-transparent" />
+                    <BrandedAvatar
+                      name={profile?.displayName || "buckflo"}
+                      size={34}
+                      className="border-0 bg-transparent"
+                    />
                   </button>
                 </div>
               </header>

@@ -67,10 +67,8 @@ export const IPhoneMockup = memo(function IPhoneMockup() {
 
           {/* Mock Header */}
           <div className="flex justify-between items-center mb-3 px-1">
-            <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) border border-black/8 dark:border-white/6 rounded-full px-3 py-1 shadow-sm">
-              <span className="font-display text-base text-(--accent) tracking-wider italic leading-none font-bold">
-                flo
-              </span>
+            <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) border border-black/8 dark:border-white/6 rounded-full w-6.5 h-6.5 shadow-sm p-1">
+              <img src="/buckflo_favicon.png" alt="buckflo" className="w-full h-full object-contain rounded-full" />
             </div>
             <div className="inline-flex items-center bg-(--bg-glass-strong) border border-black/8 dark:border-white/6 rounded-full p-0.5 shadow-sm gap-1">
               <div className="w-5.5 h-5.5 rounded-full flex items-center justify-center text-(--text-secondary)">

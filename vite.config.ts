@@ -9,10 +9,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["flo_favicon.png", "flo_appicon.png"],
+      includeAssets: ["buckflo_favicon.png", "buckflo_appicon.png"],
       manifest: {
-        name: "flo",
-        short_name: "flo",
+        name: "buckflo",
+        short_name: "buckflo",
         description: "Personal expense tracker for daily budgeting",
         theme_color: "#d97757",
         background_color: "#0d0c0b",
@@ -22,17 +22,17 @@ export default defineConfig({
         scope: "/",
         icons: [
           {
-            src: "flo_appicon.png",
+            src: "buckflo_appicon.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "flo_appicon.png",
+            src: "buckflo_appicon.png",
             sizes: "512x512",
             type: "image/png",
           },
           {
-            src: "flo_appicon.png",
+            src: "buckflo_appicon.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",

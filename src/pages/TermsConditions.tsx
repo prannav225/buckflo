@@ -33,13 +33,13 @@ export function TermsConditions() {
         </div>
 
         <p>
-          Welcome to <strong>flo</strong>. By accessing or using this web application, you agree to comply with and be bound by the following Terms & Conditions.
+          Welcome to <strong>buckflo</strong>. By accessing or using this web application, you agree to comply with and be bound by the following Terms & Conditions.
         </p>
 
         <div className="flex flex-col gap-1.5">
           <h3 className="font-bold text-(--text) text-base">1. User Stewardship & Database Control</h3>
           <p>
-            flo acts exclusively as a client-side interface wrapper for your local IndexedDB storage. You hold sole ownership and control of your database records.
+            buckflo acts exclusively as a client-side interface wrapper for your local IndexedDB storage. You hold sole ownership and control of your database records.
           </p>
           <p>
             You are fully responsible for the protection, backup, and physical security of your device. We are not responsible for any data loss arising from cleared browser cookies, database corruption, or unauthorized physical access.
@@ -49,7 +49,7 @@ export function TermsConditions() {
         <div className="flex flex-col gap-1.5">
           <h3 className="font-bold text-(--text) text-base">2. Local Storage Disclaimer</h3>
           <p>
-            Because flo does not sync data to any cloud storage servers, any actions taken to clear your browser data, reset your device cache, or uninstall site databases will permanently delete your financial history. Ensure you perform manual CSV exports of your transactions regularly to prevent loss.
+            Because buckflo does not sync data to any cloud storage servers, any actions taken to clear your browser data, reset your device cache, or uninstall site databases will permanently delete your financial history. Ensure you perform manual CSV exports of your transactions regularly to prevent loss.
           </p>
         </div>
 

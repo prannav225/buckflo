@@ -33,13 +33,13 @@ export function PrivacyPolicy() {
         </div>
 
         <p>
-          At <strong>flo</strong> (pocket_ledger), we hold your financial privacy in the absolute highest regard. This Privacy Policy details our operational data security principles.
+          At <strong>buckflo</strong> (pocket_ledger), we hold your financial privacy in the absolute highest regard. This Privacy Policy details our operational data security principles.
         </p>
 
         <div className="flex flex-col gap-1.5">
           <h3 className="font-bold text-(--text) text-base">1. Offline-First Privacy Architecture</h3>
           <p>
-            flo is designed as an offline-first client application. <strong>All transactions, account structures, budgets, savings goals, and subscriptions are stored locally</strong> on your own device using browser-native IndexedDB databases.
+            buckflo is designed as an offline-first client application. <strong>All transactions, account structures, budgets, savings goals, and subscriptions are stored locally</strong> on your own device using browser-native IndexedDB databases.
           </p>
           <p>
             We do not host remote database clusters, and your raw data is never transferred, backed up, or made visible to us or any third parties.

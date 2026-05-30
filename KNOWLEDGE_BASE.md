@@ -1,6 +1,6 @@
-# Codebase Knowledge Base — pocket_ledger (flo)
+# Codebase Knowledge Base — pocket_ledger (buckflo)
 
-Welcome to the central technical documentation and knowledge base for **pocket_ledger** (branded as **flo**), a premium, offline-first personal finance advisor application.
+Welcome to the central technical documentation and knowledge base for **pocket_ledger** (branded as **buckflo**), a premium, offline-first personal finance advisor application.
 
 This document details the application architecture, database schemas, custom hooks, smart analytical features, core flows, styling guidelines, and folder structure.
 
@@ -8,7 +8,7 @@ This document details the application architecture, database schemas, custom hoo
 
 ## 1. Project Overview & Tech Stack
 
-**flo** is built for lightning-fast, offline-first personal financial management. The tech stack includes:
+**buckflo** is built for lightning-fast, offline-first personal financial management. The tech stack includes:
 
 - **Core**: React (TypeScript) + Vite
 - **Data Persistence**: IndexedDB managed via [Dexie.js](https://dexie.org/) for transparent transactional storage, utilizing reactive queries with `dexie-react-hooks`.
@@ -20,13 +20,13 @@ This document details the application architecture, database schemas, custom hoo
 
 ---
 
-## 2. User Guide: How to Use flo
+## 2. User Guide: How to Use buckflo
 
 Below is the step-by-step operational guide for the application:
 
 ### Step 1: Complete Profile Setup & Onboarding
 1.  **Profile Setup Gate**: On first launch, you are prompted to input your display name. Special characters, spaces, and numbers are blocked, enforcing alphabet-only validation up to 20 characters. This name is used to generate a unique, brand-colored deterministic avatar.
-2.  **Onboarding slides**: Swipe through the slides to understand how flo manages your cash flow across two separate accounts (Expenditure and Savings).
+2.  **Onboarding slides**: Swipe through the slides to understand how buckflo manages your cash flow across two separate accounts (Expenditure and Savings).
 3.  If you choose **"Skip for now"** during month setup, the app loads the dashboard immediately but hides transactional tracking. To begin, tap **"Set Up Now"** inside the orange dashboard card.
 4.  Fill out the **New Month Setup** form:
     - **Expenditure Opening Balance**: Starting funds available for daily spending.
@@ -139,7 +139,7 @@ To prevent discrepancies between stored account balances and transaction totals:
 
 ## 5. Smart Features List
 
-**flo** contains a collection of smart analytical engines inside [`src/hooks/useAnalytics.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useAnalytics.ts) and [`src/hooks/useNotificationHub.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useNotificationHub.ts):
+**buckflo** contains a collection of smart analytical engines inside [`src/hooks/useAnalytics.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useAnalytics.ts) and [`src/hooks/useNotificationHub.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useNotificationHub.ts):
 
 ### 1. Frequent Presets Auto-Detection (`useFrequentPresets`)
 
@@ -177,7 +177,7 @@ Matches current-month category debits against per-category budget allocations. S
 
 ### Marketing Landing Page & Onboarding Flow
 
-- On first load, if `flo_onboarded` is not set in `localStorage`, the app displays the **Marketing Landing Page** ([`LandingPage.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/LandingPage.tsx)).
+- On first load, if `buckflo_onboarded` is not set in `localStorage`, the app displays the **Marketing Landing Page** ([`LandingPage.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/LandingPage.tsx)).
 - Tapping **"Get Started"** or **"Launch App"** transitions the layout into the onboarding slides ([`OnboardingFlow.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/features/onboarding/OnboardingFlow.tsx)).
 - On completing onboarding, the app requires setting up a **Local User Profile** (name & deterministic avatar) before gating access to month initialization.
 
@@ -190,7 +190,7 @@ Matches current-month category debits against per-category budget allocations. S
 ### Welcome / Splash Screen Flow
 
 - When the application mounts, `AppRoutes.tsx` displays the `SplashScreen` overlay.
-- The welcome screen animates the `flo` logo and a linear progress indicator for a minimum of 1.5 seconds.
+- The welcome screen animates the `buckflo` logo and a linear progress indicator for a minimum of 1.5 seconds.
 - Once the IndexedDB connection is established and the 1.5s timer finishes, the screen transitions to an `opacity-0` fade-out and unmounts after 600ms, revealing the application underneath.
 
 ### Theme System (Light / Dark / System Selector)

@@ -55,7 +55,7 @@ export function ProfilePage() {
   const expendAcc = useAccount("expenditure");
   const savingsAcc = useAccount("savings");
 
-  const displayName = profile?.displayName || "flo";
+  const displayName = profile?.displayName || "buckflo";
   const memberSince = profile?.createdAt
     ? format(new Date(profile.createdAt), "MMMM yyyy")
     : "May 2026";
@@ -320,7 +320,7 @@ export function ProfilePage() {
             ABOUT
           </h3>
           <div className="glass-card overflow-hidden">
-            {/* About flo */}
+            {/* About buckflo */}
             <div
               onClick={() => navigate("/profile/about")}
               className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
@@ -334,7 +334,7 @@ export function ProfilePage() {
                 />
                 <div>
                   <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    About flo
+                    About buckflo
                   </div>
                   <div className="font-sans text-xs text-(--text-muted) mt-0.5">
                     Offline-first accounting
@@ -347,11 +347,25 @@ export function ProfilePage() {
         </div>
 
         {/* Footer Text */}
-        <p className="text-center font-sans text-xs text-(--text-muted) leading-relaxed mt-4">
-          All your data lives on this device.
-          <br />
-          Nothing is ever sent to a server.
-        </p>
+        <div className="flex flex-col items-center my-4">
+          <div className="flex items-center opacity-90 select-none">
+            <img
+              src="/buckflo_favicon.png"
+              alt="buckflo"
+              className="w-5 h-5 object-contain rounded-full"
+            />
+            <span className="font-display text-base tracking-wider italic font-normal! text-(--accent)">
+              buckflo
+            </span>
+          </div>
+          <p className="text-center font-sans text-[11px] text-(--text-muted) leading-relaxed m-0">
+            Version 1.8
+            <br />
+            All your data lives solely on this device.
+            <br />
+            Nothing is ever sent to a server.
+          </p>
+        </div>
       </div>
 
       {/* Sheets / Modals */}

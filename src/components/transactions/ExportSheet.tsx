@@ -71,7 +71,7 @@ export function ExportSheet({
       txs.sort((a, b) => b.date.localeCompare(a.date));
 
       // Generate filename
-      let filename = "flo-export";
+      let filename = "buckflo-export";
       if (rangeType === "current") filename += `-${getCurrentMonthYear()}`;
       else if (rangeType === "specific") filename += `-${specificMonth}`;
       else if (rangeType === "range")

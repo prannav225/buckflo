@@ -36,7 +36,7 @@ export function ProfileSetupPage() {
     }
   };
 
-  const avatarName = name.trim() || "flo";
+  const avatarName = name.trim() || "buckflo";
 
   return (
     <div className="fixed inset-0 z-9999 bg-(--bg) flex flex-col items-center justify-center p-6 text-(--text) font-sans animate-fade-in overflow-y-auto">

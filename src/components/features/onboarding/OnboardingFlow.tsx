@@ -67,7 +67,7 @@ export function OnboardingFlow({
             <div className="absolute w-40 h-40 rounded-full border border-(--accent)/15 animate-[ping_3s_infinite]" />
             <div className="absolute w-32 h-32 rounded-full border border-(--accent)/25 animate-pulse" />
             <span className="font-display text-8xl text-(--accent) tracking-wider leading-none italic animate-pulse-slow drop-shadow-[0_0_35px_rgba(217,119,87,0.35)] relative z-10">
-              flo
+              buckflo
             </span>
           </div>
         </div>
@@ -108,7 +108,7 @@ export function OnboardingFlow({
       ),
       headline: "Two accounts. One view.",
       subtext:
-        "Keep your spending money separate from savings. flo tracks both and tells you exactly where you stand.",
+        "Keep your spending money separate from savings. buckflo tracks both and tells you exactly where you stand.",
     },
     {
       id: "monthly-budget",
@@ -127,7 +127,7 @@ export function OnboardingFlow({
       ),
       headline: "Set a budget. Stick to it.",
       subtext:
-        "Allocate money at the start of every month. flo tracks your daily burn rate so you never run out before the 30th.",
+        "Allocate money at the start of every month. buckflo tracks your daily burn rate so you never run out before the 30th.",
     },
     {
       id: "presets",

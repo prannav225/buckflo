@@ -1,8 +1,8 @@
-# Flo
+# buckflo
 
 A beautifully crafted, offline-first personal finance and budgeting tracker designed as a Progressive Web App (PWA).
 
-Flo provides a premium, frictionless experience for tracking your daily expenditures and long-term savings. By prioritizing local-first data storage, it guarantees absolute privacy—your financial data never leaves your device.
+buckflo provides a premium, frictionless experience for tracking your daily expenditures and long-term savings. By prioritizing local-first data storage, it guarantees absolute privacy—your financial data never leaves your device.
 
 ## Features
 

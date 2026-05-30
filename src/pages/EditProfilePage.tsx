@@ -45,7 +45,7 @@ export function EditProfilePage() {
     }
   };
 
-  const avatarName = name.trim() || "flo";
+  const avatarName = name.trim() || "buckflo";
 
   return (
     <>

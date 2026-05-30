@@ -73,15 +73,22 @@ export function LandingPage({ onStart }: LandingPageProps) {
     <div className="fade-in w-full pb-24 pt-4 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* ── Ambient Pixel Matrix Background ─────────────────────────────────── */}
       <div className="absolute top-0 left-0 right-0 h-[700px] opacity-40 dark:opacity-20 pointer-events-none select-none flex justify-center z-0">
-        <div className="w-[800px] h-full max-w-[100vw] relative [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)]">
-          <PixelBanner seed="flo-landing-ambient" />
+        <div className="w-[800px] h-full max-w-[100vw] relative mask-[linear-gradient(to_bottom,black_40%,transparent_100%)]">
+          <PixelBanner seed="buckflo-landing-ambient" />
         </div>
       </div>
 
       {/* ── Minimal Header ────────────────────────────────────────────────── */}
       <header className="flex justify-between items-center mb-16 sm:mb-24 max-w-[1100px] mx-auto relative z-10">
-        <div className="font-display text-2xl text-(--accent) tracking-wider leading-none italic font-bold select-none">
-          flo
+        <div className="flex items-center gap-1 select-none">
+          <img
+            src="/buckflo_favicon.png"
+            alt="buckflo"
+            className="w-14 object-contain rounded-full"
+          />
+          <span className="font-display text-3xl font-normal! text-(--accent) italic">
+            buckflo
+          </span>
         </div>
         <div className="flex items-center gap-4">
           <button
@@ -110,7 +117,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             Designed for Pocket Screen Use
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light font-display tracking-tight text-(--text) mb-6 leading-[1.05]">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light! font-display tracking-tight text-(--text) mb-6 leading-[1.05]">
             Your money, <br />
             flowing{" "}
             <span className="italic font-display tracking-normal text-(--accent)">
@@ -120,9 +127,12 @@ export function LandingPage({ onStart }: LandingPageProps) {
           </h1>
 
           <p className="text-base sm:text-lg text-(--text-secondary) leading-relaxed mb-8 max-w-[500px]">
-            A premium, offline-first personal ledger designed to separate daily
-            spending from long-term savings. No cloud accounts, no tracking
-            pixels, zero data sync.
+            <strong className="text-(--accent) font-display tracking-wide italic font-normal!">
+              buckflo
+            </strong>{" "}
+            is a premium, offline-first personal ledger designed to separate
+            daily spending from long-term savings. No cloud accounts, no
+            tracking pixels, zero data sync.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-stretch sm:items-center mb-8">
@@ -158,7 +168,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <strong className="text-(--text) font-semibold block mb-0.5">
               Stewardship Note:
             </strong>
-            flo is custom-tailored for mobile dimensions to act as a
+            buckflo is custom-tailored for mobile dimensions to act as a
             distraction-free digital companion. While fully operational on
             desktop, we recommend resizing your window or installing it as a PWA
             for the best mobile experience.
@@ -170,7 +180,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
       </section>
 
       {/* ── Key Smart Features Section (Apple-style Grid layout) ───────────────── */}
-      <section className="mb-24 relative overflow-hidden py-12">
+      <section className="mb-24 relative overflow-hidden py-24 border-t border-black/8 dark:border-white/6 max-w-[1100px] mx-auto">
         <div className="absolute -top-25 left-1/2 -translate-x-1/2 w-[1200px] h-[800px] opacity-100 dark:opacity-100 pointer-events-none select-none z-0 mask-[radial-gradient(ellipse_at_center,black_10%,transparent_60%)]">
           <PixelBanner seed="features-matrix-core" />
         </div>
@@ -189,7 +199,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <FeatureCard
               icon={<Wallet size={16} className="text-(--accent)" />}
               title="Two Accounts, One View"
-              desc="Keep a separate Expenditure account for daily burns and a Savings account for goals. flo updates balances transactionally."
+              desc="Keep a separate Expenditure account for daily burns and a Savings account for goals. buckflo updates balances transactionally."
               borderClasses="border-r border-b border-black/8 dark:border-white/6"
             />
             <FeatureCard
@@ -291,7 +301,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
       </section>
 
       {/* ── Security & Privacy Section (Simplified/Minimalist Row) ───────────── */}
-      <section className="py-24 border-t border-black/8 dark:border-white/6 text-left max-w-[800px] mx-auto flex flex-col md:flex-row gap-8 items-start">
+      <section className="py-24 border-t border-black/8 dark:border-white/6 text-left max-w-[1100px] mx-auto flex flex-col md:flex-row gap-8 items-start">
         <div className="w-12 h-12 rounded-2xl bg-(--accent)/10 flex items-center justify-center shrink-0">
           <Shield size={22} className="text-(--accent)" />
         </div>
@@ -300,15 +310,16 @@ export function LandingPage({ onStart }: LandingPageProps) {
             100% Offline, Secure, & Private
           </h3>
           <p className="text-sm text-(--text-secondary) leading-relaxed">
-            flo relies strictly on browser-native IndexedDB databases. No remote
-            data syncing, no tracking pixels, and no analytics collection. Your
-            financial profile never leaves your physical device.
+            buckflo relies strictly on browser-native IndexedDB databases. No
+            remote data syncing, no tracking pixels, and no analytics
+            collection. Your financial profile never leaves your physical
+            device.
           </p>
         </div>
       </section>
 
       {/* ── FAQ Section (NEW SECTION) ────────────────────────────────────── */}
-      <section className="py-24 border-t border-black/8 dark:border-white/6 max-w-[800px] mx-auto text-left relative overflow-hidden">
+      <section className="py-24 border-t border-black/8 dark:border-white/6 max-w-[1100px] mx-auto text-left relative overflow-hidden">
         <div className="absolute -top-25 left-1/2 -translate-x-1/2 w-full h-[150%] opacity-100 dark:opacity-100 pointer-events-none select-none z-0 mask-[radial-gradient(ellipse_at_center,black_10%,transparent_60%)]">
           <PixelBanner seed="faq-answers-pixels" />
         </div>
@@ -325,12 +336,12 @@ export function LandingPage({ onStart }: LandingPageProps) {
 
           <div className="flex flex-col border-t border-black/8 dark:border-white/6">
             <FAQItem
-              q="How does flo store my data without a server?"
-              a="flo uses IndexedDB, a powerful browser-native database. All your accounts, balances, goals, and transactions are stored directly on your phone or computer. The application does not have a backend server, meaning your private financial transactions cannot be leaked or tracked."
+              q="How does buckflo store my data without a server?"
+              a="buckflo uses IndexedDB, a powerful browser-native database. All your accounts, balances, goals, and transactions are stored directly on your phone or computer. The application does not have a backend server, meaning your private financial transactions cannot be leaked or tracked."
             />
             <FAQItem
               q="Can I access my ledger on multiple devices?"
-              a="Because flo prioritizes absolute privacy and data stewardship, there is no automatic cloud syncing. Your ledger is stored locally on each device. To back up your history or review it elsewhere, you can export your transactions to a CSV file from the monthly and savings pages."
+              a="Because buckflo prioritizes absolute privacy and data stewardship, there is no automatic cloud syncing. Your ledger is stored locally on each device. To back up your history or review it elsewhere, you can export your transactions to a CSV file from the monthly and savings pages."
             />
             <FAQItem
               q="How do I install the app on my phone?"
@@ -338,7 +349,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             />
             <FAQItem
               q="Is the ledger free to use?"
-              a="Yes, flo is 100% free, open, and client-side software. Since we do not host servers, run databases, or collect advertising metrics, our operational costs are non-existent, letting us distribute this premium finance ledger freely."
+              a="Yes, buckflo is 100% free, open, and client-side software. Since we do not host servers, run databases, or collect advertising metrics, our operational costs are non-existent, letting us distribute this premium finance ledger freely."
             />
           </div>
         </div>
@@ -362,8 +373,8 @@ export function LandingPage({ onStart }: LandingPageProps) {
           </Link>
         </div>
         <p className="text-[10px] text-(--text-muted) m-0">
-          &copy; {new Date().getFullYear()} flo. All rights reserved. Locally
-          persisted client software.
+          &copy; {new Date().getFullYear()} buckflo. All rights reserved.
+          Locally persisted client software.
         </p>
       </footer>
     </div>

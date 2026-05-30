@@ -1,10 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  ShieldCheck,
-  Sparkles,
-  Database,
-} from "lucide-react";
+import { ArrowLeft, ShieldCheck, Sparkles, Database } from "lucide-react";
 
 export function AboutPage() {
   const navigate = useNavigate();
@@ -22,19 +17,18 @@ export function AboutPage() {
           >
             <ArrowLeft size={20} />
           </button>
-          <h2 className="sub-header-title m-0">About flo</h2>
+          <h2 className="sub-header-title m-0">About buckflo</h2>
         </div>
       </div>
 
       <div className="flex flex-col gap-6 fade-in-up delay-1">
         {/* Big Branded Hero Card */}
         <div className="glass-card p-6 text-center flex flex-col items-center relative overflow-hidden">
-          <div className="absolute top-[-50px] right-[-50px] w-36 h-36 rounded-full bg-(--accent)/5 pointer-events-none" />
-          <span className="font-display text-7xl text-(--accent) tracking-wider leading-none italic select-none drop-shadow-[0_0_20px_rgba(217,119,87,0.15)]">
-            flo
+          <span className="font-display text-7xl text-(--accent) tracking-normal leading-none italic select-none drop-shadow-[0_0_20px_rgba(217,119,87,0.15)]">
+            buckflo
           </span>
           <p className="font-sans text-[10px] uppercase tracking-[0.2em] font-semibold text-(--text-muted) mt-3">
-            Version 1.7
+            Version 1.8
           </p>
           <p className="font-sans text-sm text-(--text-secondary) leading-relaxed mt-4 max-w-[280px]">
             A clean, distraction-free ledger designed to help you balance daily
