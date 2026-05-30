@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./context/ThemeContext";
 import { TooltipProvider } from "./context/TooltipContext";
 import { AppRoutes } from "./routes/AppRoutes";
+import { Analytics } from "@vercel/analytics/react";
 
 export function App() {
   return (
@@ -24,6 +25,7 @@ export function App() {
               },
             }}
           />
+          <Analytics />
         </TooltipProvider>
       </BrowserRouter>
     </ThemeProvider>
