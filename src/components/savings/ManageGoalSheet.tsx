@@ -6,6 +6,7 @@ import { formatINR } from "../../utils/currency";
 import { CustomDatePicker } from "../CustomDatePicker";
 import { updateSheetOpenState } from "../../utils/modalHelper";
 import { useManageGoal } from "../../hooks/useManageGoal";
+import { todayISO } from "../../utils/dateUtils";
 
 function ManageGoalSheetContent({
   onClose,
@@ -168,15 +169,34 @@ function ManageGoalSheetContent({
             </div>
 
             {parsedTarget > 0 && (
-              <div className="text-xs text-(--text-muted) px-1 text-center">
-                Goal Progress:{" "}
-                <strong>
-                  {Math.round(
-                    Math.min(100, (parsedAlloc / parsedTarget) * 100),
-                  )}
-                  %
-                </strong>{" "}
-                ({formatINR(parsedAlloc)} of {formatINR(parsedTarget)})
+              <div className="text-xs text-(--text-muted) px-1 text-center flex flex-col gap-1.5">
+                <div>
+                  Goal Progress:{" "}
+                  <strong>
+                    {Math.round(
+                      Math.min(100, (parsedAlloc / parsedTarget) * 100),
+                    )}
+                    %
+                  </strong>{" "}
+                  ({formatINR(parsedAlloc)} of {formatINR(parsedTarget)})
+                </div>
+                {(() => {
+                  if (deadline && parsedAlloc < parsedTarget) {
+                    const today = new Date(todayISO());
+                    const dDate = new Date(deadline);
+                    let monthsRemaining =
+                      (dDate.getFullYear() - today.getFullYear()) * 12 +
+                      (dDate.getMonth() - today.getMonth());
+                    if (monthsRemaining <= 0) monthsRemaining = 1;
+                    const required = (parsedTarget - parsedAlloc) / monthsRemaining;
+                    return (
+                      <div className="text-[11.5px] font-medium text-(--accent)">
+                        To stay on track, allocate <strong>{formatINR(required)}</strong> this month.
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             )}
 

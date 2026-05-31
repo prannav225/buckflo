@@ -25,6 +25,7 @@ This document details the application architecture, database schemas, custom hoo
 Below is the step-by-step operational guide for the application:
 
 ### Step 1: Complete Profile Setup & Onboarding
+
 1.  **Profile Setup Gate**: On first launch, you are prompted to input your display name. Special characters, spaces, and numbers are blocked, enforcing alphabet-only validation up to 20 characters. This name is used to generate a unique, brand-colored deterministic avatar.
 2.  **Onboarding slides**: Swipe through the slides to understand how buckflo manages your cash flow across two separate accounts (Expenditure and Savings).
 3.  If you choose **"Skip for now"** during month setup, the app loads the dashboard immediately but hides transactional tracking. To begin, tap **"Set Up Now"** inside the orange dashboard card.
@@ -36,21 +37,25 @@ Below is the step-by-step operational guide for the application:
     - **Opening Transfer** (Optional): Log a starting transfer from Savings to Expenditure.
 
 ### Step 2: Log Transactions & Use Shortcuts
+
 1.  **Manual Logging**: Tap the **`+`** button in the navigation header to log a transaction.
     - Select **Debit** (Expense), **Credit** (Income), or **Transfer** (Move cash between Savings and Expenditure).
     - Fill out the Amount, Category, Date, and Description.
 2.  **One-Tap Presets**: Once you log repeated transactions, the dashboard automatically surfaces them under **Quick Presets** (e.g. _"Coffee — ₹80"_). Tap any preset to log it instantly.
 
 ### Step 3: Track Burn Rate & Feed
+
 1.  **Dashboard Balance Card**: Shows your current Expenditure balance and remaining budget. It calculates a dynamic **Daily budget left** based on how many days are left in the month.
 2.  **Monthly Feed**: Navigate to the **Monthly** tab (`/monthly`) to view all daily transactions, check running balances after each transaction, and analyze visual budget progress bars per category.
 
 ### Step 4: Manage Savings Goals
+
 1.  Navigate to the **Savings** tab (`/savings`).
 2.  Tap **"Create Goal"** to define a savings target (description, target amount, optional deadline).
 3.  Allocate money directly into goals from your Savings account balance. The app calculates remaining funding required and highlights achieved goals.
 
 ### Step 5: Insights & Bill Notifications
+
 1.  Navigate to **Insights** (`/insights`):
     - **Overview Tab**: View week-over-week analytics, daily averages, and interactive category spending distribution.
     - **Subscriptions Tab**: Track committed monthly subscriptions and bills, showing upcoming due dates and payment status.
@@ -130,6 +135,7 @@ Operations modifying balances utilize transactional helper functions to enforce 
 ### Database Balance Reconciliation (Self-Healing on Load)
 
 To prevent discrepancies between stored account balances and transaction totals:
+
 - **`useDatabaseSync` Hook**: Loaded on app startup inside `AppLayout.tsx`. It runs a one-time background reconciliation.
 - **Savings Account**: Sums all historical savings transactions to recalculate and correct the Savings Account balance.
 - **Expenditure Account**: Recalculates balance by taking the active month's `MonthSetup.openingBalance` plus/minus all transactions recorded within the active month.
@@ -145,11 +151,10 @@ To prevent discrepancies between stored account balances and transaction totals:
 
 Instead of hardcoding shortcuts, the app groups historical debit transactions by description and category. Combinations logged at least **twice** are sorted by frequency (descending) and surfaced on the dashboard as one-tap log buttons, using the amount of the most recently logged entry.
 
-### 2. CSV Data Portability & Interactive Actions
+### 2. CSV Data Portability & JSON Data Backup
 
-Directly accessible on the **All Transactions** tab header:
-- **CSV Import**: Upload external bank sheets, automatically parsing date formats, amounts, and mapping account types/categories. Includes auto-detection of row-level account declarations.
-- **CSV Export**: Fully customizable export tool allowing users to export transaction histories by date ranges (Current Month, Specific Month, Custom Date Range, All Time) or by specific accounts (Expenditure, Savings, All).
+- **JSON Data Backup (Data Ownership)**: Users can export their entire IndexedDB instance (`flo_backup.json`) directly from the Profile page. This supports complete migration of profiles, setups, goals, and transactions. A dangerous "Wipe All Data" action also resets the local database entirely.
+- **CSV Import / Export**: Users can upload external bank sheets or export transaction histories by date ranges directly from the main transaction feed header.
 
 ### 3. Urgency-Based Bill Alerts (`useSubscriptionAlerts`)
 
@@ -158,6 +163,23 @@ Tracks recurring billing patterns (detecting intervals between 25 and 35 days) o
 ### 4. Smart Surplus Allocation Advisor (`useSmartAllocationPrompt`)
 
 Calculates the user's average daily spend (burn rate) to project remaining spending for the month. This check is strictly validated against the reconstructed monthly closing balance (`summary.closingBalance`) of the Expenditure Account (aligning with the Expenditure Balance displayed to the user). If the balance exceeds the projected remaining spend by a safe margin of **₹1,000+**, it recommends transferring the surplus to the Savings Account via a "Move Now" shortcut button.
+
+### 5. Automated Month Carry-Forward & Budget Cloning
+
+**Q: What happens when a month ends? Does the balance roll over?**
+A: Yes. On the first of a new month, remaining balances from the previous month are dynamically calculated via `useOpeningBalanceReconstructor`. The leftover Expenditure balance is automatically presented to the user as the default "Opening Balance" during the New Month Setup prompt.
+
+**Q: Do users have to re-enter category budgets every month?**
+A: No. Users can tap the "Copy from last month" shortcut during month setup. This instantly maps their previous month's total budgets and granular category allocations to the new month, drastically reducing friction.
+
+### 6. Goal Deadlines & Smart Pacing
+
+**Q: How does the app utilize the deadline field for saving goals?**
+A: If a deadline is defined, the system automatically checks the target amount against the current allocations and the remaining months to deadline. It instantly calculates the exact monthly allocation required to stay on track (e.g., "Requires ₹5,000/mo") and renders pacing visualizers.
+
+### 7. Smart Narrative Insights
+
+The Insights page is topped with a sleek, animated "Smart Summary" powered by a `RichWordFadeIn` word-by-word reveal. Upon triggering, it processes the `useWeekOverWeek` analytical data and highest-category burn rate to generate a human-readable, narrative summary comparing recent spend trajectories, exclusively displayed when viewing the current month.
 
 ### 5. Projected Budget Exhaustion Day (`useBurnRate`)
 

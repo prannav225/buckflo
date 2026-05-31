@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import {
@@ -8,6 +8,7 @@ import {
   ArrowUpRight,
   CreditCard,
   PiggyBank,
+  Upload,
 } from "lucide-react";
 import { useTransactionForm } from "../hooks/useTransactionForm";
 import { useConfirm } from "../hooks/useConfirm";
@@ -16,8 +17,10 @@ import { CustomDatePicker } from "../components/CustomDatePicker";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
 import { useCategories } from "../hooks/useCategories";
 import { updateSheetOpenState } from "../utils/modalHelper";
+import { ImportModal } from "../components/transactions/ImportModal";
 
 export function AddEditTransaction() {
+  const [showImport, setShowImport] = useState(false);
   const navigate = useNavigate();
   const { confirm, dialog: confirmDialog } = useConfirm();
   const {
@@ -101,6 +104,15 @@ export function AddEditTransaction() {
             </p>
           </div>
           <div className="flex items-center gap-1.5">
+            {!isEdit && (
+              <button
+                type="button"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-sm text-[11px] font-semibold text-(--text) hover:bg-black/10 dark:hover:bg-white/10 transition-colors cursor-pointer uppercase tracking-wider"
+                onClick={() => setShowImport(true)}
+              >
+                <Upload size={13} strokeWidth={2.5} /> IMPORT
+              </button>
+            )}
             {isEdit && (
               <button
                 type="button"
@@ -320,6 +332,18 @@ export function AddEditTransaction() {
             </button>
           </div>
         </form>
+
+        {showImport && (
+          <ImportModal
+            isOpen={showImport}
+            onClose={() => setShowImport(false)}
+            onSuccess={() => {
+              setShowImport(false);
+              navigate("/", { replace: true });
+            }}
+            activeTab={accountId === savingsAcc?.id ? "savings" : "expenditure"}
+          />
+        )}
       </div>
       {confirmDialog}
     </div>,

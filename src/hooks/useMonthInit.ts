@@ -104,6 +104,40 @@ export function useMonthInit({
     };
   }, [isEdit]);
 
+  const copyFromPreviousMonth = async () => {
+    const [yearStr, monthStr] = monthYear.split("-");
+    let y = parseInt(yearStr, 10);
+    let m = parseInt(monthStr, 10) - 1;
+    if (m === 0) {
+      m = 12;
+      y -= 1;
+    }
+    const prevMonthStr = `${y}-${m.toString().padStart(2, "0")}`;
+
+    const prevSetup = await db.monthSetups
+      .where("monthYear")
+      .equals(prevMonthStr)
+      .first();
+
+    if (prevSetup) {
+      setBudget(formatNumber(prevSetup.monthlyBudget, 2, 0));
+      if (
+        prevSetup.categoryBudgets &&
+        Object.keys(prevSetup.categoryBudgets).length > 0
+      ) {
+        const loaded: Record<string, string> = {};
+        for (const [cat, amt] of Object.entries(prevSetup.categoryBudgets)) {
+          loaded[cat] = formatNumber(amt, 2, 0);
+        }
+        setCatBudgets(loaded);
+        setShowCatBudgets(true);
+      }
+      toast.success(`Budgets copied from ${formatMonthYear(prevMonthStr)}`);
+    } else {
+      toast.error("No setup found for the previous month.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -265,5 +299,6 @@ export function useMonthInit({
     setShowCatBudgets,
     handleBlur,
     handleSubmit,
+    copyFromPreviousMonth,
   };
 }

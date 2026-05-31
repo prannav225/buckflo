@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { BottomNav } from "./BottomNav";
@@ -71,6 +71,16 @@ export function AppLayout({ children }: AppLayoutProps) {
     handleDismissAlert,
   } = useNotificationHub(setIsTransferOpen, setTransferConfig);
 
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useAutopayTrigger(isOnboarded);
   useDatabaseSync(isOnboarded);
 
@@ -91,11 +101,19 @@ export function AppLayout({ children }: AppLayoutProps) {
             {/* ── Persistent Global Header ────────────────────────────────────────── */}
             {isMainPage && (
               <header className="sticky top-[calc(12px+env(safe-area-inset-top,0))] z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                <div className="pointer-events-auto transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
+                <div
+                  className={`pointer-events-auto transition-all duration-300 ease-out flex items-center justify-center rounded-full hover:-translate-y-0.5 active:translate-y-0 ${
+                    scrolled
+                      ? "bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 shadow-(--glass-shadow) p-0.5"
+                      : "bg-transparent border border-transparent shadow-none p-0"
+                  }`}
+                >
                   <img
                     src="/buckflo_favicon.png"
                     alt="buckflo"
-                    className="w-14 h-14 object-contain rounded-full"
+                    className={`object-contain rounded-full transition-all duration-300 ${
+                      scrolled ? "w-10 h-10" : "w-14 h-14"
+                    }`}
                   />
                 </div>
                 <div className="flex items-center gap-2 pointer-events-auto">

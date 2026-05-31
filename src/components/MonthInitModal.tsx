@@ -53,6 +53,7 @@ function MonthInitContent({
     setShowCatBudgets,
     handleBlur,
     handleSubmit,
+    copyFromPreviousMonth,
   } = useMonthInit({ onClose, monthYear, onSaved, isEdit });
 
   const categoriesDb = useCategories();
@@ -113,8 +114,16 @@ function MonthInitContent({
 
         <form
           onSubmit={handleSubmit}
-          className="max-h-[70vh] overflow-y-auto pr-1"
+          className="max-h-[70vh] overflow-y-auto pr-1 pb-4"
         >
+          {!isEdit && (
+            <div className="bg-(--accent)/10 border border-(--accent)/20 rounded-xl p-3 mb-5 mt-2">
+              <p className="text-[12px] leading-relaxed text-(--text) font-sans m-0">
+                Your remaining balances from last month have been automatically carried forward. You can adjust them if needed.
+              </p>
+            </div>
+          )}
+
           {/* ── Expenditure ──────────────────────────────── */}
           <SectionHeader
             icon={<Wallet size={15} className="text-(--accent)" />}
@@ -140,10 +149,21 @@ function MonthInitContent({
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="modal-monthly-budget" className="label">
-              Monthly Budget (₹)
-            </label>
+          <div className="form-group relative">
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor="modal-monthly-budget" className="label !mb-0">
+                Monthly Budget (₹)
+              </label>
+              {!isEdit && (
+                <button
+                  type="button"
+                  onClick={copyFromPreviousMonth}
+                  className="text-[10px] text-(--accent) font-semibold hover:underline bg-transparent border-0 p-0 cursor-pointer"
+                >
+                  Copy from last month
+                </button>
+              )}
+            </div>
             <input
               id="modal-monthly-budget"
               type="text"

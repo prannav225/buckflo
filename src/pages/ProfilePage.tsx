@@ -12,8 +12,13 @@ import {
   Calendar,
   Info,
   Pencil,
+  Upload,
+  Trash2,
 } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
+import { exportDatabase, importDatabase, wipeDatabase } from "../utils/backup";
+import toast from "react-hot-toast";
+import { useRef } from "react";
 import { useTheme, type Theme } from "../context/ThemeContext";
 import { useAccount } from "../db/hooks";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -22,6 +27,7 @@ import { formatINR } from "../utils/currency";
 import { getCurrentMonthYear } from "../utils/dateUtils";
 import { ExportSheet } from "../components/transactions/ExportSheet";
 import { MonthInitModal } from "../components/MonthInitModal";
+import { useConfirm } from "../hooks/useConfirm";
 import { CreatePresetSheet } from "../components/transactions/CreatePresetSheet";
 import { CustomDropdown } from "../components/layout/CustomDropdown";
 import { BrandedAvatar } from "../components/layout/BrandedAvatar";
@@ -36,8 +42,10 @@ import { PixelBanner } from "../components/layout/PixelBanner";
 
 export function ProfilePage() {
   const navigate = useNavigate();
+  const { confirm, dialog } = useConfirm();
   const { profile, updateProfile } = useProfile();
   const { theme, setTheme } = useTheme();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleThemeChange = async (newTheme: Theme) => {
     setTheme(newTheme);
@@ -347,6 +355,113 @@ export function ProfilePage() {
         </div>
 
         {/* Footer Text */}
+        {/* ── Data Management Section ── */}
+        <div className="flex flex-col gap-2">
+          <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1 mt-2">
+            DATA MANAGEMENT
+          </h3>
+          <div className="glass-card overflow-hidden">
+            <div className="p-4 flex flex-col gap-4 w-full">
+              <p className="text-[11px] text-(--text-muted) leading-relaxed m-0">
+                Pocket Ledger runs entirely on your device. Use these tools to back
+                up your data before switching devices or clearing browser storage.
+              </p>
+              <div className="flex flex-col gap-2.5">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await exportDatabase();
+                      toast.success("Backup downloaded successfully.");
+                    } catch (err) {
+                      toast.error("Failed to export backup.");
+                    }
+                  }}
+                  className="btn-secondary py-2.5 text-xs flex items-center justify-center gap-1.5"
+                >
+                  <Download size={14} /> Download Full Backup
+                </button>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept=".json"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      const conf = await confirm({
+                        title: "Restore Backup",
+                        message: "This will replace all your current data with the backup. Are you sure?",
+                        confirmLabel: "Restore",
+                        variant: "danger"
+                      });
+                      if (!conf) return;
+                      await importDatabase(file);
+                      toast.success("Backup restored! Please restart the app.");
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 1500);
+                    } catch (err) {
+                      toast.error("Failed to restore backup.");
+                    }
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn-secondary py-2.5 text-xs flex items-center justify-center gap-1.5"
+                >
+                  <Upload size={14} /> Restore from Backup
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Danger Zone ── */}
+        <div className="flex flex-col gap-2">
+          <h3 className="text-[11px] font-semibold text-[#b82d23] uppercase tracking-[0.06em] px-1 mb-1 mt-2">
+            DANGER ZONE
+          </h3>
+          <div className="glass-card overflow-hidden">
+            <div className="p-4 flex flex-col gap-4 w-full">
+              <p className="text-[11px] text-(--text-muted) leading-relaxed m-0">
+                This will permanently delete your profile, goals, setups, and all
+                transactions. This action cannot be undone.
+              </p>
+              <button
+                type="button"
+                onClick={async () => {
+                  const conf1 = await confirm({
+                    title: "Wipe All Data",
+                    message: "Are you absolutely sure you want to wipe all data? This is permanent and cannot be undone.",
+                    confirmLabel: "Wipe Data",
+                    variant: "danger"
+                  });
+                  if (!conf1) return;
+                  
+                  try {
+                    await wipeDatabase();
+                    toast.success("App data wiped successfully.");
+                    setTimeout(() => {
+                      window.location.href = "/";
+                    }, 1000);
+                  } catch (err) {
+                    toast.error("Failed to wipe data.");
+                  }
+                }}
+                className="w-full bg-[#b82d23]/10 text-[#b82d23] border border-[#b82d23]/20 hover:bg-[#b82d23]/20 rounded-xl py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Trash2 size={14} /> Wipe All Data
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div className="flex flex-col items-center my-4">
           <div className="flex items-center opacity-90 select-none">
             <img
@@ -388,6 +503,8 @@ export function ProfilePage() {
         isOpen={isCreatePresetOpen}
         onClose={() => setIsCreatePresetOpen(false)}
       />
+
+      {dialog}
     </>
   );
 }
