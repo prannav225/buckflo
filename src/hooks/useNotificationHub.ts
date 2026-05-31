@@ -386,7 +386,23 @@ export function useNotificationHub(
     }
   };
 
-  const handleDismissAlert = (id: string) => {
+  const handleDismissAlert = async (id: string) => {
+    const alert = activeAlerts.find(a => a.id === id);
+    if (alert) {
+      try {
+        await db.notifications.add({
+          title: alert.title,
+          message: alert.description,
+          type: alert.type as "info" | "warning" | "danger" | "success" | "alert",
+          date: new Date().toISOString(),
+          read: true,
+          referenceId: alert.id
+        });
+      } catch (e) {
+        console.error("Failed to save notification history", e);
+      }
+    }
+
     setDismissedAlertKeys((prev) => {
       const updated = [...prev, id];
       localStorage.setItem("flo_dismissed_alerts", JSON.stringify(updated));

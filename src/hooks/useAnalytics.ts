@@ -193,6 +193,13 @@ export function useWeekOverWeek(): WoWResult {
       let lastWeekTotal = 0;
 
       for (const tx of txs) {
+        if (
+          tx.category === "transfer" ||
+          tx.category === "Transfer" ||
+          tx.category === "opening-transfer"
+        ) {
+          continue;
+        }
         if (tx.date >= thisWeekStart) {
           thisWeekTotal += tx.amount;
         } else if (tx.date >= lastWeekStart && tx.date <= lastWeekEnd) {
@@ -216,6 +223,86 @@ export function useWeekOverWeek(): WoWResult {
     },
     [expendAcc?.id],
     { thisWeekTotal: 0, lastWeekTotal: 0, percentChange: 0 },
+  );
+}
+
+export interface MoMResult {
+  thisMonthTotal: number;
+  lastMonthTotal: number;
+  percentChange: number;
+}
+
+export function useMonthOverMonth(monthYear: string): MoMResult {
+  const expendAcc = useAccount("expenditure");
+
+  return useLiveQuery(
+    async () => {
+      if (!expendAcc?.id)
+        return { thisMonthTotal: 0, lastMonthTotal: 0, percentChange: 0 };
+
+      const [yearStr, monthStr] = monthYear.split("-");
+      const currentYear = parseInt(yearStr);
+      const currentMonth = parseInt(monthStr);
+
+      let lastMonth = currentMonth - 1;
+      let lastYear = currentYear;
+      if (lastMonth < 1) {
+        lastMonth = 12;
+        lastYear -= 1;
+      }
+      
+      const lastMonthYear = `${lastYear}-${lastMonth.toString().padStart(2, "0")}`;
+
+      const [thisMonthTxs, lastMonthTxs] = await Promise.all([
+        db.transactions
+          .where("[accountId+date]")
+          .between(
+            [expendAcc.id, `${monthYear}-01`],
+            [expendAcc.id, `${monthYear}-31`],
+            true,
+            true,
+          )
+          .filter((t) => t.type === "debit")
+          .toArray(),
+        db.transactions
+          .where("[accountId+date]")
+          .between(
+            [expendAcc.id, `${lastMonthYear}-01`],
+            [expendAcc.id, `${lastMonthYear}-31`],
+            true,
+            true,
+          )
+          .filter((t) => t.type === "debit")
+          .toArray()
+      ]);
+
+      const isNotTransfer = (tx: any) =>
+        tx.category !== "transfer" &&
+        tx.category !== "Transfer" &&
+        tx.category !== "opening-transfer";
+
+      const thisMonthTotal = thisMonthTxs
+        .filter(isNotTransfer)
+        .reduce((sum, tx) => sum + tx.amount, 0);
+      const lastMonthTotal = lastMonthTxs
+        .filter(isNotTransfer)
+        .reduce((sum, tx) => sum + tx.amount, 0);
+
+      let percentChange = 0;
+      if (lastMonthTotal > 0) {
+        percentChange = +(((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100).toFixed(1);
+      } else if (thisMonthTotal > 0) {
+        percentChange = 100;
+      }
+
+      return {
+        thisMonthTotal: +thisMonthTotal.toFixed(2),
+        lastMonthTotal: +lastMonthTotal.toFixed(2),
+        percentChange,
+      };
+    },
+    [expendAcc?.id, monthYear],
+    { thisMonthTotal: 0, lastMonthTotal: 0, percentChange: 0 },
   );
 }
 
@@ -341,6 +428,13 @@ export function useCategoryBudgetAlerts(): CategoryBudgetAlert[] {
   const catSpend: Record<string, number> = {};
   for (const tx of transactions) {
     if (tx.type === "debit") {
+      if (
+        tx.category === "transfer" ||
+        tx.category === "Transfer" ||
+        tx.category === "opening-transfer"
+      ) {
+        continue;
+      }
       const cat = tx.category || "Other";
       catSpend[cat] = (catSpend[cat] || 0) + tx.amount;
     }

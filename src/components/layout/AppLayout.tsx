@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Bell } from "lucide-react";
+import { Bell, Download, X } from "lucide-react";
 import { BottomNav } from "./BottomNav";
 import { useNotificationHub } from "../../hooks/useNotificationHub";
 import { NotificationSheet } from "./NotificationSheet";
@@ -12,6 +12,7 @@ import { useAutopayTrigger } from "../../hooks/useAutopayTrigger";
 import { useProfile } from "../../hooks/useProfile";
 import { useDatabaseSync } from "../../hooks/useDatabaseSync";
 import { BrandedAvatar } from "./BrandedAvatar";
+import { usePWAInstall } from "../../hooks/usePWAInstall";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -38,6 +39,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       localStorage.getItem("buckflo_onboarded") === "true" ||
       localStorage.getItem("flo_onboarded") === "true",
   );
+
+  const { isInstallable, promptInstall, dismissPrompt } = usePWAInstall();
 
   const handleOnboardingComplete = (skipSetup?: boolean) => {
     localStorage.setItem("buckflo_onboarded", "true");
@@ -102,10 +105,10 @@ export function AppLayout({ children }: AppLayoutProps) {
             {isMainPage && (
               <header className="sticky top-[calc(12px+env(safe-area-inset-top,0))] z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]">
                 <div
-                  className={`pointer-events-auto transition-all duration-300 ease-out flex items-center justify-center rounded-full hover:-translate-y-0.5 active:translate-y-0 ${
+                  className={`pointer-events-auto transition-all duration-300 ease-out flex items-center justify-center rounded-full hover:-translate-y-0.5 active:translate-y-0 border p-0.5 ${
                     scrolled
-                      ? "bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 shadow-(--glass-shadow) p-0.5"
-                      : "bg-transparent border border-transparent shadow-none p-0"
+                      ? "bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border-black/8 dark:border-white/6 shadow-(--glass-shadow)"
+                      : "bg-transparent border-transparent shadow-none"
                   }`}
                 >
                   <img
@@ -146,6 +149,25 @@ export function AppLayout({ children }: AppLayoutProps) {
                   </button>
                 </div>
               </header>
+            )}
+
+            {/* PWA Install Banner */}
+            {isInstallable && (
+              <div className="flex items-center justify-between p-3 mb-6 rounded-xl bg-(--accent)/10 dark:bg-(--accent)/20 border border-(--accent)/20 fade-in-up">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-(--accent)/20 flex items-center justify-center flex-shrink-0">
+                    <Download size={16} className="text-(--accent)" />
+                  </div>
+                  <div>
+                    <h4 className="m-0 text-sm font-semibold text-(--text)">Install buckflo</h4>
+                    <p className="m-0 text-xs text-(--text-muted) leading-snug">Add to home screen for offline access.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={promptInstall} className="btn-primary px-3 py-1.5 text-xs min-w-[70px] shadow-sm">Install</button>
+                  <button onClick={dismissPrompt} className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-(--text-muted)"><X size={16}/></button>
+                </div>
+              </div>
             )}
 
             {children}

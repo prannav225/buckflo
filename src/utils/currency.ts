@@ -1,16 +1,31 @@
 /**
- * Format a number as Indian Rupees (₹) with Indian numbering system.
- * e.g. 123456.78 → "₹1,23,456.78"
+ * Format a number based on the user's preferred currency in localStorage.
+ * Defaults to INR.
  */
-export function formatINR(amount: number, decimals = 2): string {
-  const formatter = new Intl.NumberFormat('en-IN', {
+export function formatCurrency(amount: number, decimals = 2): string {
+  let currencyCode = 'INR';
+  if (typeof window !== 'undefined') {
+    currencyCode = localStorage.getItem('buckflo_currency') || 'INR';
+  }
+
+  let locale = 'en-US';
+  if (currencyCode === 'INR') locale = 'en-IN';
+  else if (currencyCode === 'EUR') locale = 'de-DE';
+  else if (currencyCode === 'GBP') locale = 'en-GB';
+
+  const formatter = new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'INR',
+    currency: currencyCode,
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
   return formatter.format(amount);
 }
+
+/**
+ * Backward compatibility alias for any lingering references
+ */
+export const formatINR = formatCurrency;
 
 /**
  * Format a plain number with Indian comma grouping (no ₹ symbol).

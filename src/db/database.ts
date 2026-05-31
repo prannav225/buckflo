@@ -80,6 +80,16 @@ export interface Profile {
   updatedAt: Date;
 }
 
+export interface AppNotification {
+  id?: number;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'alert' | 'success';
+  date: string; // ISO date
+  read: boolean;
+  referenceId?: string; // to prevent duplicates
+}
+
 
 // ─── Default Categories ──────────────────────────────────────────────────────
 
@@ -106,10 +116,10 @@ export class FloDB extends Dexie {
   categories!: Table<Category, number>;
   presets!: Table<Preset, number>;
   profile!: Table<Profile, number>;
-
+  notifications!: Table<AppNotification, number>;
 
   constructor() {
-    super('PocketLedgerDB');
+    super('BuckfloDB');
 
     this.version(1).stores({
       accounts: '++id, type',
@@ -172,6 +182,19 @@ export class FloDB extends Dexie {
       categories: '++id, name, isCustom',
       presets: '++id, name, category, accountId, isCustom, usageCount',
       profile: 'id',
+    });
+
+    // v8: Add notifications table
+    this.version(8).stores({
+      accounts: '++id, type',
+      monthSetups: '++id, monthYear, accountId, [accountId+monthYear]',
+      transactions: '++id, date, accountId, type, [accountId+date]',
+      savingGoals: '++id, name, targetAmount, currentAllocated, deadline',
+      subscriptions: '++id, name, frequency, status, nextDueDate, [name+amount]',
+      categories: '++id, name, isCustom',
+      presets: '++id, name, category, accountId, isCustom, usageCount',
+      profile: 'id',
+      notifications: '++id, type, date, read, referenceId'
     });
 
 

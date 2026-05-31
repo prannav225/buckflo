@@ -5,13 +5,13 @@ import { Calendar, Sparkles, BrainCircuit } from "lucide-react";
 import { RichWordFadeIn, type WordSegment } from "../components/ui/rich-word-fade-in";
 import { commonOptions } from "../utils/chartConfig";
 import { getCurrentMonthYear, formatMonthYear } from "../utils/dateUtils";
-import { formatINR } from "../utils/currency";
+import { formatCurrency } from "../utils/currency";
 import {
   useAccount,
   useMonthSetup,
   useTransactions,
 } from "../db/hooks";
-import { useHistoricalData, useWeekOverWeek } from "../hooks/useAnalytics";
+import { useHistoricalData, useWeekOverWeek, useMonthOverMonth } from "../hooks/useAnalytics";
 import { MonthPicker } from "../components/MonthPicker";
 import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
@@ -33,6 +33,13 @@ export function Insights() {
 
   for (const tx of transactions) {
     if (tx.type === "debit") {
+      if (
+        tx.category === "transfer" ||
+        tx.category === "Transfer" ||
+        tx.category === "opening-transfer"
+      ) {
+        continue;
+      }
       const cat = tx.category || "Other";
       categorySpend[cat] = (categorySpend[cat] || 0) + tx.amount;
       totalExpense += tx.amount;
@@ -48,6 +55,7 @@ export function Insights() {
   };
 
   const wowData = useWeekOverWeek();
+  const momData = useMonthOverMonth(monthYear);
   const highestCategory =
     sortedCategories.length > 0 ? sortedCategories[0].name : null;
 
@@ -56,7 +64,6 @@ export function Insights() {
 
   const handleGenerateSummary = () => {
     setIsGenerating(true);
-    // Simulate thinking time
     setTimeout(() => {
       setIsGenerating(false);
       setShowSummary(true);
@@ -65,25 +72,55 @@ export function Insights() {
 
   const isCurrentMonth = monthYear === getCurrentMonthYear();
 
-  const summarySegments: WordSegment[] = [];
-  if (showSummary && isCurrentMonth) {
-    summarySegments.push({ text: "You spent " });
-    summarySegments.push({ text: formatINR(wowData.thisWeekTotal), className: "font-bold text-(--text)" });
-    summarySegments.push({ text: " over the last 7 days." });
-    
-    if (wowData.lastWeekTotal > 0) {
-      summarySegments.push({ text: "This is " });
-      summarySegments.push({ 
-        text: `${Math.abs(wowData.percentChange)}% ${wowData.percentChange > 0 ? "more" : "less"}`,
-        className: `font-bold ${wowData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}` 
-      });
-      summarySegments.push({ text: " than the previous week." });
-    }
+  // Re-hide summary if month changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useState(() => {
+    setShowSummary(false);
+  });
 
-    if (highestCategory) {
-      summarySegments.push({ text: `Your highest drain for ${formatMonthYear(monthYear)} is ` });
-      summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
+  const summarySegments: WordSegment[] = [];
+  if (showSummary) {
+    if (isCurrentMonth) {
+      summarySegments.push({ text: "You spent " });
+      summarySegments.push({ text: formatCurrency(wowData.thisWeekTotal), className: "font-bold text-(--text)" });
+      summarySegments.push({ text: " over the last 7 days." });
+      
+      if (wowData.lastWeekTotal > 0) {
+        summarySegments.push({ text: "This is " });
+        summarySegments.push({ 
+          text: `${Math.abs(wowData.percentChange)}% ${wowData.percentChange > 0 ? "more" : "less"}`,
+          className: `font-bold ${wowData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}` 
+        });
+        summarySegments.push({ text: " than the previous week." });
+      }
+
+      if (highestCategory) {
+        summarySegments.push({ text: `Your highest drain for ${formatMonthYear(monthYear)} is ` });
+        summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
+        summarySegments.push({ text: "." });
+      }
+    } else {
+      // Historical Month Narrative
+      summarySegments.push({ text: `In ${formatMonthYear(monthYear)}, you spent a total of ` });
+      summarySegments.push({ text: formatCurrency(momData.thisMonthTotal), className: "font-bold text-(--text)" });
       summarySegments.push({ text: "." });
+
+      if (momData.lastMonthTotal > 0) {
+        summarySegments.push({ text: " That was " });
+        summarySegments.push({ 
+          text: `${Math.abs(momData.percentChange)}% ${momData.percentChange > 0 ? "more" : "less"}`,
+          className: `font-bold ${momData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}` 
+        });
+        summarySegments.push({ text: " than the month prior." });
+      }
+
+      if (highestCategory) {
+        summarySegments.push({ text: " Your highest expenditure category was " });
+        summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
+        summarySegments.push({ text: "." });
+      } else {
+        summarySegments.push({ text: " You had no recorded expenses." });
+      }
     }
   }
 
@@ -104,8 +141,7 @@ export function Insights() {
       </div>
 
       {/* ── Narrative Insights Card ─────────────────────────────────────── */}
-      {isCurrentMonth && (
-        <div className="glass-card fade-in-up delay-1 mb-4 overflow-hidden border border-black/5 dark:border-white/5 bg-(--bg-glass-strong)">
+      <div className="glass-card fade-in-up delay-1 mb-4 overflow-hidden border border-black/5 dark:border-white/5 bg-(--bg-glass-strong)">
           {!showSummary && !isGenerating ? (
             <div 
               onClick={handleGenerateSummary}
@@ -149,7 +185,6 @@ export function Insights() {
             </div>
           )}
         </div>
-      )}
 
       {/* ── Spending Trend Chart Card ───────────────────────────────────── */}
       <div className="glass-card fade-in-up delay-2 mb-4 p-5">

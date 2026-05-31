@@ -6,17 +6,29 @@ import { useProfile } from "../hooks/useProfile";
 import toast from "react-hot-toast";
 import { BrandedAvatar } from "../components/layout/BrandedAvatar";
 import { cleanDisplayName } from "../utils/validation";
+import { CustomDropdown } from "../components/layout/CustomDropdown";
+
+const currencyOptions = [
+  { value: "INR", label: "₹ INR (Rupee)" },
+  { value: "USD", label: "$ USD (Dollar)" },
+  { value: "EUR", label: "€ EUR (Euro)" },
+  { value: "GBP", label: "£ GBP (Pound)" },
+];
 
 export function EditProfilePage() {
   const navigate = useNavigate();
   const { profile, updateProfile } = useProfile();
 
   const [name, setName] = useState("");
+  const [currency, setCurrency] = useState("INR");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (profile?.displayName) {
       setName(profile.displayName);
+    }
+    if (profile?.currency) {
+      setCurrency(profile.currency);
     }
   }, [profile]);
 
@@ -32,8 +44,13 @@ export function EditProfilePage() {
     }
     setSubmitting(true);
     try {
+      localStorage.setItem('buckflo_currency', currency);
+      const symbol = currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "₹";
+
       await updateProfile({
         displayName: name,
+        currency: currency,
+        currencySymbol: symbol
       });
       toast.success("Profile updated successfully!");
       navigate("/profile");
@@ -96,21 +113,16 @@ export function EditProfilePage() {
             />
           </div>
 
-          {/* Locked Currency Field */}
-          <div className="form-group">
+          {/* Currency Field */}
+          <div className="form-group relative z-50">
             <label htmlFor="edit-currency-input" className="label">
               Currency
             </label>
-            <input
-              id="edit-currency-input"
-              type="text"
-              value="INR (₹)"
-              disabled
-              className="input-field bg-black/5 dark:bg-white/5 border-dashed text-(--text-muted) font-medium cursor-not-allowed select-none"
+            <CustomDropdown
+              options={currencyOptions}
+              value={currency}
+              onChange={(val) => setCurrency(val as string)}
             />
-            <span className="text-[10px] text-(--text-muted) mt-1 px-1">
-              More currencies coming soon.
-            </span>
           </div>
 
           {/* Actions */}

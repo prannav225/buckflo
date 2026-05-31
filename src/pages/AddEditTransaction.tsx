@@ -18,6 +18,7 @@ import { SegmentedControl } from "../components/ui/SegmentedControl";
 import { useCategories } from "../hooks/useCategories";
 import { updateSheetOpenState } from "../utils/modalHelper";
 import { ImportModal } from "../components/transactions/ImportModal";
+import { db } from "../db/database";
 
 export function AddEditTransaction() {
   const [showImport, setShowImport] = useState(false);
@@ -47,6 +48,26 @@ export function AddEditTransaction() {
 
   const categories = useCategories();
   const amountInputRef = useRef<HTMLInputElement>(null);
+  
+  // Inline category creation
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const categoryInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSaveNewCategory = async () => {
+    const name = newCategoryName.trim();
+    if (name) {
+      await db.categories.add({
+        name,
+        color: "#d97757", // Default brand color
+        isCustom: true,
+        createdAt: Date.now(),
+      });
+      setCategory(name);
+    }
+    setIsAddingCategory(false);
+    setNewCategoryName("");
+  };
 
   // Keep body styling in sync with modal state
   useEffect(() => {
@@ -286,6 +307,45 @@ export function AddEditTransaction() {
                       {c.name}
                     </button>
                   ))}
+                  
+                {isAddingCategory ? (
+                  <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 rounded-full pl-3 pr-1 py-1 border border-black/10 dark:border-white/10">
+                    <input
+                      ref={categoryInputRef}
+                      type="text"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      placeholder="Name..."
+                      className="bg-transparent border-none outline-none text-[0.8125rem] text-(--text) w-20 p-0 m-0"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleSaveNewCategory();
+                        } else if (e.key === "Escape") {
+                          setIsAddingCategory(false);
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveNewCategory}
+                      className="w-6 h-6 flex items-center justify-center bg-(--accent) text-white rounded-full transition-transform active:scale-90 cursor-pointer"
+                    >
+                      <Check size={12} strokeWidth={3} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="chip py-2 px-4 text-[0.8125rem] border-dashed border-black/20 dark:border-white/20 hover:border-black/40 dark:hover:border-white/40 bg-transparent cursor-pointer"
+                    onClick={() => {
+                      setIsAddingCategory(true);
+                      setTimeout(() => categoryInputRef.current?.focus(), 50);
+                    }}
+                  >
+                    + New
+                  </button>
+                )}
               </div>
             </div>
 

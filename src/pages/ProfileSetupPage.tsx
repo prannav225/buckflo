@@ -3,9 +3,20 @@ import { useProfile } from "../hooks/useProfile";
 import toast from "react-hot-toast";
 import { BrandedAvatar } from "../components/layout/BrandedAvatar";
 import { cleanDisplayName } from "../utils/validation";
+import { seedSampleData } from "../utils/seedData";
+import { CustomDropdown } from "../components/layout/CustomDropdown";
+
+const currencyOptions = [
+  { value: "INR", label: "₹ INR (Rupee)" },
+  { value: "USD", label: "$ USD (Dollar)" },
+  { value: "EUR", label: "€ EUR (Euro)" },
+  { value: "GBP", label: "£ GBP (Pound)" },
+];
 
 export function ProfileSetupPage() {
   const [name, setName] = useState("");
+  const [currency, setCurrency] = useState("INR");
+  const [seedData, setSeedData] = useState(false);
   const { updateProfile } = useProfile();
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,12 +32,27 @@ export function ProfileSetupPage() {
     }
     setSubmitting(true);
     try {
+      localStorage.setItem("buckflo_currency", currency);
+      const symbol =
+        currency === "USD"
+          ? "$"
+          : currency === "EUR"
+            ? "€"
+            : currency === "GBP"
+              ? "£"
+              : "₹";
+
       await updateProfile({
         displayName: name,
-        currency: "INR",
-        currencySymbol: "₹",
+        currency: currency,
+        currencySymbol: symbol,
         theme: "system",
       });
+
+      if (seedData) {
+        await seedSampleData();
+      }
+
       toast.success(`Welcome, ${name}!`);
     } catch (err) {
       console.error("Failed to save profile:", err);
@@ -46,11 +72,7 @@ export function ProfileSetupPage() {
 
       <div className="w-full max-w-[340px] flex flex-col items-center text-center">
         {/* Large Avatar Centered */}
-        <BrandedAvatar
-          name={avatarName}
-          size={96}
-          className="shadow-lg mb-8"
-        />
+        <BrandedAvatar name={avatarName} size={96} className="shadow-lg mb-8" />
 
         {/* Heading */}
         <h1 className="font-display text-4xl font-bold tracking-tight mb-3 text-(--text)">
@@ -76,10 +98,31 @@ export function ProfileSetupPage() {
             />
           </div>
 
-          {/* Subtext */}
-          <p className="font-sans text-[0.8125rem] text-(--text-muted) leading-relaxed mb-4 px-2">
-            This personalizes your experience. Stays on your device, always.
-          </p>
+          {/* Currency Selection */}
+          <div className="form-group text-left mb-2 relative z-50">
+            <CustomDropdown
+              options={currencyOptions}
+              value={currency}
+              onChange={(val) => setCurrency(val as string)}
+            />
+          </div>
+
+          {/* Seed Data Option */}
+          <div className="flex items-center gap-2 mb-4 px-2">
+            <input
+              type="checkbox"
+              id="seedData"
+              checked={seedData}
+              onChange={(e) => setSeedData(e.target.checked)}
+              className="accent-(--accent) w-4 h-4 cursor-pointer"
+            />
+            <label
+              htmlFor="seedData"
+              className="text-xs text-(--text-muted) cursor-pointer select-none"
+            >
+              Generate sample data to see how it works
+            </label>
+          </div>
 
           {/* Start tracking CTA button */}
           <button

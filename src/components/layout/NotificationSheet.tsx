@@ -1,9 +1,11 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, Bell } from "lucide-react";
+import { X, Bell, History, Clock } from "lucide-react";
 import { updateSheetOpenState } from "../../utils/modalHelper";
 import { NotificationCard } from "./NotificationCard";
 import { type NotificationItem } from "../../hooks/useNotificationHub";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../../db/database";
 
 interface NotificationSheetProps {
   isOpen: boolean;
@@ -18,6 +20,13 @@ export function NotificationSheet({
   alerts,
   onDismiss,
 }: NotificationSheetProps) {
+  const [activeTab, setActiveTab] = useState<"new" | "history">("new");
+
+  const history = useLiveQuery(
+    () => db.notifications.orderBy("date").reverse().toArray(),
+    [],
+  );
+
   useEffect(() => {
     if (isOpen) {
       updateSheetOpenState();
@@ -63,9 +72,20 @@ export function NotificationSheet({
             <h2 className="text-xl font-bold tracking-tight m-0 text-(--text)">
               Notification Hub
             </h2>
-            <p className="m-[3px_0_0] text-[0.8125rem] text-(--text-muted) font-sans">
-              Smart ledger analysis & alerts
-            </p>
+            <div className="flex bg-black/5 dark:bg-white/5 p-1 rounded-lg mt-3 w-fit">
+              <button
+                onClick={() => setActiveTab("new")}
+                className={`text-xs px-3 py-1.5 rounded-md font-semibold transition-colors ${activeTab === "new" ? "bg-(--bg) shadow-sm text-(--text)" : "text-(--text-muted) hover:text-(--text)"}`}
+              >
+                Active Alerts
+              </button>
+              <button
+                onClick={() => setActiveTab("history")}
+                className={`text-xs px-3 py-1.5 rounded-md font-semibold transition-colors flex items-center gap-1 ${activeTab === "history" ? "bg-(--bg) shadow-sm text-(--text)" : "text-(--text-muted) hover:text-(--text)"}`}
+              >
+                <History size={12} /> History
+              </button>
+            </div>
           </div>
           <button
             className="btn-ghost p-2 rounded-full"
@@ -78,7 +98,40 @@ export function NotificationSheet({
 
         {/* List content */}
         <div className="flex-1 overflow-y-auto pr-0.5 notification-list-scroll">
-          {alerts.length === 0 ? (
+          {activeTab === "history" ? (
+            <div className="flex flex-col gap-3">
+              {!history || history.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center opacity-70">
+                  <Clock size={24} className="text-(--text-muted) mb-3" />
+                  <p className="text-xs text-(--text-muted)">
+                    No past alerts found.
+                  </p>
+                </div>
+              ) : (
+                history.map((h) => (
+                  <div
+                    key={h.id}
+                    className="p-4 rounded-xl border border-black/5 dark:border-white/5 bg-black/2 dark:bg-white/2"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className={`w-2 h-2 rounded-full ${h.type === "danger" ? "bg-(--debit)" : h.type === "success" ? "bg-(--credit)" : h.type === "warning" ? "bg-[#f39c12]" : "bg-(--accent)"}`}
+                      />
+                      <h4 className="m-0 text-sm font-semibold text-(--text)">
+                        {h.title}
+                      </h4>
+                    </div>
+                    <p className="m-0 text-xs text-(--text-muted) leading-relaxed">
+                      {h.message}
+                    </p>
+                    <span className="block mt-2 text-[10px] text-(--text-muted) opacity-70">
+                      {new Date(h.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          ) : alerts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-15 px-5 text-center">
               <div className="flex items-center justify-center w-14 h-14 rounded-full bg-(--bg-glass) border border-black/8 dark:border-white/6 text-(--text-muted) mb-4 shadow-(--glass-shadow)">
                 <Bell size={28} />
