@@ -84,7 +84,7 @@ export interface AppNotification {
   id?: number;
   title: string;
   message: string;
-  type: 'info' | 'warning' | 'alert' | 'success';
+  type: 'info' | 'warning' | 'alert' | 'success' | 'danger';
   date: string; // ISO date
   read: boolean;
   referenceId?: string; // to prevent duplicates
