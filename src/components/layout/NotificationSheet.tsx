@@ -63,7 +63,15 @@ export function NotificationSheet({
       aria-modal="true"
       aria-label="Notification Hub"
     >
-      <div className="sheet-panel max-h-[85vh] flex flex-col">
+      <div
+        className="sheet-panel"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "65dvh",
+          maxHeight: "65dvh",
+        }}
+      >
         <div className="sheet-handle" />
 
         {/* Header */}

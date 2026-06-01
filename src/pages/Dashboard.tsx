@@ -12,28 +12,29 @@ import {
 } from "../db/hooks";
 import { TransactionCard } from "../components/transactions/TransactionRow";
 import { TransferSheet } from "../components/transactions/TransferSheet";
-import { MonthInitModal } from "../components/MonthInitModal";
+import { IncomeWizard } from "../components/setup/IncomeWizard";
+import { MonthlyCloseSummary } from "../components/setup/MonthlyCloseSummary";
+import { QuickReviewScreen } from "../components/setup/QuickReviewScreen";
 import {
   DashboardHeroCard,
   SavingsQuickCard,
 } from "../components/DashboardCards";
-import {
-  getCurrentMonthYear,
-  getDaysRemainingInMonth,
-} from "../utils/dateUtils";
+import { getCurrentMonthYear, getDaysRemainingInMonth } from "../utils/dateUtils";
 import { formatINR } from "../utils/currency";
 import { useFrequentPresets, type FrequentPreset } from "../hooks/useAnalytics";
 import { useMonthComparison } from "../hooks/useMonthComparison";
 import { CreatePresetSheet } from "../components/transactions/CreatePresetSheet";
 import toast from "react-hot-toast";
 import { useProfile } from "../hooks/useProfile";
+import { useLiveQuery } from "dexie-react-hooks";
+import { SavingsNudgeSheet } from "../components/savings/SavingsNudgeSheet";
+import { useRecognitionCopy } from "../hooks/useRecognitionCopy";
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { profile } = useProfile();
+  const { profile, updateProfile } = useProfile();
 
   const [showTransfer, setShowTransfer] = useState(false);
-  const [showMonthInit, setShowMonthInit] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isImportDismissed, setIsImportDismissed] = useState(
     () => localStorage.getItem("flo_import_dismissed") === "true",
@@ -41,6 +42,12 @@ export function Dashboard() {
   const [isCreatePresetOpen, setIsCreatePresetOpen] = useState(false);
   const [isManageMode, setIsManageMode] = useState(false);
   const [presetToEdit, setPresetToEdit] = useState<FrequentPreset | null>(null);
+
+  // Phase 2 Setup Flow States
+  const [showWizard, setShowWizard] = useState(false);
+  const [showCloseSummary, setShowCloseSummary] = useState(false);
+  const [showQuickReview, setShowQuickReview] = useState(false);
+  const [showSavingsNudgeSheet, setShowSavingsNudgeSheet] = useState(false);
 
   const handleDismissImportCard = () => {
     localStorage.setItem("flo_import_dismissed", "true");
@@ -56,7 +63,7 @@ export function Dashboard() {
             tx.category !== "adjustment" &&
             tx.category !== "transfer" &&
             tx.category !== "Transfer" &&
-            tx.category !== "opening-transfer",
+            tx.category !== "starting-transfer",
         );
         if (realTxs.length === 0) {
           localStorage.removeItem("flo_import_dismissed");
@@ -83,7 +90,7 @@ export function Dashboard() {
     setTransferConfig({
       direction: "savings_to_expenditure",
       amount: "",
-      note: "Transfer to Expenditure",
+      note: "Transfer to Spending",
     });
     setShowTransfer(true);
   };
@@ -96,19 +103,62 @@ export function Dashboard() {
   const hasAutoPrompted = useRef(false);
 
   useEffect(() => {
-    // If we loaded the month setup (=== null means it doesn't exist) and user hasn't explicitly skipped it
-    if (monthSetup === null && !isMonthSkipped && !showMonthInit && !hasAutoPrompted.current) {
-      setShowMonthInit(true);
+    // Phase 2 Initialization Flow
+    if (monthSetup === null && !isMonthSkipped && !hasAutoPrompted.current && profile) {
+      if (profile.wizardCompleted === false) {
+        setShowWizard(true);
+      } else {
+        setShowCloseSummary(true);
+      }
       hasAutoPrompted.current = true;
     }
-  }, [monthSetup, isMonthSkipped, showMonthInit]);
+  }, [monthSetup, isMonthSkipped, profile]);
 
-  const expendAcc = useAccount("expenditure");
+  const handleQuickReviewEdit = () => {
+    setShowQuickReview(false);
+    setShowWizard(true);
+  };
+
+  const getPreviousMonthStr = () => {
+    const [yearStr, monthStr] = monthYear.split("-");
+    let y = parseInt(yearStr, 10);
+    let m = parseInt(monthStr, 10) - 1;
+    if (m === 0) {
+      m = 12;
+      y -= 1;
+    }
+    return `${y}-${m.toString().padStart(2, "0")}`;
+  };
+
+  const spendingAcc = useAccount("spending");
   const savingsAcc = useAccount("savings");
+
+  const hasSavingsTxs = useLiveQuery(
+    async () => {
+      if (!savingsAcc?.id) return false;
+      const count = await db.transactions
+        .where("accountId")
+        .equals(savingsAcc.id)
+        .count();
+      return count > 0;
+    },
+    [savingsAcc?.id],
+    false,
+  );
+
+  const hasSavingsData =
+    (savingsAcc?.currentBalance ?? 0) > 0 || hasSavingsTxs;
+  const isNudgeDismissed = profile?.savingsNudgeDismissed === true;
+  
+  const shouldShowSavingsCard = hasSavingsData || isNudgeDismissed;
+  const isSavingsDeEmphasized = !hasSavingsData && isNudgeDismissed;
+
   const recentTxs = useRecentTransactions(undefined, 5);
-  const allMonthTxs = useTransactions(expendAcc?.id, monthYear);
+  const allMonthTxs = useTransactions(spendingAcc?.id, monthYear);
   const summary = useMonthSummary(allMonthTxs, monthSetup?.openingBalance ?? 0);
   const monthComparison = useMonthComparison();
+  const recognitionText = useRecognitionCopy();
+  const transactionCount = useLiveQuery(() => db.transactions.count(), []) ?? 0;
 
   const daysLeft = getDaysRemainingInMonth();
   const budget = monthSetup?.monthlyBudget ?? 0;
@@ -177,8 +227,9 @@ export function Dashboard() {
             overBudget={overBudget}
             dailyRemaining={dailyRemaining}
             onTopUp={handleTopUp}
-            onSetup={isMonthSkipped ? undefined : () => setShowMonthInit(true)}
+            onSetup={isMonthSkipped ? undefined : () => setShowWizard(true)}
             monthComparison={monthComparison}
+            recognitionText={recognitionText}
           />
 
           {/* Feature 1: Total spent card when no MonthSetup */}
@@ -193,7 +244,7 @@ export function Dashboard() {
                 {formatINR(spent)}
               </div>
               <button
-                onClick={() => setShowMonthInit(true)}
+                onClick={() => setShowWizard(true)}
                 className="btn-ghost text-xs text-(--accent) font-semibold p-0 gap-1"
                 id="btn-setup-cta"
               >
@@ -202,10 +253,120 @@ export function Dashboard() {
             </div>
           )}
 
-          <SavingsQuickCard
-            savingsBalance={savingsAcc?.currentBalance ?? 0}
-            onClick={() => navigate("/savings")}
-          />
+          {shouldShowSavingsCard && (
+            <SavingsQuickCard
+              savingsBalance={savingsAcc?.currentBalance ?? 0}
+              onClick={() => navigate("/savings")}
+              deEmphasized={isSavingsDeEmphasized}
+            />
+          )}
+
+          {!hasSavingsData && !isNudgeDismissed && profile && monthSetup && (
+            <div className="glass-card p-4 fade-in-up mb-3 flex flex-col gap-3">
+              <div>
+                <h4 className="text-sm font-semibold text-(--text)">Savings Wallet</h4>
+                <p className="font-sans text-xs text-(--text-muted) leading-relaxed mt-1">
+                  You haven't set up a Savings Wallet yet. Even setting a little aside adds up over time.
+                </p>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={async () => {
+                    try {
+                      await updateProfile({ savingsNudgeDismissed: true });
+                      toast.success("Nudge dismissed");
+                    } catch (e) {
+                      toast.error("Failed to update profile");
+                    }
+                  }}
+                  className="btn-ghost text-xs px-3 py-1.5 font-semibold text-(--text-secondary) hover:text-(--text) cursor-pointer"
+                >
+                  Not right now
+                </button>
+                <button
+                  onClick={() => setShowSavingsNudgeSheet(true)}
+                  className="btn-primary text-xs px-3.5 py-1.5 font-semibold shrink-0 cursor-pointer"
+                >
+                  Set it up
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Feature 6: Notification Opt-in Prompt */}
+          {transactionCount >= 3 && profile && profile.notificationPermissionAsked === false && monthSetup && (
+            <div className="glass-card p-4 fade-in-up mb-3 flex flex-col gap-3">
+              <div>
+                <h4 className="text-sm font-semibold text-(--text)">Stay consistent</h4>
+                <p className="font-sans text-xs text-(--text-muted) leading-relaxed mt-1">
+                  Would you like a daily reminder at 8:00 PM to help you log your expenses?
+                </p>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={async () => {
+                    try {
+                      await updateProfile({ notificationPermissionAsked: true });
+                      toast.success("Reminder dismissed");
+                    } catch (e) {
+                      toast.error("Failed to update profile");
+                    }
+                  }}
+                  className="btn-ghost text-xs px-3 py-1.5 font-semibold text-(--text-secondary) hover:text-(--text) cursor-pointer"
+                >
+                  Dismiss
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      if (!("Notification" in window) || !Notification.requestPermission) {
+                        toast.error("This browser does not support notifications.");
+                        await updateProfile({ notificationPermissionAsked: true });
+                        return;
+                      }
+
+                      if (Notification.permission === "denied") {
+                        toast.error("Notifications are blocked by your browser. Please reset site permissions in your address bar.");
+                        await updateProfile({ notificationPermissionAsked: true });
+                        return;
+                      }
+
+                      let permission: NotificationPermission;
+                      try {
+                        permission = await Notification.requestPermission();
+                      } catch (err) {
+                        permission = await new Promise<NotificationPermission>((resolve) => {
+                          Notification.requestPermission(resolve);
+                        });
+                      }
+
+                      if (permission === "granted") {
+                        await updateProfile({
+                          notificationsEnabled: true,
+                          notificationPermissionAsked: true,
+                        });
+                        toast.success("Daily reminders enabled!");
+                      } else {
+                        await updateProfile({
+                          notificationsEnabled: false,
+                          notificationPermissionAsked: true,
+                        });
+                        toast.error(
+                          "Permission denied. Reminders can be enabled later in Profile -> Notifications."
+                        );
+                      }
+                    } catch (e) {
+                      console.error("Notification permission error:", e);
+                      toast.error("Notification request blocked. If you are in a preview iframe, please open the app in a new tab.");
+                    }
+                  }}
+                  className="btn-primary text-xs px-3.5 py-1.5 font-semibold shrink-0 cursor-pointer"
+                >
+                  Remind me
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Data Portability Section */}
           {!isImportDismissed && (
@@ -361,14 +522,30 @@ export function Dashboard() {
             defaultNote={transferConfig.note}
           />
 
-          <MonthInitModal
-            isOpen={showMonthInit}
-            monthYear={monthYear}
-            onClose={() => setShowMonthInit(false)}
-            onSaved={() => {
-              setShowMonthInit(false);
+          <IncomeWizard
+            isOpen={showWizard}
+            onComplete={() => setShowWizard(false)}
+            onClose={() => setShowWizard(false)}
+          />
+
+          <MonthlyCloseSummary
+            isOpen={showCloseSummary}
+            previousMonthYear={getPreviousMonthStr()}
+            onNext={() => {
+              setShowCloseSummary(false);
+              setShowQuickReview(true);
             }}
           />
+
+          <QuickReviewScreen
+            isOpen={showQuickReview}
+            monthYear={monthYear}
+            previousMonthYear={getPreviousMonthStr()}
+            onComplete={() => setShowQuickReview(false)}
+            onEdit={handleQuickReviewEdit}
+          />
+
+
 
           <ImportModal
             isOpen={isImportOpen}
@@ -387,6 +564,19 @@ export function Dashboard() {
               setPresetToEdit(null);
             }}
             presetToEdit={presetToEdit}
+          />
+
+          <SavingsNudgeSheet
+            isOpen={showSavingsNudgeSheet}
+            onClose={() => setShowSavingsNudgeSheet(false)}
+            spendingBalance={spendingAcc?.currentBalance ?? 0}
+            onSuccess={async () => {
+              try {
+                await updateProfile({ savingsNudgeDismissed: true });
+              } catch (e) {
+                console.error("Failed to dismiss nudge:", e);
+              }
+            }}
           />
         </>
       )}

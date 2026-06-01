@@ -40,7 +40,7 @@ export function AddEditTransaction() {
     loading,
     fetching,
     isEdit,
-    expendAcc,
+    spendingAcc,
     savingsAcc,
     handleSubmit,
     handleDelete,
@@ -258,16 +258,16 @@ export function AddEditTransaction() {
             <div className="form-group m-0">
               <span className="label">Account</span>
               <div className="flex gap-2.5">
-                {expendAcc && (
+                {spendingAcc && (
                   <button
                     type="button"
                     className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                      accountId === expendAcc.id ? "chip-active" : ""
+                      accountId === spendingAcc.id ? "chip-active" : ""
                     }`}
-                    onClick={() => setAccountId(expendAcc.id!)}
-                    id="page-acc-expenditure"
+                    onClick={() => setAccountId(spendingAcc.id!)}
+                    id="page-acc-spending"
                   >
-                    <CreditCard size={16} /> <span>Expenditure</span>
+                    <CreditCard size={16} /> <span>Spending</span>
                   </button>
                 )}
                 {savingsAcc && (
@@ -401,7 +401,7 @@ export function AddEditTransaction() {
               setShowImport(false);
               navigate("/", { replace: true });
             }}
-            activeTab={accountId === savingsAcc?.id ? "savings" : "expenditure"}
+            activeTab={accountId === savingsAcc?.id ? "savings" : "spending"}
           />
         )}
       </div>

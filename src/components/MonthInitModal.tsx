@@ -124,16 +124,16 @@ function MonthInitContent({
             </div>
           )}
 
-          {/* ── Expenditure ──────────────────────────────── */}
+          {/* ── Spending ──────────────────────────────── */}
           <SectionHeader
             icon={<Wallet size={15} className="text-(--accent)" />}
             bgClassName="bg-[rgba(217,119,87,0.12)]"
-            label="Expenditure Account"
+            label="Spending Wallet"
           />
 
           <div className="form-group">
             <label htmlFor="modal-expend-balance" className="label">
-              Opening Balance (₹)
+              Starting Balance (₹)
             </label>
             <input
               id="modal-expend-balance"
@@ -307,12 +307,12 @@ function MonthInitContent({
           <SectionHeader
             icon={<PiggyBank size={15} className="text-(--credit)" />}
             bgClassName="bg-[rgba(90,158,111,0.12)]"
-            label="Savings Account"
+            label="Savings Wallet"
           />
 
           <div className="form-group">
             <label htmlFor="modal-savings-balance" className="label">
-              Opening Balance (₹)&nbsp;
+              Starting Balance (₹)&nbsp;
               <span className="font-normal opacity-70">— optional</span>
             </label>
             <input
@@ -342,7 +342,7 @@ function MonthInitContent({
                 onKeyDown={(e) =>
                   e.key === " " && setIncludeTransfer((v) => !v)
                 }
-                id="modal-toggle-opening-transfer"
+                id="modal-toggle-starting-transfer"
               >
                 <div
                   className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-all duration-180 ease-[cubic-bezier(0.34,1.56,0.64,1)] shrink-0 ${

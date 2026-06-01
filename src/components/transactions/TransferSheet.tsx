@@ -24,9 +24,9 @@ function TransferSheetContent({
   defaultNote = "",
 }: Omit<TransferSheetProps, "isOpen" | "savingsBalance">) {
   const savingsAcc = useAccount("savings");
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const savingsBalance = savingsAcc?.currentBalance ?? 0;
-  const expenditureBalance = expendAcc?.currentBalance ?? 0;
+  const expenditureBalance = spendingAcc?.currentBalance ?? 0;
 
   const {
     direction,
@@ -113,8 +113,8 @@ function TransferSheetContent({
           className="max-w-[320px] mx-auto mb-5"
           renderLabel={(option) =>
             option === "savings_to_expenditure"
-              ? "Savings → Expenditure"
-              : "Expenditure → Savings"
+              ? "Savings → Spending"
+              : "Spending → Savings"
           }
         />
 
@@ -123,8 +123,8 @@ function TransferSheetContent({
           <div>
             <div className="font-sans text-xs text-(--text-muted) font-medium mb-0.5">
               {direction === "savings_to_expenditure"
-                ? "Savings account balance"
-                : "Expenditure account balance"}
+                ? "Savings wallet balance"
+                : "Spending wallet balance"}
             </div>
             <div className="font-display text-[1.375rem] text-(--text) tracking-tight">
               {formatINR(currentSourceBalance)}

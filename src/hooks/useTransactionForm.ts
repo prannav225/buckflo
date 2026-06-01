@@ -27,7 +27,7 @@ export interface TransactionFormState {
   loading: boolean;
   fetching: boolean;
   isEdit: boolean;
-  expendAcc: ReturnType<typeof useAccounts>[number] | undefined;
+  spendingAcc: ReturnType<typeof useAccounts>[number] | undefined;
   savingsAcc: ReturnType<typeof useAccounts>[number] | undefined;
   handleSubmit: (e: FormEvent) => Promise<void>;
   /** Pass a confirmFn that resolves true/false; the hook performs the delete only if confirmed. */
@@ -57,12 +57,12 @@ export function useTransactionForm(): TransactionFormState {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
 
-  const expendAcc = accounts.find((a) => a.type === "expenditure");
+  const spendingAcc = accounts.find((a) => a.type === "spending");
   const savingsAcc = accounts.find((a) => a.type === "savings");
 
-  // Derived: fall back to expenditure account when user hasn't manually chosen one yet
+  // Derived: fall back to spending wallet when user hasn't manually chosen one yet
   const effectiveAccountId: number | "" =
-    accountId !== "" ? accountId : (expendAcc?.id ?? "");
+    accountId !== "" ? accountId : (spendingAcc?.id ?? "");
 
   useEffect(() => {
     if (!isEdit) return;
@@ -190,7 +190,7 @@ export function useTransactionForm(): TransactionFormState {
     loading,
     fetching,
     isEdit,
-    expendAcc,
+    spendingAcc,
     savingsAcc,
     handleSubmit,
     handleDelete,

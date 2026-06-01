@@ -21,7 +21,7 @@ export function SegmentedControl<T extends string>({
     const lowerOpt = String(opt).toLowerCase();
     if (
       lowerOpt === "expense" ||
-      lowerOpt === "expenditure" ||
+      lowerOpt === "spending" ||
       lowerOpt === "debit" ||
       lowerOpt === "savings_to_expenditure"
     ) {

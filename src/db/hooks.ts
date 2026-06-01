@@ -6,6 +6,7 @@ import {
   type MonthSetup,
   type Transaction,
   type Subscription,
+  getSpendingWallet,
 } from "./database";
 import { getCurrentMonthYear, getMonthDateRange } from "../utils/dateUtils";
 
@@ -16,10 +17,21 @@ export function useAccounts(): Account[] {
 }
 
 export function useAccount(
-  type: "expenditure" | "savings",
+  type: "spending" | "savings",
 ): Account | undefined {
   return useLiveQuery(
-    () => db.accounts.where("type").equals(type).first(),
+    async () => {
+      if (type === "spending") {
+        let acc = await db.accounts.where("type").equals("spending").first();
+        if (!acc) acc = await db.accounts.where("type").equals("expenditure").first() as Account;
+        if (!acc) acc = await db.accounts.get(1);
+        return acc;
+      } else {
+        let acc = await db.accounts.where("type").equals("savings").first();
+        if (!acc) acc = await db.accounts.get(2);
+        return acc;
+      }
+    },
     [type],
   );
 }
@@ -32,10 +44,7 @@ export function useMonthSetup(
   const my = monthYear ?? getCurrentMonthYear();
   return useLiveQuery(
     async () => {
-      const expAcc = await db.accounts
-        .where("type")
-        .equals("expenditure")
-        .first();
+      const expAcc = await getSpendingWallet();
       if (!expAcc?.id) return null;
       const setup = await db.monthSetups
         .where("[accountId+monthYear]")
@@ -144,7 +153,7 @@ export function useMonthSummary(
       if (
         tx.category !== "transfer" &&
         tx.category !== "Transfer" &&
-        tx.category !== "opening-transfer"
+        tx.category !== "starting-transfer"
       ) {
         totalExpense += tx.amount;
       }
@@ -171,7 +180,7 @@ export function useSubscriptions(): Subscription[] {
   return useLiveQuery(() => db.subscriptions.toArray(), [], []);
 }
 
-// ─── Opening Balance Reconstructor ───────────────────────────────────────────
+// ─── Starting Balance Reconstructor ───────────────────────────────────────────
 
 export function useOpeningBalanceReconstructor(
   accountId: number | undefined,

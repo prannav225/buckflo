@@ -27,24 +27,24 @@ export function useMonthlyTransactions() {
   >("all");
 
   const initialTab =
-    (searchParams.get("tab") as "all" | "expenditure" | "savings") || "all";
-  const [activeTab, setActiveTab] = useState<"all" | "expenditure" | "savings">(
+    (searchParams.get("tab") as "all" | "spending" | "savings") || "all";
+  const [activeTab, setActiveTab] = useState<"all" | "spending" | "savings">(
     initialTab,
   );
   const [pageSize, setPageSize] = useState(20);
 
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const savingsAcc = useAccount("savings");
 
   // Fetch month transactions
-  const expendTxs = useTransactions(expendAcc?.id, monthYear);
+  const expendTxs = useTransactions(spendingAcc?.id, monthYear);
   const savingsTxs = useTransactions(savingsAcc?.id, monthYear);
 
   const monthSetupExpend = useMonthSetup(monthYear);
 
   // Compute reconstructed opening balances
   const expendOpeningBalanceReconstructed = useOpeningBalanceReconstructor(
-    expendAcc?.id,
+    spendingAcc?.id,
     monthYear,
   );
   const expendOpeningBalance = monthSetupExpend?.openingBalance ?? expendOpeningBalanceReconstructed;
@@ -81,7 +81,7 @@ export function useMonthlyTransactions() {
     );
   };
 
-  const handleTabChange = (tab: "all" | "expenditure" | "savings") => {
+  const handleTabChange = (tab: "all" | "spending" | "savings") => {
     setActiveTab(tab);
     setPageSize(20);
     setSearchParams(
@@ -95,7 +95,7 @@ export function useMonthlyTransactions() {
 
   const handleExport = () => {
     const txsToExport =
-      activeTab === "expenditure"
+      activeTab === "spending"
         ? expendTxs
         : activeTab === "savings"
           ? savingsTxs
@@ -110,7 +110,7 @@ export function useMonthlyTransactions() {
     const expItems = expendTxs.map((tx, idx) => ({
       tx,
       runningBalance: runningBalancesExpend[idx],
-      accountType: "expenditure" as const,
+      accountType: "spending" as const,
     }));
 
     const savItems = savingsTxs.map((tx, idx) => ({
@@ -131,8 +131,8 @@ export function useMonthlyTransactions() {
 
   // Filter based on active tab
   const tabFilteredItems = useMemo(() => {
-    if (activeTab === "expenditure") {
-      return allItems.filter((item) => item.accountType === "expenditure");
+    if (activeTab === "spending") {
+      return allItems.filter((item) => item.accountType === "spending");
     }
     if (activeTab === "savings") {
       return allItems.filter((item) => item.accountType === "savings");
@@ -150,7 +150,7 @@ export function useMonthlyTransactions() {
         const isTransfer =
           item.tx.category === "transfer" ||
           item.tx.category === "Transfer" ||
-          item.tx.category === "opening-transfer";
+          item.tx.category === "starting-transfer";
 
         if (txTypeFilter === "transfer") return isTransfer;
         if (isTransfer) return false;
@@ -228,7 +228,7 @@ export function useMonthlyTransactions() {
     setTxTypeFilter,
     activeTab,
     setPageSize,
-    expendAcc,
+    spendingAcc,
     savingsAcc,
     expendClosingBalance,
     savingsClosingBalance,

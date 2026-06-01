@@ -77,7 +77,7 @@ export function OnboardingFlow({
         "A simple, personal expense tracker built for how you actually spend.",
     },
     {
-      id: "two-accounts",
+      id: "two-wallets",
       visual: (
         <div className="flex items-center justify-center gap-4 flex-1 h-full w-full max-w-[300px] mx-auto">
           <div className="flex-1 aspect-4/5 rounded-2xl bg-white/5 dark:bg-white/3 border border-black/8 dark:border-white/6 shadow-md flex flex-col items-center justify-center p-5 text-center relative overflow-hidden group">
@@ -86,10 +86,10 @@ export function OnboardingFlow({
               <CreditCard size={22} className="text-(--accent)" />
             </div>
             <span className="text-(--text) font-bold text-sm tracking-wide relative z-10">
-              Expenditure
+              Spending Wallet
             </span>
             <span className="text-[10px] text-(--text-muted) mt-1 leading-normal relative z-10">
-              Daily Spending
+              Day-to-day spending
             </span>
           </div>
           <div className="flex-1 aspect-4/5 rounded-2xl bg-white/5 dark:bg-white/3 border border-black/8 dark:border-white/6 shadow-md flex flex-col items-center justify-center p-5 text-center relative overflow-hidden group">
@@ -98,17 +98,28 @@ export function OnboardingFlow({
               <PiggyBank size={22} className="text-(--credit)" />
             </div>
             <span className="text-(--text) font-bold text-sm tracking-wide relative z-10">
-              Savings
+              Savings Wallet
             </span>
             <span className="text-[10px] text-(--text-muted) mt-1 leading-normal relative z-10">
-              Future Goals
+              Money set aside
             </span>
           </div>
         </div>
       ),
-      headline: "Two accounts. One view.",
-      subtext:
-        "Keep your spending money separate from savings. buckflo tracks both and tells you exactly where you stand.",
+      headline: "Two wallets. One view.",
+      subtext: (
+        <span className="flex flex-col gap-2.5">
+          <span>
+            Most people mix their spending and savings in one account. It's hard to know what's safe to spend.
+          </span>
+          <span>
+            buckflo uses two simple wallets. At the start of each month, you decide how to split your money. Your Spending Wallet tells you exactly what's available today.
+          </span>
+          <span className="text-[11px] text-(--text-muted) opacity-80 mt-1.5 block">
+            Both wallets are virtual. You don't need two bank accounts.
+          </span>
+        </span>
+      ),
     },
     {
       id: "monthly-budget",
@@ -241,9 +252,9 @@ export function OnboardingFlow({
                 <h1 className="text-3xl font-bold font-display tracking-tight mb-4 text-(--text)">
                   {screen.headline}
                 </h1>
-                <p className="text-[15px] text-(--text-muted) leading-relaxed max-w-[320px]">
+                <div className="text-[15px] text-(--text-muted) leading-relaxed max-w-[320px]">
                   {screen.subtext}
-                </p>
+                </div>
 
                 {idx === 4 && (
                   <div className="w-full flex flex-col gap-3 mt-8">

@@ -242,6 +242,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   text-decoration: none;
   box-shadow: 0 4px 16px rgba(217, 119, 87, 0.35);
   letter-spacing: -0.01em;
+  outline: none;
 }
 
 .btn-primary:active {
@@ -275,6 +276,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background 0.15s,
     transform 0.12s;
   box-shadow: var(--glass-shadow);
+  outline: none;
 }
 .btn-secondary:active {
   transform: scale(0.97);
@@ -297,6 +299,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   transition:
     color 0.15s,
     background 0.15s;
+  outline: none;
 }
 
 /* ─── Input Field ────────────────────────────────────────────────────────────── */

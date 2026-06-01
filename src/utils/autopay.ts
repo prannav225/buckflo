@@ -38,8 +38,8 @@ export async function processAutopaySubscriptions(): Promise<number> {
 
   if (activeSubs.length === 0) return 0;
 
-  const expendAcc = await db.accounts.where("type").equals("expenditure").first();
-  if (!expendAcc || !expendAcc.id) return 0;
+  const spendingAcc = await db.accounts.where("type").equals("spending").first();
+  if (!spendingAcc || !spendingAcc.id) return 0;
 
   let processedCount = 0;
 
@@ -54,7 +54,7 @@ export async function processAutopaySubscriptions(): Promise<number> {
             description: `${sub.name} (Autopay)`,
             amount: sub.amount,
             type: "debit",
-            accountId: expendAcc.id!,
+            accountId: spendingAcc.id!,
             category: sub.category || "Other",
           });
 

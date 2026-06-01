@@ -82,12 +82,12 @@ export const IPhoneMockup = memo(function IPhoneMockup() {
             </div>
           </div>
 
-          {/* Mock Hero Expenditure Card */}
+          {/* Mock Hero Spending Card */}
           <div className="hero-card hero-card-orange text-white p-4 mb-3.5 rounded-2xl flex flex-col gap-2.5 relative overflow-hidden text-left shadow-md">
             <div className="hero-card-orb-lg" />
             <div>
               <span className="text-[8px] opacity-75 uppercase tracking-wider font-semibold block">
-                Expenditure Balance
+                Spending Balance
               </span>
               <span className="amount-display text-2xl font-normal leading-none mt-1 block">
                 ₹12,450.00
@@ -108,7 +108,7 @@ export const IPhoneMockup = memo(function IPhoneMockup() {
                 <strong className="font-bold text-[9px]">₹830 / day</strong>
               </div>
               <button className="py-0.5 px-3 rounded-full bg-white text-(--accent-dark) font-bold scale-90 shadow-sm border-0 active:scale-95 transition-transform">
-                Top Up
+                Move from Savings
               </button>
             </div>
           </div>
@@ -121,7 +121,7 @@ export const IPhoneMockup = memo(function IPhoneMockup() {
               </div>
               <div className="text-left">
                 <div className="font-sans text-[10px] text-(--text-muted) font-medium mb-0.5 leading-none">
-                  Savings Account
+                  Savings Wallet
                 </div>
                 <div className="amount-display text-base text-(--credit) tracking-tight leading-none mt-0.5">
                   ₹48,000.00
@@ -186,7 +186,7 @@ export const IPhoneMockup = memo(function IPhoneMockup() {
                       Starbucks
                     </span>
                     <span className="text-[7px] text-(--text-secondary) leading-none mt-0.5">
-                      Expenditure
+                      Spending
                     </span>
                   </div>
                 </div>

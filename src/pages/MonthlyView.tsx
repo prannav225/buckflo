@@ -19,12 +19,12 @@ export function MonthlyView() {
   const [searchParams, setSearchParams] = useSearchParams();
   const monthYear = searchParams.get("month") || getCurrentMonthYear();
 
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const monthSetup = useMonthSetup(monthYear);
-  const transactions = useTransactions(expendAcc?.id, monthYear);
+  const transactions = useTransactions(spendingAcc?.id, monthYear);
 
   const reconstructedOpeningBalance = useOpeningBalanceReconstructor(
-    expendAcc?.id,
+    spendingAcc?.id,
     monthYear,
   );
   const openingBalance = monthSetup?.openingBalance ?? reconstructedOpeningBalance;
@@ -110,7 +110,7 @@ export function MonthlyView() {
 
         {/* Header Label Row */}
         <div className="flex justify-between items-center mb-1.5 font-sans text-[0.6875rem] font-semibold text-(--text-muted) dark:text-white/60 tracking-wider uppercase">
-          <span>Expenditure Balance</span>
+          <span>Spending Balance</span>
           <span>{formatMonthYear(monthYear)}</span>
         </div>
 
@@ -122,7 +122,7 @@ export function MonthlyView() {
         {/* Optional Budget Progress Bar */}
         {monthSetup && budget > 0 && (
           <div className="mb-5">
-            {/* Small Opening Balance & Monthly Budget display */}
+            {/* Small Starting Balance & Monthly Budget display */}
             <div className="flex justify-between font-sans text-[10px] text-(--text-muted) dark:text-white/50 mb-1.5 font-medium tracking-wide">
               <span>Opening: {formatINR(openingBalance)}</span>
               <span>Budget: {formatINR(budget)}</span>

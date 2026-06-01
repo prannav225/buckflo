@@ -16,7 +16,7 @@ export interface MonthComparisonResult {
  * This keeps the comparison fair regardless of where in the month we are.
  */
 export function useMonthComparison(): MonthComparisonResult {
-  const expendAcc = useAccount('expenditure');
+  const spendingAcc = useAccount('spending');
 
   return useLiveQuery(
     async () => {
@@ -28,7 +28,7 @@ export function useMonthComparison(): MonthComparisonResult {
         lastMonthSpent: 0,
       };
 
-      if (!expendAcc?.id) return fallback;
+      if (!spendingAcc?.id) return fallback;
 
       const today = new Date();
       const dayOfMonth = today.getDate();
@@ -49,8 +49,8 @@ export function useMonthComparison(): MonthComparisonResult {
       const thisMonthTxs = await db.transactions
         .where('[accountId+date]')
         .between(
-          [expendAcc.id, thisMonthStart],
-          [expendAcc.id, thisMonthEnd],
+          [spendingAcc.id, thisMonthStart],
+          [spendingAcc.id, thisMonthEnd],
           true,
           true,
         )
@@ -61,8 +61,8 @@ export function useMonthComparison(): MonthComparisonResult {
       const lastMonthTxs = await db.transactions
         .where('[accountId+date]')
         .between(
-          [expendAcc.id, lastMonthStart],
-          [expendAcc.id, lastMonthEnd],
+          [spendingAcc.id, lastMonthStart],
+          [spendingAcc.id, lastMonthEnd],
           true,
           true,
         )
@@ -97,7 +97,7 @@ export function useMonthComparison(): MonthComparisonResult {
         lastMonthSpent: +lastMonthSpent.toFixed(2),
       };
     },
-    [expendAcc?.id],
+    [spendingAcc?.id],
     {
       percentChange: 0,
       direction: 'neutral' as const,

@@ -32,7 +32,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     pathname === "/savings" ||
     pathname === "/profile/about" ||
     pathname === "/profile/edit" ||
-    pathname === "/profile/categories";
+    pathname === "/profile/categories" ||
+    pathname === "/profile/notifications";
 
   const [isOnboarded, setIsOnboarded] = useState(
     () =>
@@ -115,7 +116,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     src="/buckflo_favicon.png"
                     alt="buckflo"
                     className={`object-contain rounded-full transition-all duration-300 ${
-                      scrolled ? "w-10 h-10" : "w-14 h-14"
+                      scrolled ? "w-10 h-10" : "w-12 h-12"
                     }`}
                   />
                 </div>
@@ -159,13 +160,27 @@ export function AppLayout({ children }: AppLayoutProps) {
                     <Download size={16} className="text-(--accent)" />
                   </div>
                   <div>
-                    <h4 className="m-0 text-sm font-semibold text-(--text)">Install buckflo</h4>
-                    <p className="m-0 text-xs text-(--text-muted) leading-snug">Add to home screen for offline access.</p>
+                    <h4 className="m-0 text-sm font-semibold text-(--text)">
+                      Install buckflo
+                    </h4>
+                    <p className="m-0 text-xs text-(--text-muted) leading-snug">
+                      Add to home screen for offline access.
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={promptInstall} className="btn-primary px-3 py-1.5 text-xs min-w-[70px] shadow-sm">Install</button>
-                  <button onClick={dismissPrompt} className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-(--text-muted)"><X size={16}/></button>
+                  <button
+                    onClick={promptInstall}
+                    className="btn-primary px-3 py-1.5 text-xs min-w-[70px] shadow-sm"
+                  >
+                    Install
+                  </button>
+                  <button
+                    onClick={dismissPrompt}
+                    className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-(--text-muted)"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
               </div>
             )}

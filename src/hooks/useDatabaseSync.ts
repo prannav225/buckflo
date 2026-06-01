@@ -7,15 +7,15 @@ export function useDatabaseSync(isOnboarded: boolean) {
 
     const healBalances = async () => {
       try {
-        const [expendAcc, savingsAcc] = await Promise.all([
-          db.accounts.where("type").equals("expenditure").first(),
+        const [spendingAcc, savingsAcc] = await Promise.all([
+          db.accounts.where("type").equals("spending").first(),
           db.accounts.where("type").equals("savings").first(),
         ]);
 
-        if (!expendAcc || !savingsAcc) return;
+        if (!spendingAcc || !savingsAcc) return;
 
-        // 1. Reconcile Savings Account
-        // Sum all transactions belonging to the Savings Account
+        // 1. Reconcile Savings Wallet
+        // Sum all transactions belonging to the Savings Wallet
         const savingsTxs = await db.transactions
           .where("accountId")
           .equals(savingsAcc.id!)
@@ -39,7 +39,7 @@ export function useDatabaseSync(isOnboarded: boolean) {
           });
         }
 
-        // 2. Reconcile Expenditure Account
+        // 2. Reconcile Spending Wallet
         // Find the latest setup in monthSetups
         const latestSetup = await db.monthSetups
           .orderBy("monthYear")
@@ -51,7 +51,7 @@ export function useDatabaseSync(isOnboarded: boolean) {
           const startDate = `${latestSetup.monthYear}-01`;
           const expendTxs = await db.transactions
             .where("accountId")
-            .equals(expendAcc.id!)
+            .equals(spendingAcc.id!)
             .filter((tx) => tx.date >= startDate)
             .toArray();
 
@@ -63,10 +63,10 @@ export function useDatabaseSync(isOnboarded: boolean) {
                 : calculatedExpenditure - tx.amount;
           }
         } else {
-          // Fallback: sum all expenditure transactions if no setup exists
+          // Fallback: sum all spending transactions if no setup exists
           const expendTxs = await db.transactions
             .where("accountId")
-            .equals(expendAcc.id!)
+            .equals(spendingAcc.id!)
             .toArray();
 
           for (const tx of expendTxs) {
@@ -78,11 +78,11 @@ export function useDatabaseSync(isOnboarded: boolean) {
         }
         calculatedExpenditure = +calculatedExpenditure.toFixed(2);
 
-        if (expendAcc.currentBalance !== calculatedExpenditure) {
+        if (spendingAcc.currentBalance !== calculatedExpenditure) {
           console.log(
-            `[Sync] Healing Expenditure balance: ${expendAcc.currentBalance} -> ${calculatedExpenditure}`
+            `[Sync] Healing Spending balance: ${spendingAcc.currentBalance} -> ${calculatedExpenditure}`
           );
-          await db.accounts.update(expendAcc.id!, {
+          await db.accounts.update(spendingAcc.id!, {
             currentBalance: calculatedExpenditure,
           });
         }

@@ -16,6 +16,8 @@ import { AboutPage } from "../pages/AboutPage";
 import { ManageCategoriesPage } from "../pages/ManageCategoriesPage";
 import { useProfile } from "../hooks/useProfile";
 import { LandingPage } from "../pages/LandingPage";
+import { NotificationsPage } from "../pages/NotificationsPage";
+import { useNotificationScheduler } from "../hooks/useNotificationScheduler";
 
 const routesConfig = [
   { path: "/home", element: <Dashboard />, isTab: true },
@@ -35,6 +37,11 @@ const routesConfig = [
   {
     path: "/profile/categories",
     element: <ManageCategoriesPage />,
+    isTab: false,
+  },
+  {
+    path: "/profile/notifications",
+    element: <NotificationsPage />,
     isTab: false,
   },
 ];
@@ -71,6 +78,8 @@ export function AppRoutes() {
 
   const dbLoaded = monthSetup !== undefined && !profileLoading;
   const hasProfile = profileExists();
+
+  useNotificationScheduler();
 
   if (!dbLoaded) return null;
 

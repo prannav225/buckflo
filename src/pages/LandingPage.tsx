@@ -199,7 +199,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <FeatureCard
               icon={<Wallet size={16} className="text-(--accent)" />}
               title="Two Accounts, One View"
-              desc="Keep a separate Expenditure account for daily burns and a Savings account for goals. buckflo updates balances transactionally."
+              desc="Keep a separate Spending wallet for daily burns and a Savings wallet for goals. buckflo updates balances transactionally."
               borderClasses="border-r border-b border-black/8 dark:border-white/6"
             />
             <FeatureCard

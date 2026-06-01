@@ -16,6 +16,7 @@ interface DashboardHeroCardProps {
   onTopUp: () => void;
   onSetup?: () => void;
   monthComparison?: MonthComparisonResult;
+  recognitionText?: string | null;
 }
 
 export function DashboardHeroCard({
@@ -30,6 +31,7 @@ export function DashboardHeroCard({
   onTopUp,
   onSetup,
   monthComparison,
+  recognitionText,
 }: DashboardHeroCardProps) {
   return (
     <div
@@ -44,7 +46,7 @@ export function DashboardHeroCard({
       {/* Label row */}
       <div className="flex items-center justify-between mb-1.5">
         <span className="font-sans text-[0.6875rem] font-semibold text-white/65 tracking-widest uppercase">
-          Expenditure Balance
+          Spending Balance
         </span>
         <span className="font-sans text-xs text-white/60">
           {formatMonthYear(monthYear)}
@@ -77,7 +79,7 @@ export function DashboardHeroCard({
             <span>
               {overBudget ? (
                 <span className="text-[#ffc2c2] flex items-center gap-0.75 font-semibold">
-                  <TrendingDown size={12} /> Budget exceeded
+                  <TrendingDown size={12} /> Over your target
                 </span>
               ) : (
                 <span className="text-white/90 font-semibold">
@@ -86,6 +88,11 @@ export function DashboardHeroCard({
               )}
             </span>
           </div>
+          {recognitionText && (
+            <div className="text-[10px] text-white/75 italic text-center mt-2.5 w-full block">
+              {recognitionText}
+            </div>
+          )}
         </div>
       ) : !monthSetup && onSetup ? (
         <div className="mb-5 relative z-10">
@@ -150,15 +157,19 @@ export function DashboardHeroCard({
 interface SavingsQuickCardProps {
   savingsBalance: number;
   onClick: () => void;
+  deEmphasized?: boolean;
 }
 
 export function SavingsQuickCard({
   savingsBalance,
   onClick,
+  deEmphasized = false,
 }: SavingsQuickCardProps) {
   return (
     <div
-      className="glass-card fade-in-up delay-1 p-[14px_18px] mb-3 flex items-center justify-between cursor-pointer"
+      className={`glass-card fade-in-up delay-1 p-[14px_18px] mb-3 flex items-center justify-between cursor-pointer ${
+        deEmphasized ? "opacity-50 scale-[0.98] grayscale-[30%]" : ""
+      }`}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -171,7 +182,7 @@ export function SavingsQuickCard({
         </div>
         <div>
           <div className="font-sans text-xs text-(--text-muted) font-medium mb-0.5">
-            Savings Account
+            Savings Wallet
           </div>
           <div className="amount-display text-[1.3125rem] text-(--credit) tracking-tight">
             {formatINR(savingsBalance)}
@@ -207,7 +218,7 @@ export function SetupPromptCard({ monthYear, onAction }: SetupPromptCardProps) {
           Initialize {formatMonthYear(monthYear)}
         </h2>
         <p className="font-sans text-xs text-white/80 max-w-[280px] leading-relaxed">
-          Set up your expenditure budget and opening account balances to begin
+          Set up your spending budget and opening account balances to begin
           tracking your cash flow.
         </p>
       </div>

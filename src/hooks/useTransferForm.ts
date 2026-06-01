@@ -27,7 +27,7 @@ export function useTransferForm({
   const [note, setNote] = useState(
     defaultNote ||
       (defaultDirection === "savings_to_expenditure"
-        ? "Transfer to Expenditure"
+        ? "Transfer to Spending"
         : "Transfer to Savings")
   );
   const [loading, setLoading] = useState(false);
@@ -38,11 +38,11 @@ export function useTransferForm({
     setNote((prev) => {
       if (
         !prev ||
-        prev === "Transfer to Expenditure" ||
+        prev === "Transfer to Spending" ||
         prev === "Transfer to Savings"
       ) {
         return direction === "savings_to_expenditure"
-          ? "Transfer to Expenditure"
+          ? "Transfer to Spending"
           : "Transfer to Savings";
       }
       return prev;
@@ -70,7 +70,7 @@ export function useTransferForm({
     if (amt > currentSourceBalance) {
       toast.error(
         `Amount exceeds ${
-          direction === "savings_to_expenditure" ? "savings" : "expenditure"
+          direction === "savings_to_expenditure" ? "savings" : "spending"
         } balance`,
       );
       return;
@@ -79,12 +79,12 @@ export function useTransferForm({
     setLoading(true);
     try {
       const fromType =
-        direction === "savings_to_expenditure" ? "savings" : "expenditure";
+        direction === "savings_to_expenditure" ? "savings" : "spending";
       const toType =
-        direction === "savings_to_expenditure" ? "expenditure" : "savings";
+        direction === "savings_to_expenditure" ? "spending" : "savings";
       const defaultNoteText =
         direction === "savings_to_expenditure"
-          ? "Transfer to Expenditure"
+          ? "Transfer to Spending"
           : "Transfer to Savings";
 
       await recordTransferBidirectional(

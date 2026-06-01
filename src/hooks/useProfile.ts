@@ -47,6 +47,7 @@ export function useProfile() {
         theme: "system",
         createdAt: now,
         updatedAt: now,
+        wizardCompleted: false,
         ...partial,
       } as Profile;
     }

@@ -66,17 +66,26 @@ export function SavingsGoalCard({ goal, onClick }: Props) {
       <div className="font-sans text-[13px] font-semibold text-(--text) mb-1 leading-tight line-clamp-2 h-8 w-full">
         {goal.name}
       </div>
-      <div className="font-sans text-xs font-medium text-(--text-secondary) mb-1">
-        {formatINR(goal.currentAllocated)}
-      </div>
-      <div className="text-[11px] text-(--text-muted) mt-0.5">
-        of {formatINR(goal.targetAmount)}
-      </div>
-      {goal.deadline && (
-        <div className="flex items-center gap-0.75 justify-center text-[11px] text-(--text-muted) mt-1.5">
-          <Calendar size={10} />
-          <span>{formatDate(goal.deadline)}</span>
+      
+      {isCompleted ? (
+        <div className="font-sans text-[11px] font-bold text-(--credit) mt-2 px-2.5 py-0.5 bg-(--credit)/10 rounded-full border border-(--credit)/20 uppercase tracking-wider">
+          Goal reached
         </div>
+      ) : (
+        <>
+          <div className="font-sans text-xs font-medium text-(--text-secondary) mb-1">
+            {formatINR(goal.currentAllocated)}
+          </div>
+          <div className="text-[11px] text-(--text-muted) mt-0.5">
+            of {formatINR(goal.targetAmount)}
+          </div>
+          {goal.deadline && (
+            <div className="flex items-center gap-0.75 justify-center text-[11px] text-(--text-muted) mt-1.5">
+              <Calendar size={10} />
+              <span>{formatDate(goal.deadline)}</span>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

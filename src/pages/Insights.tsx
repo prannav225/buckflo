@@ -20,9 +20,9 @@ export function Insights() {
   const [searchParams, setSearchParams] = useSearchParams();
   const monthYear = searchParams.get("month") || getCurrentMonthYear();
 
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const monthSetup = useMonthSetup(monthYear);
-  const transactions = useTransactions(expendAcc?.id, monthYear);
+  const transactions = useTransactions(spendingAcc?.id, monthYear);
 
   const [chartRange, setChartRange] = useState<"3" | "6" | "12">("6");
   const historicalData = useHistoricalData(parseInt(chartRange));
@@ -36,7 +36,7 @@ export function Insights() {
       if (
         tx.category === "transfer" ||
         tx.category === "Transfer" ||
-        tx.category === "opening-transfer"
+        tx.category === "starting-transfer"
       ) {
         continue;
       }
@@ -115,7 +115,7 @@ export function Insights() {
       }
 
       if (highestCategory) {
-        summarySegments.push({ text: " Your highest expenditure category was " });
+        summarySegments.push({ text: " Your highest spending category was " });
         summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
         summarySegments.push({ text: "." });
       } else {
@@ -194,7 +194,7 @@ export function Insights() {
               Spending Trend
             </h3>
             <p className="text-[0.6875rem] text-(--text-muted) m-0">
-              Your overall expenditure trends over time
+              Your overall spending trends over time
             </p>
           </div>
           <div className="w-[180px] sm:w-[200px]">
@@ -255,7 +255,7 @@ export function Insights() {
           <Calendar size={32} className="empty-state-icon" />
           <p className="empty-state-title">No category spend recorded</p>
           <p className="empty-state-desc">
-            No expenditure entries logged for {formatMonthYear(monthYear)}.
+            No spending entries logged for {formatMonthYear(monthYear)}.
           </p>
         </div>
       )}

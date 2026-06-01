@@ -18,10 +18,10 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
-  const [accountType, setAccountType] = useState<"expenditure" | "savings">("expenditure");
+  const [accountType, setAccountType] = useState<"spending" | "savings">("spending");
   const [saving, setSaving] = useState(false);
 
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const savingsAcc = useAccount("savings");
   const categories = useCategories();
 
@@ -40,7 +40,7 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
       if (presetToEdit.id !== undefined) {
         db.presets.get(presetToEdit.id).then((p) => {
           if (p) {
-            setAccountType(p.accountId === savingsAcc?.id ? "savings" : "expenditure");
+            setAccountType(p.accountId === savingsAcc?.id ? "savings" : "spending");
           }
         });
       }
@@ -48,7 +48,7 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
       setName("");
       setAmount("");
       setCategory("");
-      setAccountType("expenditure");
+      setAccountType("spending");
     }
   }, [presetToEdit, isOpen, savingsAcc]);
 
@@ -56,7 +56,7 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
     e.preventDefault();
     if (!name.trim() || !amount.trim()) return;
 
-    const accountId = accountType === "expenditure" ? expendAcc?.id : savingsAcc?.id;
+    const accountId = accountType === "spending" ? spendingAcc?.id : savingsAcc?.id;
     if (!accountId) {
       toast.error("Account not initialized yet");
       return;
@@ -86,7 +86,7 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
       setName("");
       setAmount("");
       setCategory("");
-      setAccountType("expenditure");
+      setAccountType("spending");
       onClose();
     } catch {
       toast.error("Failed to save preset");
@@ -175,11 +175,11 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
               <button
                 type="button"
                 className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                  accountType === "expenditure" ? "chip-active" : ""
+                  accountType === "spending" ? "chip-active" : ""
                 }`}
-                onClick={() => setAccountType("expenditure")}
+                onClick={() => setAccountType("spending")}
               >
-                <CreditCard size={16} /> Expenditure
+                <CreditCard size={16} /> Spending
               </button>
               <button
                 type="button"

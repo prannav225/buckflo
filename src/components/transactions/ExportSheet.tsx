@@ -12,7 +12,7 @@ import { db } from "../../db/database";
 interface ExportSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  defaultAccount?: "all" | "expenditure" | "savings";
+  defaultAccount?: "all" | "spending" | "savings";
 }
 
 export function ExportSheet({
@@ -27,11 +27,11 @@ export function ExportSheet({
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [accountType, setAccountType] = useState<
-    "all" | "expenditure" | "savings"
+    "all" | "spending" | "savings"
   >(defaultAccount);
   const [exporting, setExporting] = useState(false);
 
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const savingsAcc = useAccount("savings");
 
   // Keep body styling in sync with modal state
@@ -48,8 +48,8 @@ export function ExportSheet({
       let query = db.transactions.toCollection();
 
       // 1. Account Filter
-      if (accountType === "expenditure" && expendAcc?.id) {
-        query = db.transactions.where("accountId").equals(expendAcc.id);
+      if (accountType === "spending" && spendingAcc?.id) {
+        query = db.transactions.where("accountId").equals(spendingAcc.id);
       } else if (accountType === "savings" && savingsAcc?.id) {
         query = db.transactions.where("accountId").equals(savingsAcc.id);
       }
@@ -85,8 +85,8 @@ export function ExportSheet({
         return {
           ...tx,
           accountName:
-            tx.accountId === expendAcc?.id
-              ? "Expenditure"
+            tx.accountId === spendingAcc?.id
+              ? "Spending"
               : tx.accountId === savingsAcc?.id
                 ? "Savings"
                 : "Unknown",
@@ -207,10 +207,10 @@ export function ExportSheet({
               </button>
               <button
                 type="button"
-                className={`chip py-2 px-4 ${accountType === "expenditure" ? "chip-active" : ""}`}
-                onClick={() => setAccountType("expenditure")}
+                className={`chip py-2 px-4 ${accountType === "spending" ? "chip-active" : ""}`}
+                onClick={() => setAccountType("spending")}
               >
-                Expenditure
+                Spending
               </button>
               <button
                 type="button"

@@ -40,7 +40,7 @@ export function MonthlyTransactionsView() {
         item.tx.type === "debit" &&
         item.tx.category !== "transfer" &&
         item.tx.category !== "Transfer" &&
-        item.tx.category !== "opening-transfer" &&
+        item.tx.category !== "starting-transfer" &&
         item.tx.category !== "adjustment",
     )
     .reduce((sum, item) => sum + item.tx.amount, 0);
@@ -51,7 +51,7 @@ export function MonthlyTransactionsView() {
         item.tx.type === "credit" &&
         item.tx.category !== "transfer" &&
         item.tx.category !== "Transfer" &&
-        item.tx.category !== "opening-transfer" &&
+        item.tx.category !== "starting-transfer" &&
         item.tx.category !== "adjustment",
     )
     .reduce((sum, item) => sum + item.tx.amount, 0);
@@ -62,7 +62,7 @@ export function MonthlyTransactionsView() {
         item.tx.type === "credit" &&
         (item.tx.category === "transfer" ||
           item.tx.category === "Transfer" ||
-          item.tx.category === "opening-transfer"),
+          item.tx.category === "starting-transfer"),
     )
     .reduce((sum, item) => sum + item.tx.amount, 0);
 
@@ -72,7 +72,7 @@ export function MonthlyTransactionsView() {
         item.tx.type === "debit" &&
         (item.tx.category === "transfer" ||
           item.tx.category === "Transfer" ||
-          item.tx.category === "opening-transfer"),
+          item.tx.category === "starting-transfer"),
     )
     .reduce((sum, item) => sum + item.tx.amount, 0);
 
@@ -148,7 +148,7 @@ export function MonthlyTransactionsView() {
       </div>
 
       <SegmentedControl
-        options={["all", "expenditure", "savings"] as const}
+        options={["all", "spending", "savings"] as const}
         value={activeTab}
         onChange={handleTabChange}
         idPrefix="tab"
@@ -198,7 +198,7 @@ export function MonthlyTransactionsView() {
                 className={`w-[3px] h-[13px] rounded-full shrink-0 ${
                   activeTab === "savings"
                     ? "bg-(--credit)"
-                    : activeTab === "expenditure"
+                    : activeTab === "spending"
                       ? "bg-(--accent)"
                       : "bg-(--text-muted)"
                 }`}

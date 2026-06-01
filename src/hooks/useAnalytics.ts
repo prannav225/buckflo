@@ -68,19 +68,19 @@ export interface DetectedSubscription {
 }
 
 export function useSubscriptionAlerts(): DetectedSubscription[] {
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
 
   return useLiveQuery(
     async () => {
-      if (!expendAcc?.id) return [];
+      if (!spendingAcc?.id) return [];
 
-      // Query past 90 days of expenditure debits
+      // Query past 90 days of spending debits
       const ninetyDaysAgo = toISODate(subDays(new Date(), 90));
       const txs = await db.transactions
         .where("[accountId+date]")
         .between(
-          [expendAcc.id, ninetyDaysAgo],
-          [expendAcc.id, "\uffff"],
+          [spendingAcc.id, ninetyDaysAgo],
+          [spendingAcc.id, "\uffff"],
           true,
           true,
         )
@@ -153,7 +153,7 @@ export function useSubscriptionAlerts(): DetectedSubscription[] {
       // Sort by urgency (days left ascending)
       return detected.sort((a, b) => a.daysLeft - b.daysLeft);
     },
-    [expendAcc?.id],
+    [spendingAcc?.id],
     [],
   );
 }
@@ -166,11 +166,11 @@ export interface WoWResult {
 }
 
 export function useWeekOverWeek(): WoWResult {
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
 
   return useLiveQuery(
     async () => {
-      if (!expendAcc?.id)
+      if (!spendingAcc?.id)
         return { thisWeekTotal: 0, lastWeekTotal: 0, percentChange: 0 };
 
       const today = new Date();
@@ -181,8 +181,8 @@ export function useWeekOverWeek(): WoWResult {
       const txs = await db.transactions
         .where("[accountId+date]")
         .between(
-          [expendAcc.id, lastWeekStart],
-          [expendAcc.id, "\uffff"],
+          [spendingAcc.id, lastWeekStart],
+          [spendingAcc.id, "\uffff"],
           true,
           true,
         )
@@ -196,7 +196,7 @@ export function useWeekOverWeek(): WoWResult {
         if (
           tx.category === "transfer" ||
           tx.category === "Transfer" ||
-          tx.category === "opening-transfer"
+          tx.category === "starting-transfer"
         ) {
           continue;
         }
@@ -221,7 +221,7 @@ export function useWeekOverWeek(): WoWResult {
         percentChange,
       };
     },
-    [expendAcc?.id],
+    [spendingAcc?.id],
     { thisWeekTotal: 0, lastWeekTotal: 0, percentChange: 0 },
   );
 }
@@ -233,11 +233,11 @@ export interface MoMResult {
 }
 
 export function useMonthOverMonth(monthYear: string): MoMResult {
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
 
   return useLiveQuery(
     async () => {
-      if (!expendAcc?.id)
+      if (!spendingAcc?.id)
         return { thisMonthTotal: 0, lastMonthTotal: 0, percentChange: 0 };
 
       const [yearStr, monthStr] = monthYear.split("-");
@@ -250,15 +250,15 @@ export function useMonthOverMonth(monthYear: string): MoMResult {
         lastMonth = 12;
         lastYear -= 1;
       }
-      
+
       const lastMonthYear = `${lastYear}-${lastMonth.toString().padStart(2, "0")}`;
 
       const [thisMonthTxs, lastMonthTxs] = await Promise.all([
         db.transactions
           .where("[accountId+date]")
           .between(
-            [expendAcc.id, `${monthYear}-01`],
-            [expendAcc.id, `${monthYear}-31`],
+            [spendingAcc.id, `${monthYear}-01`],
+            [spendingAcc.id, `${monthYear}-31`],
             true,
             true,
           )
@@ -267,19 +267,19 @@ export function useMonthOverMonth(monthYear: string): MoMResult {
         db.transactions
           .where("[accountId+date]")
           .between(
-            [expendAcc.id, `${lastMonthYear}-01`],
-            [expendAcc.id, `${lastMonthYear}-31`],
+            [spendingAcc.id, `${lastMonthYear}-01`],
+            [spendingAcc.id, `${lastMonthYear}-31`],
             true,
             true,
           )
           .filter((t) => t.type === "debit")
-          .toArray()
+          .toArray(),
       ]);
 
-      const isNotTransfer = (tx: any) =>
+      const isNotTransfer = (tx) =>
         tx.category !== "transfer" &&
         tx.category !== "Transfer" &&
-        tx.category !== "opening-transfer";
+        tx.category !== "starting-transfer";
 
       const thisMonthTotal = thisMonthTxs
         .filter(isNotTransfer)
@@ -290,7 +290,10 @@ export function useMonthOverMonth(monthYear: string): MoMResult {
 
       let percentChange = 0;
       if (lastMonthTotal > 0) {
-        percentChange = +(((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100).toFixed(1);
+        percentChange = +(
+          ((thisMonthTotal - lastMonthTotal) / lastMonthTotal) *
+          100
+        ).toFixed(1);
       } else if (thisMonthTotal > 0) {
         percentChange = 100;
       }
@@ -301,7 +304,7 @@ export function useMonthOverMonth(monthYear: string): MoMResult {
         percentChange,
       };
     },
-    [expendAcc?.id, monthYear],
+    [spendingAcc?.id, monthYear],
     { thisMonthTotal: 0, lastMonthTotal: 0, percentChange: 0 },
   );
 }
@@ -317,7 +320,6 @@ export interface FrequentPreset {
 let isSeedingPresets = false;
 
 export function useFrequentPresets(limit = 6): FrequentPreset[] {
-
   // Seed default presets if empty using a side-effect (outside liveQuery read-only context)
   useEffect(() => {
     const seedAndDeduplicate = async () => {
@@ -328,7 +330,7 @@ export function useFrequentPresets(limit = 6): FrequentPreset[] {
         const allPresets = await db.presets.toArray();
         const seen = new Set<string>();
         const toDelete: number[] = [];
-        
+
         for (const p of allPresets) {
           // Uniqueness key based on lowercased name + amount + category
           const key = `${p.name.trim().toLowerCase()}_${p.amount}_${p.category.trim().toLowerCase()}`;
@@ -340,7 +342,7 @@ export function useFrequentPresets(limit = 6): FrequentPreset[] {
             seen.add(key);
           }
         }
-        
+
         if (toDelete.length > 0) {
           await db.presets.bulkDelete(toDelete);
         }
@@ -348,12 +350,31 @@ export function useFrequentPresets(limit = 6): FrequentPreset[] {
         // 2. Seed default presets if the database is completely empty
         const presetCount = await db.presets.count();
         if (presetCount === 0) {
-          const expendAccDb = await db.accounts.where("type").equals("expenditure").first();
-          if (expendAccDb?.id) {
+          const spendingAccDb = await db.accounts
+            .where("type")
+            .equals("spending")
+            .first();
+          if (spendingAccDb?.id) {
             const now = Date.now();
             await db.presets.bulkAdd([
-              { name: "Coffee", amount: 80, category: "Food", accountId: expendAccDb.id, isCustom: false, usageCount: 0, createdAt: now },
-              { name: "Metro Fare", amount: 50, category: "Transport", accountId: expendAccDb.id, isCustom: false, usageCount: 0, createdAt: now + 1 },
+              {
+                name: "Coffee",
+                amount: 80,
+                category: "Food",
+                accountId: spendingAccDb.id,
+                isCustom: false,
+                usageCount: 0,
+                createdAt: now,
+              },
+              {
+                name: "Metro Fare",
+                amount: 50,
+                category: "Transport",
+                accountId: spendingAccDb.id,
+                isCustom: false,
+                usageCount: 0,
+                createdAt: now + 1,
+              },
             ]);
           }
         }
@@ -369,7 +390,7 @@ export function useFrequentPresets(limit = 6): FrequentPreset[] {
   return useLiveQuery(
     async () => {
       const customPresets = await db.presets.toArray();
-      
+
       // Sort: presets with higher usageCount first, then newest first
       const sortedPresets = [...customPresets]
         .sort((a, b) => {
@@ -407,13 +428,13 @@ export interface CategoryBudgetAlert {
 
 /**
  * Returns alerts for categories where spending ≥ 80% of the per-category budget.
- * Uses the current month's setup and expenditure transactions.
+ * Uses the current month's setup and spending transactions.
  */
 export function useCategoryBudgetAlerts(): CategoryBudgetAlert[] {
   const monthYear = getCurrentMonthYear();
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const monthSetup = useMonthSetup(monthYear);
-  const transactions = useTransactions(expendAcc?.id, monthYear);
+  const transactions = useTransactions(spendingAcc?.id, monthYear);
 
   if (
     !monthSetup?.categoryBudgets ||
@@ -431,7 +452,7 @@ export function useCategoryBudgetAlerts(): CategoryBudgetAlert[] {
       if (
         tx.category === "transfer" ||
         tx.category === "Transfer" ||
-        tx.category === "opening-transfer"
+        tx.category === "starting-transfer"
       ) {
         continue;
       }
@@ -472,14 +493,17 @@ export interface SmartAllocationResult {
 }
 
 export function useSmartAllocationPrompt(): SmartAllocationResult | null {
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const monthYear = getCurrentMonthYear();
   const monthSetup = useMonthSetup(monthYear);
-  const transactions = useTransactions(expendAcc?.id, monthYear);
-  const summary = useMonthSummary(transactions, monthSetup?.openingBalance ?? 0);
+  const transactions = useTransactions(spendingAcc?.id, monthYear);
+  const summary = useMonthSummary(
+    transactions,
+    monthSetup?.openingBalance ?? 0,
+  );
 
   return useMemo(() => {
-    if (!expendAcc?.id) return null;
+    if (!spendingAcc?.id) return null;
 
     // Use reconstructed closing balance to match the dashboard's display balance
     const currentBalance = summary.closingBalance;
@@ -505,7 +529,13 @@ export function useSmartAllocationPrompt(): SmartAllocationResult | null {
     const projectedRemainingSpend = avgDailySpend * daysRemaining;
     const surplus = currentBalance - projectedRemainingSpend;
 
-    const shouldShow = surplus > 1000 && currentBalance > 1000;
+    const budget = monthSetup?.monthlyBudget ?? 0;
+    const shouldShow =
+      daysElapsed >= 7 &&
+      totalDebited > 0 &&
+      budget > 0 &&
+      surplus > 1000 &&
+      currentBalance > 1000;
     const suggestedAmount = shouldShow
       ? Math.max(500, Math.floor((surplus * 0.8) / 500) * 500)
       : 0;
@@ -517,7 +547,7 @@ export function useSmartAllocationPrompt(): SmartAllocationResult | null {
       expenditureBalance: currentBalance,
       projectedSpend: +projectedRemainingSpend.toFixed(2),
     };
-  }, [expendAcc, summary]);
+  }, [spendingAcc, summary]);
 }
 
 // ─── 7. Historical Data Hook ──────────────────────────────────────────────────
@@ -529,12 +559,12 @@ export interface HistoricalDataPoint {
 }
 
 export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const savingsAcc = useAccount("savings");
 
   return useLiveQuery(
     async () => {
-      if (!expendAcc || !savingsAcc) return [];
+      if (!spendingAcc || !savingsAcc) return [];
 
       const allTxs = await db.transactions.toArray();
       const allSetups = await db.monthSetups.toArray();
@@ -569,15 +599,17 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
           continue;
         }
 
-        // 1. Calculate total debited in this month on expenditure account
+        // 1. Calculate total debited in this month on spending wallet
         let totalExpense = 0;
 
-        for (const tx of allTxs.filter(t => t.accountId === expendAcc.id && t.date.startsWith(mYear))) {
+        for (const tx of allTxs.filter(
+          (t) => t.accountId === spendingAcc.id && t.date.startsWith(mYear),
+        )) {
           if (tx.type === "debit") {
             if (
               tx.category !== "transfer" &&
               tx.category !== "Transfer" &&
-              tx.category !== "opening-transfer"
+              tx.category !== "starting-transfer"
             ) {
               totalExpense += tx.amount;
             }
@@ -585,14 +617,14 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
         }
 
         // 2. Reconstruct balances at the end of this month
-        let expBal = expendAcc.currentBalance;
+        let expBal = spendingAcc.currentBalance;
         let savBal = savingsAcc.currentBalance;
 
         for (const tx of allTxs) {
           const txMonth = tx.date.substring(0, 7);
           if (txMonth > mYear) {
             const amt = tx.amount;
-            if (tx.accountId === expendAcc.id) {
+            if (tx.accountId === spendingAcc.id) {
               if (tx.type === "credit") {
                 expBal -= amt;
               } else {
@@ -618,7 +650,7 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
 
       return points;
     },
-    [expendAcc?.id, savingsAcc?.id, monthsCount],
+    [spendingAcc?.id, savingsAcc?.id, monthsCount],
     [],
   );
 }

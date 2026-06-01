@@ -76,7 +76,7 @@ export function TransactionCard({
             {tx.category &&
               tx.category !== "transfer" &&
               tx.category !== "Transfer" &&
-              tx.category !== "opening-transfer" && (
+              tx.category !== "starting-transfer" && (
               <span
                 className="inline-flex items-center rounded-(--r-pill) px-2 py-0.5 text-[10px] font-medium leading-[1.4]"
                 style={{

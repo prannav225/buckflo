@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Sparkles, Database } from "lucide-react";
+import packageJson from "../../package.json";
 
 export function AboutPage() {
   const navigate = useNavigate();
@@ -28,11 +29,10 @@ export function AboutPage() {
             buckflo
           </span>
           <p className="font-sans text-[10px] uppercase tracking-[0.2em] font-semibold text-(--text-muted) mt-3">
-            Version 1.8
+            Version {packageJson.version}
           </p>
           <p className="font-sans text-sm text-(--text-secondary) leading-relaxed mt-4 max-w-[280px]">
-            A clean, distraction-free ledger designed to help you balance daily
-            spending and future savings seamlessly.
+            Track everything. Understand your patterns. Spend better.
           </p>
         </div>
 
@@ -72,7 +72,7 @@ export function AboutPage() {
           </div>
 
           {/* Philosophy Row */}
-          <div className="glass-card p-4.5 pb-0! flex gap-4">
+          <div className="glass-card p-4.5 flex gap-4">
             <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
               <Sparkles size={20} className="text-purple-500" />
             </div>
@@ -81,9 +81,8 @@ export function AboutPage() {
                 Mindful Budgeting
               </h4>
               <p className="font-sans text-xs text-(--text-muted) leading-relaxed mt-1">
-                Dual accounts partition your cash cleanly: one for regular
-                spending and another to protect your savings goals from daily
-                impulse buys.
+                Dual wallets partition your cash cleanly: one for daily spending
+                and another to protect your savings goals from impulse buys.
               </p>
             </div>
           </div>

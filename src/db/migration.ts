@@ -87,6 +87,7 @@ export async function migrateLegacyDatabase() {
     // Let the caller know it failed so they don't load into an empty BuckfloDB state
     throw new Error(
       "Database migration failed. Please ensure you have sufficient storage.",
+      { cause: err },
     );
   } finally {
     legacyDb.close();

@@ -8,7 +8,7 @@ export async function seedSampleData() {
   // 1. Month Setup
   await db.monthSetups.put({
     monthYear,
-    accountId: 1, // Expenditure
+    accountId: 1, // Spending
     openingBalance: 15000,
     monthlyBudget: 20000,
     categoryBudgets: {

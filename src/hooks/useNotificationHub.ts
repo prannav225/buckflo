@@ -77,9 +77,9 @@ export function useNotificationHub(
 
   // 1. Gather all required state from hooks/queries
   const monthYear = getCurrentMonthYear();
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const monthSetup = useMonthSetup(monthYear);
-  const allMonthTxs = useTransactions(expendAcc?.id, monthYear);
+  const allMonthTxs = useTransactions(spendingAcc?.id, monthYear);
   const summary = useMonthSummary(allMonthTxs, monthSetup?.openingBalance ?? 0);
 
   const budget = monthSetup?.monthlyBudget ?? 0;
@@ -113,8 +113,8 @@ export function useNotificationHub(
           id: `budget-exceeded-${monthYear}-${Math.floor(spent)}`,
           type: "danger",
           category: "alerts",
-          title: "Monthly Budget Exceeded",
-          description: `You have spent ${formatINR(spent)} of your ${formatINR(budget)} monthly budget.`,
+          title: "Over your target",
+          description: `You've spent the remaining budget for this month.`,
           iconName: "alert",
           action: {
             label: "View Feed",

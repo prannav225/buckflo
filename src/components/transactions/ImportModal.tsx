@@ -12,7 +12,7 @@ interface ImportModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  activeTab: "all" | "expenditure" | "savings";
+  activeTab: "all" | "spending" | "savings";
 }
 
 export function ImportModal({ isOpen, onClose, onSuccess, activeTab }: ImportModalProps) {
@@ -22,13 +22,13 @@ export function ImportModal({ isOpen, onClose, onSuccess, activeTab }: ImportMod
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Destination account default if not specified inside CSV rows
-  const [destAccount, setDestAccount] = useState<"expenditure" | "savings">(
-    activeTab === "savings" ? "savings" : "expenditure"
+  const [destAccount, setDestAccount] = useState<"spending" | "savings">(
+    activeTab === "savings" ? "savings" : "spending"
   );
 
   const [isImporting, setIsImporting] = useState(false);
 
-  const expendAcc = useAccount("expenditure");
+  const spendingAcc = useAccount("spending");
   const savingsAcc = useAccount("savings");
 
   // Keep background scroll disabled when modal is open
@@ -98,9 +98,9 @@ export function ImportModal({ isOpen, onClose, onSuccess, activeTab }: ImportMod
   };
 
   const executeImport = async () => {
-    if (parsedRows.length === 0 || !expendAcc || !savingsAcc) return;
+    if (parsedRows.length === 0 || !spendingAcc || !savingsAcc) return;
 
-    const expendId = expendAcc.id;
+    const expendId = spendingAcc.id;
     const savingsId = savingsAcc.id;
     if (expendId === undefined || savingsId === undefined) return;
 
@@ -224,12 +224,12 @@ export function ImportModal({ isOpen, onClose, onSuccess, activeTab }: ImportMod
                   Target Destination Account
                 </label>
                 <SegmentedControl
-                  options={["expenditure", "savings"] as const}
+                  options={["spending", "savings"] as const}
                   value={destAccount}
                   onChange={setDestAccount}
                   idPrefix="import-dest"
                   renderLabel={(val) =>
-                    val === "savings" ? "Savings" : "Expenditure"
+                    val === "savings" ? "Savings" : "Spending"
                   }
                   className="w-full"
                 />

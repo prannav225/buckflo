@@ -104,7 +104,7 @@ export interface ParsedCSVRow {
   category: string;
   amount: number;
   type: "debit" | "credit";
-  accountType?: "expenditure" | "savings";
+  accountType?: "spending" | "savings";
 }
 
 /**
@@ -119,7 +119,7 @@ export function mapRowsToTransactions(rows: string[][]): ParsedCSVRow[] {
   const catIdx = headers.indexOf("category");
   const amtIdx = headers.indexOf("amount");
   const typeIdx = headers.indexOf("type");
-  const accIdx = headers.indexOf("account"); // Optional: matches 'expenditure' or 'savings'
+  const accIdx = headers.indexOf("account"); // Optional: matches 'spending' or 'savings'
 
   if (dateIdx === -1 || descIdx === -1 || amtIdx === -1 || typeIdx === -1) {
     throw new Error("Missing required headers in CSV. Headers must contain Date, Description, Amount, and Type.");
@@ -152,7 +152,7 @@ export function mapRowsToTransactions(rows: string[][]): ParsedCSVRow[] {
     
     if (typeStr === "credit" || typeStr === "income") {
       type = "credit";
-    } else if (typeStr === "debit" || typeStr === "expense" || typeStr === "expenditure") {
+    } else if (typeStr === "debit" || typeStr === "expense" || typeStr === "spending") {
       type = "debit";
     } else {
       // Fallback: check negative amount sign
@@ -161,13 +161,17 @@ export function mapRowsToTransactions(rows: string[][]): ParsedCSVRow[] {
 
     amount = Math.abs(amount); // Keep amount absolute in database
 
-    let accountType: "expenditure" | "savings" | undefined;
+    let accountType: "spending" | "savings" | undefined;
     if (accIdx !== -1 && row[accIdx]) {
       const accStr = row[accIdx].toLowerCase().trim();
-      if (accStr === "savings" || accStr === "saving") {
+      if (accStr.includes("saving")) {
         accountType = "savings";
-      } else if (accStr === "expenditure" || accStr === "expense") {
-        accountType = "expenditure";
+      } else if (
+        accStr.includes("spending") ||
+        accStr.includes("expense") ||
+        accStr.includes("expenditure")
+      ) {
+        accountType = "spending";
       }
     }
 
@@ -210,7 +214,7 @@ export async function importTransactionsToDB(
     for (const item of parsedTxs) {
       // Determine account ID
       let accountId = defaultAccountId;
-      if (item.accountType === "expenditure") {
+      if (item.accountType === "spending") {
         accountId = expenditureAccountId;
       } else if (item.accountType === "savings") {
         accountId = savingsAccountId;
