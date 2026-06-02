@@ -47,7 +47,7 @@ export function useNotificationScheduler() {
                 const reg = await navigator.serviceWorker.ready;
                 reg.showNotification("buckflo", {
                   body: `Hey ${profile.displayName || "there"}, anything to log today?`,
-                  icon: "/buckflo_appicon.png",
+                  icon: "/buckflo_appicon.svg",
                   badge: "/buckflo_favicon.svg",
                   tag: "daily-reminder",
                   renotify: true,
@@ -56,7 +56,7 @@ export function useNotificationScheduler() {
                 // Fallback to new Notification if service worker is unavailable
                 const n = new Notification("buckflo", {
                   body: `Hey ${profile.displayName || "there"}, anything to log today?`,
-                  icon: "/buckflo_appicon.png",
+                  icon: "/buckflo_appicon.svg",
                   tag: "daily-reminder",
                 });
                 n.onclick = () => {
@@ -67,7 +67,7 @@ export function useNotificationScheduler() {
             } else {
               const n = new Notification("buckflo", {
                 body: `Hey ${profile.displayName || "there"}, anything to log today?`,
-                icon: "/buckflo_appicon.png",
+                icon: "/buckflo_appicon.svg",
                 tag: "daily-reminder",
               });
               n.onclick = () => {

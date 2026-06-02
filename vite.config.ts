@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["buckflo_favicon.svg", "buckflo_appicon.png"],
+      includeAssets: ["buckflo_favicon.svg", "buckflo_appicon.svg"],
       manifest: {
         name: "buckflo",
         short_name: "buckflo",
@@ -22,17 +22,17 @@ export default defineConfig({
         scope: "/",
         icons: [
           {
-            src: "buckflo_appicon.png",
+            src: "buckflo_appicon.svg",
             sizes: "192x192",
-            type: "image/png",
+            type: "image/svg+xml",
           },
           {
-            src: "buckflo_appicon.png",
+            src: "buckflo_appicon.svg",
             sizes: "512x512",
-            type: "image/png",
+            type: "image/svg+xml",
           },
           {
-            src: "buckflo_appicon.png",
+            src: "buckflo_appicon.svg",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",
