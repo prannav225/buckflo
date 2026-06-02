@@ -10,6 +10,7 @@ import {
 import { useAccounts } from "../db/hooks";
 import { todayISO } from "../utils/dateUtils";
 import toast from "react-hot-toast";
+import { hapticFeedback } from "../utils/haptics";
 
 export interface TransactionFormState {
   date: string;
@@ -145,6 +146,7 @@ export function useTransactionForm(): TransactionFormState {
         await addTransaction(txData);
         toast.success("Entry logged ✓");
       }
+      hapticFeedback.success();
       navigate(-1);
     } catch (err) {
       toast.error("Failed to save. Please try again.");
@@ -165,6 +167,7 @@ export function useTransactionForm(): TransactionFormState {
     try {
       await deleteTransaction(Number(id));
       toast.success("Entry deleted ✓");
+      hapticFeedback.heavy();
       navigate(-1);
     } catch (err) {
       toast.error("Failed to delete. Please try again.");

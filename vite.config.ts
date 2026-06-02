@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["buckflo_favicon.svg", "buckflo_appicon.svg"],
       manifest: {
-        name: "buckflo",
-        short_name: "buckflo",
+        name: "Buckflo",
+        short_name: "Buckflo",
         description: "Personal expense tracker for daily budgeting",
         theme_color: "#d97757",
         background_color: "#0d0c0b",

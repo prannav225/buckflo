@@ -16,7 +16,7 @@ import {
 import { formatINR } from "../../utils/currency";
 import { CustomDropdown } from "../layout/CustomDropdown";
 
-export function AccountsSection({ spendingAcc, savingsAcc }: any) {
+export function AccountsSection({ spendingAcc, savingsAcc }) {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col gap-2">
@@ -87,7 +87,7 @@ export function CustomizationSection({
   handleThemeChange,
   themeOptions,
   setIsCreatePresetOpen,
-}: any) {
+}) {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col gap-2">
@@ -196,7 +196,7 @@ export function DataBackupSection({
   setIsExportOpen,
   onBackup,
   onRestoreClick,
-}: any) {
+}) {
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
@@ -324,12 +324,44 @@ export function AboutSection() {
           </div>
           <ChevronRight size={16} className="text-(--text-muted)" />
         </div>
+
+        {typeof navigator !== "undefined" && "share" in navigator && (
+          <div
+            onClick={() => {
+              navigator
+                .share({
+                  title: "buckflo",
+                  text: "Check out buckflo, an offline-first personal expense tracker!",
+                  url: window.location.origin,
+                })
+                .catch(() => {});
+            }}
+            className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all border-t border-black/5 dark:border-white/5"
+          >
+            <div className="flex items-center gap-3.5">
+              <Upload
+                size={20}
+                strokeWidth={1.5}
+                className="text-(--text-secondary) shrink-0"
+              />
+              <div>
+                <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
+                  Share App
+                </div>
+                <div className="font-sans text-xs text-(--text-muted) mt-0.5">
+                  Recommend buckflo to a friend
+                </div>
+              </div>
+            </div>
+            <ChevronRight size={16} className="text-(--text-muted)" />
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export function DangerZoneSection({ onWipeData }: any) {
+export function DangerZoneSection({ onWipeData }) {
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1 mt-2">

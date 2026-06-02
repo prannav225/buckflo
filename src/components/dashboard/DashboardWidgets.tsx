@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Upload, Database, X, Plus, ChevronRight, Lightbulb, PiggyBank, HelpCircle } from "lucide-react";
+import {
+  Upload,
+  Database,
+  X,
+  Plus,
+  ChevronRight,
+  Lightbulb,
+  PiggyBank,
+  HelpCircle,
+} from "lucide-react";
 import { formatINR } from "../../utils/currency";
 import type { FrequentPreset } from "../../hooks/useAnalytics";
 import toast from "react-hot-toast";
@@ -72,9 +81,13 @@ export function QuickPresets({
             Quick Presets
           </h2>
           <div className="group relative flex items-center cursor-help">
-            <HelpCircle size={12} className="text-(--text-muted) opacity-70 hover:opacity-100 transition-opacity" />
+            <HelpCircle
+              size={12}
+              className="text-(--text-muted) opacity-70 hover:opacity-100 transition-opacity"
+            />
             <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2.5 bg-white dark:bg-[#2e2e2c] text-[11px] text-(--text) font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 text-center border border-black/10 dark:border-white/10 leading-relaxed">
-              Quick Presets let you log frequent transactions (like coffee or transport) with a single tap.
+              Quick Presets let you log frequent transactions (like coffee or
+              transport) with a single tap.
             </div>
           </div>
         </div>
@@ -87,7 +100,7 @@ export function QuickPresets({
           </button>
         )}
       </div>
-      <div className="flex gap-2.5 overflow-x-auto pt-1.5 pb-2.5 w-full touch-pan-x">
+      <div className="flex gap-2.5 overflow-x-auto pt-1.5 pb-2.5 w-full">
         {presets
           .filter((preset) => !isManageMode || preset.id !== undefined)
           .map((preset, idx) => (
@@ -146,7 +159,7 @@ export function QuickPresets({
 }
 
 interface NotificationPromptProps {
-  updateProfile: (data: any) => Promise<void>;
+  updateProfile: (data) => Promise<void>;
 }
 
 export function NotificationPrompt({ updateProfile }: NotificationPromptProps) {
@@ -165,7 +178,7 @@ export function NotificationPrompt({ updateProfile }: NotificationPromptProps) {
             try {
               await updateProfile({ notificationPermissionAsked: true });
               toast.success("Reminder dismissed");
-            } catch (e) {
+            } catch {
               toast.error("Failed to update profile");
             }
           }}
@@ -196,7 +209,7 @@ export function NotificationPrompt({ updateProfile }: NotificationPromptProps) {
               let permission: NotificationPermission;
               try {
                 permission = await Notification.requestPermission();
-              } catch (err) {
+              } catch {
                 permission = await new Promise<NotificationPermission>(
                   (resolve) => {
                     Notification.requestPermission(resolve);
@@ -251,7 +264,7 @@ export function SmartAllocationAdvisorCard({
   return (
     <div className="glass-card fade-in-up p-5 mb-5 relative overflow-hidden bg-linear-to-br from-(--bg-glass) to-[rgba(155,93,229,0.05)] border border-[#9b5de5]/20">
       <div className="absolute top-0 right-0 w-32 h-32 bg-[#9b5de5]/10 rounded-full blur-3xl pointer-events-none" />
-      
+
       <div className="flex items-start justify-between mb-3 relative z-10">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-[#9b5de5]/10 flex items-center justify-center">
@@ -271,8 +284,14 @@ export function SmartAllocationAdvisorCard({
 
       <div className="relative z-10">
         <p className="text-[12px] text-(--text-secondary) leading-relaxed mb-4">
-          You have a projected surplus of <strong className="text-(--text)">{formatINR(surplus)}</strong>. 
-          Consider moving <strong className="text-[#9b5de5]">{formatINR(suggestedAmount)}</strong> to your Savings Wallet to maximize growth while staying well within your budget.
+          You have a projected surplus of{" "}
+          <strong className="text-(--text)">{formatINR(surplus)}</strong>.
+          Consider moving{" "}
+          <strong className="text-[#9b5de5]">
+            {formatINR(suggestedAmount)}
+          </strong>{" "}
+          to your Savings Wallet to maximize growth while staying well within
+          your budget.
         </p>
 
         <button
@@ -288,7 +307,7 @@ export function SmartAllocationAdvisorCard({
 }
 
 interface SavingsNudgeProps {
-  updateProfile: (data: any) => Promise<void>;
+  updateProfile: (data) => Promise<void>;
   setShowSavingsNudgeSheet: (show: boolean) => void;
 }
 
@@ -311,7 +330,7 @@ export function SavingsNudgeCard({
             try {
               await updateProfile({ savingsNudgeDismissed: true });
               toast.success("Nudge dismissed");
-            } catch (e) {
+            } catch {
               toast.error("Failed to update profile");
             }
           }}

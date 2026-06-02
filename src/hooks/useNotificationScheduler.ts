@@ -52,6 +52,9 @@ export function useNotificationScheduler() {
                   tag: "daily-reminder",
                   renotify: true,
                 } as NotificationOptions);
+                if ("setAppBadge" in navigator) {
+                  navigator.setAppBadge(1).catch(console.error);
+                }
               } catch {
                 // Fallback to new Notification if service worker is unavailable
                 const n = new Notification("buckflo", {
@@ -95,4 +98,11 @@ export function useNotificationScheduler() {
     profile?.displayName,
     profile,
   ]);
+
+  // Clear badge when the app is active
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && "clearAppBadge" in navigator) {
+      navigator.clearAppBadge().catch(console.error);
+    }
+  }, []);
 }
