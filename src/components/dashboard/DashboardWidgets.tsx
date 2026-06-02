@@ -159,7 +159,7 @@ export function QuickPresets({
 }
 
 interface NotificationPromptProps {
-  updateProfile: (data) => Promise<void>;
+  updateProfile: (data: any) => Promise<void>;
 }
 
 export function NotificationPrompt({ updateProfile }: NotificationPromptProps) {
@@ -307,7 +307,7 @@ export function SmartAllocationAdvisorCard({
 }
 
 interface SavingsNudgeProps {
-  updateProfile: (data) => Promise<void>;
+  updateProfile: (data: any) => Promise<void>;
   setShowSavingsNudgeSheet: (show: boolean) => void;
 }
 

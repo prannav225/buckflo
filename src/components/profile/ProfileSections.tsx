@@ -16,7 +16,7 @@ import {
 import { formatINR } from "../../utils/currency";
 import { CustomDropdown } from "../layout/CustomDropdown";
 
-export function AccountsSection({ spendingAcc, savingsAcc }) {
+export function AccountsSection({ spendingAcc, savingsAcc }: any) {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col gap-2">
@@ -87,7 +87,7 @@ export function CustomizationSection({
   handleThemeChange,
   themeOptions,
   setIsCreatePresetOpen,
-}) {
+}: any) {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col gap-2">
@@ -196,7 +196,7 @@ export function DataBackupSection({
   setIsExportOpen,
   onBackup,
   onRestoreClick,
-}) {
+}: any) {
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
@@ -361,7 +361,7 @@ export function AboutSection() {
   );
 }
 
-export function DangerZoneSection({ onWipeData }) {
+export function DangerZoneSection({ onWipeData }: any) {
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1 mt-2">
