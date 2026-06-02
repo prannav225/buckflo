@@ -132,7 +132,7 @@ export function MonthlyView() {
             <div className="h-1 bg-black/10 dark:bg-white/20 rounded-full overflow-hidden mb-2.5">
               <div
                 className={`h-full rounded-full transition-[width] duration-500 ease-in-out ${
-                  overBudget ? "bg-(--debit)" : "bg-black/80 dark:bg-white/90"
+                  overBudget ? "bg-(--debit)" : spentPct >= 80 ? "bg-orange-500" : "bg-black/80 dark:bg-white/90"
                 }`}
                 style={{
                   width: `${spentPct}%`,

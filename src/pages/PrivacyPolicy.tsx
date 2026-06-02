@@ -39,7 +39,7 @@ export function PrivacyPolicy() {
         <div className="flex flex-col gap-1.5">
           <h3 className="font-bold text-(--text) text-base">1. Offline-First Privacy Architecture</h3>
           <p>
-            buckflo is designed as an offline-first client application. <strong>All transactions, account structures, budgets, savings goals, and subscriptions are stored locally</strong> on your own device using browser-native IndexedDB databases.
+            buckflo is designed as an offline-first client application. <strong>All transactions, wallet structures, budgets, savings goals, and subscriptions are stored locally</strong> on your own device using browser-native IndexedDB databases.
           </p>
           <p>
             We do not host remote database clusters, and your raw data is never transferred, backed up, or made visible to us or any third parties.

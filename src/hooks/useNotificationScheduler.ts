@@ -51,7 +51,7 @@ export function useNotificationScheduler() {
                   badge: "/buckflo_favicon.png",
                   tag: "daily-reminder",
                   renotify: true,
-                } as unknown);
+                } as NotificationOptions);
               } catch {
                 // Fallback to new Notification if service worker is unavailable
                 const n = new Notification("buckflo", {
@@ -90,9 +90,9 @@ export function useNotificationScheduler() {
       clearTimeout(timerId);
     };
   }, [
-    profile.notificationsEnabled,
-    profile.notificationTime,
-    profile.displayName,
+    profile?.notificationsEnabled,
+    profile?.notificationTime,
+    profile?.displayName,
     profile,
   ]);
 }

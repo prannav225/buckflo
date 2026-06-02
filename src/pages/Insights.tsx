@@ -11,9 +11,10 @@ import {
   useMonthSetup,
   useTransactions,
 } from "../db/hooks";
-import { useHistoricalData, useWeekOverWeek, useMonthOverMonth } from "../hooks/useAnalytics";
+import { useHistoricalData, useWeekOverWeek, useMonthOverMonth, useBurnRate } from "../hooks/useAnalytics";
 import { MonthPicker } from "../components/MonthPicker";
 import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
+import { BurnVelocityCard } from "../components/insights/BurnVelocityCard";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
 
 export function Insights() {
@@ -58,6 +59,8 @@ export function Insights() {
   const momData = useMonthOverMonth(monthYear);
   const highestCategory =
     sortedCategories.length > 0 ? sortedCategories[0].name : null;
+
+  const burnRateData = useBurnRate(monthSetup?.monthlyBudget || 0, totalExpense);
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
@@ -139,6 +142,11 @@ export function Insights() {
           compact={true}
         />
       </div>
+
+      {/* ── Burn Velocity Meter (Current Month Only) ────────────────────── */}
+      {isCurrentMonth && monthSetup?.monthlyBudget && monthSetup.monthlyBudget > 0 ? (
+        <BurnVelocityCard burnRateData={burnRateData} budget={monthSetup.monthlyBudget} />
+      ) : null}
 
       {/* ── Narrative Insights Card ─────────────────────────────────────── */}
       <div className="glass-card fade-in-up delay-1 mb-4 overflow-hidden border border-black/5 dark:border-white/5 bg-(--bg-glass-strong)">

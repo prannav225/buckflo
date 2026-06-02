@@ -64,7 +64,7 @@ export function DashboardHeroCard({
           <div className="h-1 bg-white/22 rounded-full overflow-hidden mb-3">
             <div
               className={`h-full rounded-full transition-[width] duration-500 ease-in-out ${
-                overBudget ? "bg-[#ff8a8a]" : "bg-white/88"
+                overBudget ? "bg-[#ff8a8a]" : spentPct >= 80 ? "bg-[#fcd34d]" : "bg-white/88"
               }`}
               style={{ width: `${spentPct}%` }}
             />

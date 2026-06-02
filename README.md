@@ -11,10 +11,12 @@ buckflo provides a premium, frictionless experience for tracking your daily expe
 - **Zero-to-One Onboarding:** Effortlessly explore the app's full capabilities from day one using the Seed Data Generator to safely mock months of transactions, subscriptions, and saving goals.
 - **Personalized Profile Setup:** Quick onboarding that creates a local user profile, with alphabet-only name validation and unique, brand-colored deterministic SVG avatars (via `boring-avatars`).
 - **Consolidated Profile & Theme Control:** Minimalist profile settings grouped into elegant list rows with dividers. Includes a custom-designed upward-opening theme dropdown selector to choose between Light, Dark, and System modes.
-- **Dual-Account Architecture:** Seamlessly manage and transfer funds between your day-to-day **Expenditure** account and your long-term **Savings** account.
-- **Database Self-Healing (Auto-Reconciliation):** Ensures 100% balance integrity with automated transaction-based background audits on application load, correcting account desynchronizations instantly.
+- **Income-Based Onboarding Wizard:** A smarter way to plan your month. Start with your income, subtract fixed costs, and effortlessly assign the leftover unassigned funds to savings or flexible spending.
+- **Dual-Wallet Architecture:** Seamlessly manage and transfer funds between your day-to-day **Spending Wallet** and your long-term **Savings Wallet**.
+- **Database Self-Healing (Auto-Reconciliation):** Ensures 100% balance integrity with automated transaction-based background audits on application load, correcting wallet desynchronizations instantly.
 - **Intelligent Analytics & Smart Notifications:**
   - **Smart Surplus Advisor:** Calculates your average burn rate and recommends moving surplus funds to Savings if a safe buffer is exceeded.
+  - **Monthly Close Summary:** An interactive, story-like review screen to close out your previous month, highlighting net changes and surplus savings opportunities.
   - **Narrative Insights:** View a dynamically generated, word-by-word animated human-readable summary of your current spending trajectory or historical retrospective month-over-month performance.
   - **Subscription Tracking & Auto-Pay:** Automatically detects recurring bills, surfaces due date warnings in the Notification Hub, and allows one-tap actions to advance or pause autopay schedules.
   - **Persistent Notification Hub:** All alerts, budget warnings, and advisor recommendations are securely persisted to a local database for historical recall in the History tab.

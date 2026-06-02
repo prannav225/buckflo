@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { Calendar, Home, Plus, BarChart2, History } from "lucide-react";
+import { hapticFeedback } from "../../utils/haptics";
 
 const navItems = [
   { to: "/home", end: false, label: "Home", id: "nav-home", Icon: Home },
@@ -26,6 +27,7 @@ export function BottomNav() {
             key={id}
             to={to}
             end={end}
+            onClick={() => hapticFeedback.light()}
             className={({ isActive }) =>
               isFab
                 ? `flex items-center justify-center text-white w-10 h-10 rounded-full shadow-[0_4px_14px_rgba(217,119,87,0.35)] transition-[transform,background] duration-200 active:scale-90 cursor-pointer mx-1.5 shrink-0 nav-item-fab ${

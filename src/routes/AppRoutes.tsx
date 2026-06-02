@@ -1,23 +1,71 @@
+import { Suspense, lazy } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AppLayout } from "../components/layout/AppLayout";
-import { Dashboard } from "../pages/Dashboard";
-import { MonthlyView } from "../pages/MonthlyView";
-import { SavingsView } from "../pages/SavingsView";
-import { AddEditTransaction } from "../pages/AddEditTransaction";
-import { MonthlyTransactionsView } from "../pages/MonthlyTransactionsView";
-import { Insights } from "../pages/Insights";
 import { useMonthSetup } from "../db/hooks";
-import { PrivacyPolicy } from "../pages/PrivacyPolicy";
-import { TermsConditions } from "../pages/TermsConditions";
-import { ProfilePage } from "../pages/ProfilePage";
-import { EditProfilePage } from "../pages/EditProfilePage";
-import { ProfileSetupPage } from "../pages/ProfileSetupPage";
-import { AboutPage } from "../pages/AboutPage";
-import { ManageCategoriesPage } from "../pages/ManageCategoriesPage";
 import { useProfile } from "../hooks/useProfile";
-import { LandingPage } from "../pages/LandingPage";
-import { NotificationsPage } from "../pages/NotificationsPage";
 import { useNotificationScheduler } from "../hooks/useNotificationScheduler";
+
+
+// Lazy loaded pages
+const Dashboard = lazy(() =>
+  import("../pages/Dashboard").then((m) => ({ default: m.Dashboard })),
+);
+const MonthlyView = lazy(() =>
+  import("../pages/MonthlyView").then((m) => ({ default: m.MonthlyView })),
+);
+const SavingsView = lazy(() =>
+  import("../pages/SavingsView").then((m) => ({ default: m.SavingsView })),
+);
+const AddEditTransaction = lazy(() =>
+  import("../pages/AddEditTransaction").then((m) => ({
+    default: m.AddEditTransaction,
+  })),
+);
+const MonthlyTransactionsView = lazy(() =>
+  import("../pages/MonthlyTransactionsView").then((m) => ({
+    default: m.MonthlyTransactionsView,
+  })),
+);
+const Insights = lazy(() =>
+  import("../pages/Insights").then((m) => ({ default: m.Insights })),
+);
+const PrivacyPolicy = lazy(() =>
+  import("../pages/PrivacyPolicy").then((m) => ({ default: m.PrivacyPolicy })),
+);
+const TermsConditions = lazy(() =>
+  import("../pages/TermsConditions").then((m) => ({
+    default: m.TermsConditions,
+  })),
+);
+const ProfilePage = lazy(() =>
+  import("../pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
+);
+const EditProfilePage = lazy(() =>
+  import("../pages/EditProfilePage").then((m) => ({
+    default: m.EditProfilePage,
+  })),
+);
+const ProfileSetupPage = lazy(() =>
+  import("../pages/ProfileSetupPage").then((m) => ({
+    default: m.ProfileSetupPage,
+  })),
+);
+const AboutPage = lazy(() =>
+  import("../pages/AboutPage").then((m) => ({ default: m.AboutPage })),
+);
+const ManageCategoriesPage = lazy(() =>
+  import("../pages/ManageCategoriesPage").then((m) => ({
+    default: m.ManageCategoriesPage,
+  })),
+);
+const LandingPage = lazy(() =>
+  import("../pages/LandingPage").then((m) => ({ default: m.LandingPage })),
+);
+const NotificationsPage = lazy(() =>
+  import("../pages/NotificationsPage").then((m) => ({
+    default: m.NotificationsPage,
+  })),
+);
 
 const routesConfig = [
   { path: "/home", element: <Dashboard />, isTab: true },
@@ -28,10 +76,10 @@ const routesConfig = [
     isTab: true,
   },
   { path: "/insights", element: <Insights />, isTab: true },
-  { path: "/savings", element: <SavingsView />, isTab: false }, // Savings is now deep-linked
+  { path: "/savings", element: <SavingsView />, isTab: false },
   { path: "/add", element: <AddEditTransaction />, isTab: false },
   { path: "/edit/:id", element: <AddEditTransaction />, isTab: false },
-  { path: "/profile", element: <ProfilePage />, isTab: false }, // Profile page replaces Settings in BottomNav
+  { path: "/profile", element: <ProfilePage />, isTab: false },
   { path: "/profile/edit", element: <EditProfilePage />, isTab: false },
   { path: "/profile/about", element: <AboutPage />, isTab: false },
   {
@@ -46,10 +94,17 @@ const routesConfig = [
   },
 ];
 
+function SuspenseFallback() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[50vh] w-full">
+      <div className="w-8 h-8 border-3 border-(--border) border-t-(--accent) rounded-full animate-spin my-8" />
+    </div>
+  );
+}
+
 function LandingPageWrapper({ hasProfile }: { hasProfile: boolean }) {
   const navigate = useNavigate();
 
-  // Synchronous check to avoid any visual flicker on load
   const isStandalone =
     window.matchMedia("(display-mode: standalone)").matches ||
     (navigator as unknown as { standalone?: boolean }).standalone ||
@@ -60,15 +115,17 @@ function LandingPageWrapper({ hasProfile }: { hasProfile: boolean }) {
   }
 
   return (
-    <LandingPage
-      onStart={() => {
-        if (hasProfile) {
-          navigate("/home");
-        } else {
-          navigate("/setup");
-        }
-      }}
-    />
+    <Suspense fallback={<SuspenseFallback />}>
+      <LandingPage
+        onStart={() => {
+          if (hasProfile) {
+            navigate("/home");
+          } else {
+            navigate("/setup");
+          }
+        }}
+      />
+    </Suspense>
   );
 }
 
@@ -92,7 +149,13 @@ export function AppRoutes() {
       <Route
         path="/setup"
         element={
-          !hasProfile ? <ProfileSetupPage /> : <Navigate to="/home" replace />
+          !hasProfile ? (
+            <Suspense fallback={<SuspenseFallback />}>
+              <ProfileSetupPage />
+            </Suspense>
+          ) : (
+            <Navigate to="/home" replace />
+          )
         }
       />
       <Route
@@ -100,7 +163,9 @@ export function AppRoutes() {
         element={
           <AppLayout>
             <div className="page-transition-sheet">
-              <PrivacyPolicy />
+              <Suspense fallback={<SuspenseFallback />}>
+                <PrivacyPolicy />
+              </Suspense>
             </div>
           </AppLayout>
         }
@@ -110,7 +175,9 @@ export function AppRoutes() {
         element={
           <AppLayout>
             <div className="page-transition-sheet">
-              <TermsConditions />
+              <Suspense fallback={<SuspenseFallback />}>
+                <TermsConditions />
+              </Suspense>
             </div>
           </AppLayout>
         }
@@ -120,26 +187,28 @@ export function AppRoutes() {
         element={
           hasProfile ? (
             <AppLayout>
-              <Routes>
-                {routesConfig.map(({ path, element, isTab }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    element={
-                      <div
-                        className={
-                          isTab
-                            ? "page-transition-tab"
-                            : "page-transition-sheet"
-                        }
-                      >
-                        {element}
-                      </div>
-                    }
-                  />
-                ))}
-                <Route path="*" element={<Navigate to="/home" replace />} />
-              </Routes>
+              <Suspense fallback={<SuspenseFallback />}>
+                <Routes>
+                  {routesConfig.map(({ path, element, isTab }) => (
+                    <Route
+                      key={path}
+                      path={path}
+                      element={
+                        <div
+                          className={
+                            isTab
+                              ? "page-transition-tab"
+                              : "page-transition-sheet"
+                          }
+                        >
+                          {element}
+                        </div>
+                      }
+                    />
+                  ))}
+                  <Route path="*" element={<Navigate to="/home" replace />} />
+                </Routes>
+              </Suspense>
             </AppLayout>
           ) : (
             <Navigate to="/setup" replace />

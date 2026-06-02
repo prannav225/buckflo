@@ -16,7 +16,7 @@ This document details the application architecture, database schemas, custom hoo
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) using modern CSS Custom Properties, glassmorphism systems, and theme variables.
 - **Visual Elements**: [Boring Avatars](https://github.com/hihayk/boring-avatars) for brand-tailored, deterministic SVG avatar generation.
 - **Utility Libraries**: `date-fns` for robust date math, `lucide-react` for iconography.
-- **Target Audience**: Users seeking clean separate tracking of everyday Expenditure vs long-term Savings.
+- **Target Audience**: Users seeking clean separate tracking of everyday Spending vs long-term Savings.
 
 ---
 
@@ -27,34 +27,34 @@ Below is the step-by-step operational guide for the application:
 ### Step 1: Complete Profile Setup & Onboarding
 
 1.  **Profile Setup Gate**: On first launch, you are prompted to input your display name. Special characters, spaces, and numbers are blocked, enforcing alphabet-only validation up to 20 characters. This name is used to generate a unique, brand-colored deterministic avatar.
-2.  **Onboarding slides**: Swipe through the slides to understand how buckflo manages your cash flow across two separate accounts (Expenditure and Savings).
+2.  **Onboarding slides**: Swipe through the slides to understand how buckflo manages your cash flow across two separate wallets (Spending and Savings).
 3.  If you choose **"Skip for now"** during month setup, the app loads the dashboard immediately but hides transactional tracking. To begin, tap **"Set Up Now"** inside the orange dashboard card.
 4.  Fill out the **New Month Setup** form:
     - **Currency Selection**: Pick your preferred currency (₹, $, €, £). The app handles global currency formatting.
     - **Seed Sample Data** (Optional): A checkbox to instantly populate the app with mocked transactions, budgets, goals, and subscriptions—perfect for exploring the app's smart features without manual data entry.
-    - **Expenditure Opening Balance**: Starting funds available for daily spending.
+    - **Spending Wallet Opening Balance**: Starting funds available for daily spending.
     - **Monthly Budget**: Total amount you plan to spend this month.
     - **Category Budgets** (Optional): Set individual budgets for standard categories.
-    - **Savings Opening Balance** (Optional): Seed your Savings account balance.
-    - **Opening Transfer** (Optional): Log a starting transfer from Savings to Expenditure.
+    - **Savings Opening Balance** (Optional): Seed your Savings wallet balance.
+    - **Opening Transfer** (Optional): Log a starting transfer from Savings to Spending.
 
 ### Step 2: Log Transactions & Use Shortcuts
 
 1.  **Manual Logging**: Tap the **`+`** button in the center of the bottom navigation bar to log a transaction.
-    - Select **Debit** (Expense), **Credit** (Income), or **Transfer** (Move cash between Savings and Expenditure).
+    - Select **Debit** (Expense), **Credit** (Income), or **Transfer** (Move cash between Savings and Spending).
     - Fill out the Amount, Category, Date, and Description.
 2.  **One-Tap Presets**: Once you log repeated transactions, the dashboard automatically surfaces them under **Quick Presets** (e.g. _"Coffee — ₹80"_). Tap any preset to log it instantly.
 
 ### Step 3: Track Burn Rate & Feed
 
-1.  **Dashboard Balance Card**: Shows your current Expenditure balance and remaining budget. It calculates a dynamic **Daily budget left** based on how many days are left in the month.
+1.  **Dashboard Balance Card**: Shows your current Spending wallet balance and remaining budget. It calculates a dynamic **Daily budget left** based on how many days are left in the month.
 2.  **Monthly Feed**: Navigate to the **Monthly** tab (`/monthly`) to view all daily transactions, check running balances after each transaction, and analyze visual budget progress bars per category.
 
 ### Step 4: Manage Savings Goals
 
 1.  Navigate to the **Savings** tab (`/savings`).
 2.  Tap **"Create Goal"** to define a savings target (description, target amount, optional deadline).
-3.  Allocate money directly into goals from your Savings account balance. The app calculates remaining funding required and highlights achieved goals.
+3.  Allocate money directly into goals from your Savings wallet balance. The app calculates remaining funding required and highlights achieved goals.
 
 ### Step 5: Insights & Bill Notifications
 
@@ -64,7 +64,7 @@ Below is the step-by-step operational guide for the application:
 2.  **Notification Hub**: Tap the Bell icon in the header to check alerts:
     - Category budget threshold warnings (80% and 100%+ spent).
     - Bill reminders (due within 7 days).
-    - **Smart Allocation Advisor**: Sweeps excess Expenditure funds into Savings with one tap.
+    - **Smart Allocation Advisor**: Sweeps excess Spending funds into Savings with one tap.
 
 ---
 
@@ -101,7 +101,7 @@ Data persistence relies on **IndexedDB** wrapped in Dexie. Configured in [`src/d
 ### Table Schemas & Indexes (Upgraded to v8)
 
 - **`accounts`**: Stores account records. Seeded on setup with two accounts.
-  - _Schema_: `{ id?: number, name: string, type: 'expenditure' | 'savings', currentBalance: number }`
+  - _Schema_: `{ id?: number, name: string, type: 'spending' | 'savings', currentBalance: number }`
   - _Indexes_: `++id, type`
 - **`monthSetups`**: Defines the target parameters of a month.
   - _Schema_: `{ id?: number, monthYear: string, openingBalance: number, monthlyBudget: number, accountId: number, categoryBudgets?: Record<string, number> }`
@@ -132,8 +132,8 @@ Data persistence relies on **IndexedDB** wrapped in Dexie. Configured in [`src/d
 
 On initial startup, `database.ts` hooks into the Dexie `populate` event to seed:
 
-1.  **Expenditure Account** (ID `1`, type `'expenditure'`, starting balance `₹0`).
-2.  **Savings Account** (ID `2`, type `'savings'`, starting balance `₹0`).
+1.  **Spending Wallet** (ID `1`, type `'spending'`, starting balance `₹0`).
+2.  **Savings Wallet** (ID `2`, type `'savings'`, starting balance `₹0`).
 
 ### Transactional Integrity Helper Functions
 
@@ -149,13 +149,18 @@ Operations modifying balances utilize transactional helper functions to enforce 
 To prevent discrepancies between stored account balances and transaction totals:
 
 - **`useDatabaseSync` Hook**: Loaded on app startup inside `AppLayout.tsx`. It runs a one-time background reconciliation.
-- **Savings Account**: Sums all historical savings transactions to recalculate and correct the Savings Account balance.
-- **Expenditure Account**: Recalculates balance by taking the active month's `MonthSetup.openingBalance` plus/minus all transactions recorded within the active month.
-- Overwrites the accounts' `currentBalance` values only if a mismatch is found.
+- **Savings Wallet**: Sums all historical savings transactions to recalculate and correct the Savings Wallet balance.
+- **Spending Wallet**: Recalculates balance by taking the active month's `MonthSetup.openingBalance` plus/minus all transactions recorded within the active month.
+- Overwrites the wallets' `currentBalance` values only if a mismatch is found.
 
 ### Database Upgrades & Migration (`migration.ts`)
 
 The database schema is heavily versioned (currently v8) to gracefully handle feature expansions like the `notifications` table or multi-currency `profile` settings. If a user updates their app from an older version, Dexie intercepts the initialization and executes custom upgrader logic defined in `src/db/migration.ts` to transform their legacy data safely.
+
+Specifically, `migration.ts` orchestrates the upgrade path from v7 to v8, ensuring full schema evolution without data loss. It performs several critical data transformations:
+- Scans and upgrades the `profile` table to include the new `monthlyIncome` schema.
+- Transforms legacy `Account` definitions by migrating the string types (`'expenditure'`, `'savings'`) to align with the new Wallet terminology (`'spending'`, `'savings'`).
+- Renames the physical database from `PocketLedgerDB` to `BuckfloDB` securely, copying over all tables, records, and preferences.
 
 ---
 
@@ -164,7 +169,7 @@ The database schema is heavily versioned (currently v8) to gracefully handle fea
 **buckflo** contains a collection of smart analytical engines inside [`src/hooks/useAnalytics.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useAnalytics.ts) and [`src/hooks/useNotificationHub.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useNotificationHub.ts):
 
 > [!NOTE]
-> **Data Aggregation Rule (Wealth Accumulation):** Across all analytical engines (Insights charts, Week-over-Week, Month-over-Month, Category Budgets, and Burn Rates), the application explicitly ignores debit transactions logged with the `transfer` or `opening-transfer` category. Moving funds from Expenditure to Savings is treated mathematically as wealth accumulation, ensuring it never penalizes the user's budget progress or triggers false spending alerts.
+> **Data Aggregation Rule (Wealth Accumulation):** Across all analytical engines (Insights charts, Week-over-Week, Month-over-Month, Category Budgets, and Burn Rates), the application explicitly ignores debit transactions logged with the `transfer` or `opening-transfer` category. Moving funds from Spending to Savings is treated mathematically as wealth accumulation, ensuring it never penalizes the user's budget progress or triggers false spending alerts.
 
 ### 1. Frequent Presets Auto-Detection (`useFrequentPresets`)
 
@@ -181,7 +186,7 @@ Tracks recurring billing patterns (detecting intervals between 25 and 35 days) o
 
 ### 4. Smart Surplus Allocation Advisor (`useSmartAllocationPrompt`)
 
-Calculates the user's average daily spend (burn rate) to project remaining spending for the month. This check is strictly validated against the reconstructed monthly closing balance (`summary.closingBalance`) of the Expenditure Account (aligning with the Expenditure Balance displayed to the user). If the balance exceeds the projected remaining spend by a safe margin of **₹1,000+**, it recommends transferring the surplus to the Savings Account via a "Move Now" shortcut button.
+Calculates the user's average daily spend (burn rate) to project remaining spending for the month. This check is strictly validated against the reconstructed monthly closing balance (`summary.closingBalance`) of the Spending Wallet (aligning with the Spending Balance displayed to the user). If the balance exceeds the projected remaining spend by a safe margin of **₹1,000+**, it recommends transferring the surplus to the Savings Wallet via a "Move Now" shortcut button.
 
 ### 5. Persistent Notification History
 
@@ -190,7 +195,7 @@ All alerts triggered by smart analytical engines are transient by nature. Howeve
 ### 6. Automated Month Carry-Forward & Budget Cloning
 
 **Q: What happens when a month ends? Does the balance roll over?**
-A: Yes. On the first of a new month, remaining balances from the previous month are dynamically calculated via `useOpeningBalanceReconstructor`. The leftover Expenditure balance is automatically presented to the user as the default "Opening Balance" during the New Month Setup prompt.
+A: Yes. On the first of a new month, remaining balances from the previous month are dynamically calculated via `useOpeningBalanceReconstructor`. The leftover Spending wallet balance is automatically presented to the user as the default "Opening Balance" during the New Month Setup prompt.
 
 **Q: Do users have to re-enter category budgets every month?**
 A: No. Users can tap the "Copy from last month" shortcut during month setup. This instantly maps their previous month's total budgets and granular category allocations to the new month, drastically reducing friction.
@@ -205,7 +210,7 @@ A: If a deadline is defined, the system automatically checks the target amount a
 The Insights page is topped with a sleek, animated "Smart Summary" powered by a `RichWordFadeIn` word-by-word reveal. Upon triggering:
 
 - **For Current Month**: It processes `useWeekOverWeek` analytics to generate a human-readable narrative comparing recent spend trajectories over the last 7 days.
-- **For Past Months**: It falls back to `useMonthOverMonth` logic, generating a retrospective summary that compares the selected month's total expenditure against the month prior and points out the highest spend category.
+- **For Past Months**: It falls back to `useMonthOverMonth` logic, generating a retrospective summary that compares the selected month's total spending against the month prior and points out the highest spend category.
 
 ### 9. Projected Budget Exhaustion Day (`useBurnRate`)
 
@@ -232,13 +237,13 @@ A `usePWAInstall` hook actively listens for the browser's native `beforeinstallp
 
 ### 14. Database Self-Healing (Auto-Reconciliation)
 
-Powered by the `useDatabaseSync` hook, buckflo runs a background reconciliation sweep on app startup. It recalculates the balances of both the Savings and Expenditure accounts by summarizing the entire transaction ledger and the active month's opening balance, automatically correcting any database drift or discrepancies without user intervention.
+Powered by the `useDatabaseSync` hook, buckflo runs a background reconciliation sweep on app startup. It recalculates the balances of both the Savings and Spending wallets by summarizing the entire transaction ledger and the active month's opening balance, automatically correcting any database drift or discrepancies without user intervention.
 
 ### 15. Automatic Bill Payment (Autopay Engine)
 
 The [`useAutopayTrigger`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useAutopayTrigger.ts) hook fires 1 second after onboarding confirmation. It calls [`processAutopaySubscriptions`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/utils/autopay.ts) which scans all active subscriptions whose `nextDueDate` is today or past. For each due subscription, it:
 
-1. Records a debit transaction on the Expenditure account (using the subscription's scheduled date for historical accuracy).
+1. Records a debit transaction on the Spending wallet (using the subscription's scheduled date for historical accuracy).
 2. Advances the subscription's `nextDueDate` by its frequency (weekly/monthly/yearly).
 3. Surfaces a toast notification confirming the autopay execution.
    All mutations run inside a single Dexie transaction for atomicity.

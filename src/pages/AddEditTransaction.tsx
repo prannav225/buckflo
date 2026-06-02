@@ -6,19 +6,19 @@ import {
   Trash2,
   ArrowDownLeft,
   ArrowUpRight,
-  CreditCard,
-  PiggyBank,
   Upload,
 } from "lucide-react";
 import { useTransactionForm } from "../hooks/useTransactionForm";
 import { useConfirm } from "../hooks/useConfirm";
 import { formatINR } from "../utils/currency";
-import { CustomDatePicker } from "../components/CustomDatePicker";
+import { hapticFeedback } from "../utils/haptics";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
 import { useCategories } from "../hooks/useCategories";
 import { updateSheetOpenState } from "../utils/modalHelper";
 import { ImportModal } from "../components/transactions/ImportModal";
 import { db } from "../db/database";
+import { TransactionAmountCard } from "../components/transactions/form/TransactionAmountCard";
+import { TransactionDetailsCard } from "../components/transactions/form/TransactionDetailsCard";
 
 export function AddEditTransaction() {
   const [showImport, setShowImport] = useState(false);
@@ -47,9 +47,7 @@ export function AddEditTransaction() {
   } = useTransactionForm();
 
   const categories = useCategories();
-  const amountInputRef = useRef<HTMLInputElement>(null);
   
-  // Inline category creation
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const categoryInputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +57,7 @@ export function AddEditTransaction() {
     if (name) {
       await db.categories.add({
         name,
-        color: "#d97757", // Default brand color
+        color: "#d97757",
         isCustom: true,
         createdAt: Date.now(),
       });
@@ -69,21 +67,12 @@ export function AddEditTransaction() {
     setNewCategoryName("");
   };
 
-  // Keep body styling in sync with modal state
   useEffect(() => {
     updateSheetOpenState();
     return () => {
       setTimeout(updateSheetOpenState, 0);
     };
   }, []);
-
-  // Auto-focus amount on mount for add mode (after data load)
-  useEffect(() => {
-    if (!fetching && !isEdit) {
-      const t = setTimeout(() => amountInputRef.current?.focus(), 200);
-      return () => clearTimeout(t);
-    }
-  }, [fetching, isEdit]);
 
   const handleBack = () => {
     navigate(-1);
@@ -114,7 +103,6 @@ export function AddEditTransaction() {
       >
         <div className="sheet-handle" />
 
-        {/* ── Sheet Header ─────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between mb-5">
           <div>
             <h3 className="text-xl tracking-[-0.02em] m-0">
@@ -166,8 +154,13 @@ export function AddEditTransaction() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          {/* Transaction Type Toggle */}
+        <form
+          onSubmit={(e) => {
+            hapticFeedback.medium();
+            handleSubmit(e);
+          }}
+          className="flex flex-col gap-3"
+        >
           <SegmentedControl
             idPrefix="page-type"
             options={["debit", "credit"] as const}
@@ -187,182 +180,35 @@ export function AddEditTransaction() {
             }
           />
 
-          {/* Amount Hero Card — tappable display */}
-          <div
-            className={`hero-card ${type === "debit" ? "hero-card-orange" : "hero-card-green"} cursor-text mb-2`}
-            onClick={() => amountInputRef.current?.focus()}
-          >
-            <div className="hero-card-orb-lg" />
-            <div className="hero-card-orb-sm" />
+          <TransactionAmountCard
+            type={type}
+            amount={amount}
+            setAmount={setAmount}
+            parsedAmt={parsedAmt}
+            isEdit={isEdit}
+            fetching={fetching}
+          />
 
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-sans text-[0.6875rem] font-semibold text-[rgba(255,255,255,0.65)] tracking-[0.08em] uppercase">
-                Amount
-              </span>
-              <span className="font-sans text-[0.6875rem] text-[rgba(255,255,255,0.50)] tracking-wider">
-                Tap to edit
-              </span>
-            </div>
+          <TransactionDetailsCard
+            description={description}
+            setDescription={setDescription}
+            accountId={accountId}
+            setAccountId={setAccountId}
+            spendingAcc={spendingAcc}
+            savingsAcc={savingsAcc}
+            category={category}
+            setCategory={setCategory}
+            categories={categories}
+            date={date}
+            setDate={setDate}
+            isAddingCategory={isAddingCategory}
+            setIsAddingCategory={setIsAddingCategory}
+            newCategoryName={newCategoryName}
+            setNewCategoryName={setNewCategoryName}
+            handleSaveNewCategory={handleSaveNewCategory}
+            categoryInputRef={categoryInputRef as React.RefObject<HTMLInputElement>}
+          />
 
-            <div className="amount-display flex items-baseline text-white relative z-10">
-              <span
-                className="text-[clamp(1.75rem,8vw,2.25rem)] mr-1.5 font-medium opacity-85"
-                style={{
-                  fontFamily: "'Instrument Serif', Georgia, serif",
-                  fontSize: "clamp(1.75rem, 8vw, 2.25rem)",
-                }}
-              >
-                ₹
-              </span>
-              <input
-                id="page-tx-amount"
-                ref={amountInputRef}
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0"
-                required
-                className={`bg-transparent border-none outline-none text-[clamp(2.25rem,10vw,3rem)] ${
-                  parsedAmt > 0 ? "text-white" : "text-[rgba(255,255,255,0.40)]"
-                } w-full p-0 m-0 shadow-none leading-none font-normal`}
-                style={{
-                  fontFamily: "'Instrument Serif', Georgia, serif",
-                  fontSize: "clamp(2.25rem, 10vw, 3rem)",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Details Card */}
-          <div className="glass-card p-5 flex flex-col gap-4">
-            {/* Description */}
-            <div className="form-group m-0">
-              <label className="label" htmlFor="page-tx-desc">
-                Description
-              </label>
-              <input
-                id="page-tx-desc"
-                type="text"
-                placeholder="What was this transaction for?"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="input-field"
-                required
-              />
-            </div>
-
-            {/* Account */}
-            <div className="form-group m-0">
-              <span className="label">Account</span>
-              <div className="flex gap-2.5">
-                {spendingAcc && (
-                  <button
-                    type="button"
-                    className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                      accountId === spendingAcc.id ? "chip-active" : ""
-                    }`}
-                    onClick={() => setAccountId(spendingAcc.id!)}
-                    id="page-acc-spending"
-                  >
-                    <CreditCard size={16} /> <span>Spending</span>
-                  </button>
-                )}
-                {savingsAcc && (
-                  <button
-                    type="button"
-                    className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                      accountId === savingsAcc.id ? "chip-active-green" : ""
-                    }`}
-                    onClick={() => setAccountId(savingsAcc.id!)}
-                    id="page-acc-savings"
-                  >
-                    <PiggyBank size={16} /> <span>Savings</span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Category */}
-            <div className="form-group m-0">
-              <span className="label">
-                Category{" "}
-                <span className="font-normal opacity-60">— optional</span>
-              </span>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {categories
-                  .filter((c) => c.name !== "Transfer" && c.name !== "transfer")
-                  .map((c) => (
-                    <button
-                      key={c.id ?? c.name}
-                      type="button"
-                      className={`chip py-2 px-4 text-[0.8125rem] ${
-                        category === c.name ? "chip-active" : ""
-                      }`}
-                      onClick={() => setCategory(category === c.name ? "" : c.name)}
-                      id={`page-cat-${c.name.toLowerCase()}`}
-                    >
-                      {c.name}
-                    </button>
-                  ))}
-                  
-                {isAddingCategory ? (
-                  <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 rounded-full pl-3 pr-1 py-1 border border-black/10 dark:border-white/10">
-                    <input
-                      ref={categoryInputRef}
-                      type="text"
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
-                      placeholder="Name..."
-                      className="bg-transparent border-none outline-none text-[0.8125rem] text-(--text) w-20 p-0 m-0"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleSaveNewCategory();
-                        } else if (e.key === "Escape") {
-                          setIsAddingCategory(false);
-                        }
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSaveNewCategory}
-                      className="w-6 h-6 flex items-center justify-center bg-(--accent) text-white rounded-full transition-transform active:scale-90 cursor-pointer"
-                    >
-                      <Check size={12} strokeWidth={3} />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="chip py-2 px-4 text-[0.8125rem] border-dashed border-black/20 dark:border-white/20 hover:border-black/40 dark:hover:border-white/40 bg-transparent cursor-pointer"
-                    onClick={() => {
-                      setIsAddingCategory(true);
-                      setTimeout(() => categoryInputRef.current?.focus(), 50);
-                    }}
-                  >
-                    + New
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Date */}
-            <div className="form-group m-0">
-              <label className="label" htmlFor="page-tx-date">
-                Date
-              </label>
-              <CustomDatePicker
-                id="page-tx-date"
-                value={date}
-                onChange={setDate}
-              />
-            </div>
-          </div>
-
-          {/* Submit */}
           <div className="mt-1">
             <button
               type="submit"

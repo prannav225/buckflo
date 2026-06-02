@@ -105,6 +105,14 @@ export function ManageCategoriesPage() {
         </button>
       </div>
 
+      <div className="glass-card p-4 mb-4 bg-(--accent)/5 border-(--accent)/20 fade-in-up">
+        <p className="font-sans text-xs text-(--text-secondary) leading-relaxed m-0">
+          <strong>Note:</strong> These are all the categories available for logging transactions. 
+          The categories you select in the Setup Wizard are your "Watched" categories, which are highlighted 
+          in your monthly insights. You can add or delete categories here at any time.
+        </p>
+      </div>
+
       {/* Create Category Form */}
       {showForm && (
         <form

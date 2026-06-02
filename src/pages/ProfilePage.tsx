@@ -1,38 +1,29 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import {
-  ChevronRight,
-  Wallet,
-  PiggyBank,
-  Palette,
-  Zap,
-  Sliders,
-  Download,
-  Calendar,
-  Info,
-  Pencil,
-  Upload,
-  Trash2,
-  Bell,
-} from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 import { exportDatabase, importDatabase, wipeDatabase } from "../utils/backup";
 import toast from "react-hot-toast";
-import { useRef } from "react";
 import { useTheme, type Theme } from "../context/ThemeContext";
 import { useAccount } from "../db/hooks";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db/database";
-import { formatINR } from "../utils/currency";
 import { getCurrentMonthYear } from "../utils/dateUtils";
 import { ExportSheet } from "../components/transactions/ExportSheet";
 import { MonthInitModal } from "../components/MonthInitModal";
 import { useConfirm } from "../hooks/useConfirm";
 import { CreatePresetSheet } from "../components/transactions/CreatePresetSheet";
-import { CustomDropdown } from "../components/layout/CustomDropdown";
 import { BrandedAvatar } from "../components/layout/BrandedAvatar";
 import packageJson from "../../package.json";
+import { PixelBanner } from "../components/layout/PixelBanner";
+import {
+  AccountsSection,
+  CustomizationSection,
+  DataBackupSection,
+  AboutSection,
+  DangerZoneSection,
+} from "../components/profile/ProfileSections";
 
 const themeOptions = [
   { value: "light" as const, label: "Light" },
@@ -40,23 +31,12 @@ const themeOptions = [
   { value: "system" as const, label: "System" },
 ];
 
-import { PixelBanner } from "../components/layout/PixelBanner";
-
 export function ProfilePage() {
   const navigate = useNavigate();
   const { confirm, dialog } = useConfirm();
   const { profile, updateProfile } = useProfile();
   const { theme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleThemeChange = async (newTheme: Theme) => {
-    setTheme(newTheme);
-    try {
-      await updateProfile({ theme: newTheme });
-    } catch (err) {
-      console.error("Failed to save theme:", err);
-    }
-  };
 
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isMonthSetupOpen, setIsMonthSetupOpen] = useState(false);
@@ -73,10 +53,71 @@ export function ProfilePage() {
   const currentMonth = getCurrentMonthYear();
   const transactionCount = useLiveQuery(() => db.transactions.count(), []) ?? 0;
 
+  const handleThemeChange = async (newTheme: Theme) => {
+    setTheme(newTheme);
+    try {
+      await updateProfile({ theme: newTheme });
+    } catch (err) {
+      console.error("Failed to save theme:", err);
+    }
+  };
+
+  const handleBackup = async () => {
+    try {
+      await exportDatabase();
+      toast.success("Backup downloaded successfully.");
+    } catch {
+      toast.error("Failed to export backup.");
+    }
+  };
+
+  const handleWipeData = async () => {
+    const conf1 = await confirm({
+      title: "Wipe All Data",
+      message: "Are you absolutely sure you want to wipe all data? This is permanent and cannot be undone.",
+      confirmLabel: "Wipe Data",
+      variant: "danger",
+    });
+    if (!conf1) return;
+
+    try {
+      await wipeDatabase(true);
+      toast.success("App data wiped successfully.");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+    } catch {
+      toast.error("Failed to wipe data.");
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const conf = await confirm({
+        title: "Restore Backup",
+        message: "This will replace all your current data with the backup. Are you sure?",
+        confirmLabel: "Restore",
+        variant: "danger",
+      });
+      if (!conf) return;
+      await importDatabase(file);
+      toast.success("Backup restored! Please restart the app.");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (err) {
+      console.error("Failed to restore database backup:", err);
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to restore backup: ${msg}`);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   return (
     <>
       <div className="flex flex-col gap-6 fade-in-up">
-        {/* Profile Header (Seamless translucent band, not a card) */}
         <div className="profile-header-card">
           <PixelBanner
             seed={`${displayName}-${profile?.createdAt ? new Date(profile.createdAt).getTime() : "0"}`}
@@ -111,412 +152,39 @@ export function ProfilePage() {
                 Member since {memberSince}
               </p>
               <p className="m-0 text-xs text-(--accent) font-semibold tracking-wide">
-                {transactionCount}{" "}
-                {transactionCount === 1 ? "transaction" : "transactions"} logged
+                {transactionCount} {transactionCount === 1 ? "transaction" : "transactions"} logged
               </p>
             </div>
           </div>
         </div>
 
-        {/* Section: Accounts */}
-        <div className="flex flex-col gap-2">
-          <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
-            ACCOUNTS
-          </h3>
-          <div className="glass-card overflow-hidden divide-y divide-black/5 dark:divide-white/5">
-            {/* Spending Wallet Row */}
-            <div
-              onClick={() => navigate("/home")}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-              id="profile-row-spending"
-            >
-              <div className="flex items-center gap-3.5">
-                <Wallet
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Spending Wallet
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Daily spending
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-display text-lg font-semibold text-(--text)">
-                  {spendingAcc
-                    ? formatINR(spendingAcc.currentBalance)
-                    : "₹0.00"}
-                </span>
-                <ChevronRight size={16} className="text-(--text-muted)" />
-              </div>
-            </div>
+        <AccountsSection spendingAcc={spendingAcc} savingsAcc={savingsAcc} />
 
-            {/* Savings Wallet Row */}
-            <div
-              onClick={() => navigate("/savings")}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-              id="profile-row-savings"
-            >
-              <div className="flex items-center gap-3.5">
-                <PiggyBank
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Savings Wallet
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Future goals
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-display text-lg font-semibold text-(--credit)">
-                  {savingsAcc ? formatINR(savingsAcc.currentBalance) : "₹0.00"}
-                </span>
-                <ChevronRight size={16} className="text-(--text-muted)" />
-              </div>
-            </div>
-          </div>
-        </div>
+        <CustomizationSection
+          theme={theme}
+          handleThemeChange={handleThemeChange}
+          themeOptions={themeOptions}
+          setIsCreatePresetOpen={setIsCreatePresetOpen}
+        />
 
-        {/* Section: Customization */}
-        <div className="flex flex-col gap-2">
-          <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
-            CUSTOMIZATION
-          </h3>
-          <div className="glass-card divide-y divide-black/5 dark:divide-white/5 relative z-20">
-            {/* Categories */}
-            <div
-              onClick={() => navigate("/profile/categories")}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all rounded-t-xl"
-              id="profile-row-categories"
-            >
-              <div className="flex items-center gap-3.5">
-                <Palette
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Categories
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Manage your spending categories
-                  </div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-(--text-muted)" />
-            </div>
+        <DataBackupSection
+          setIsMonthSetupOpen={setIsMonthSetupOpen}
+          setIsExportOpen={setIsExportOpen}
+          onBackup={handleBackup}
+          onRestoreClick={() => fileInputRef.current?.click()}
+        />
 
-            {/* Quick Presets */}
-            <div
-              onClick={() => setIsCreatePresetOpen(true)}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-              id="profile-row-presets"
-            >
-              <div className="flex items-center gap-3.5">
-                <Zap
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Quick Presets
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Edit your one-tap shortcuts
-                  </div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-(--text-muted)" />
-            </div>
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".json"
+          className="hidden"
+          onChange={handleFileChange}
+        />
 
-            {/* Notifications */}
-            <div
-              onClick={() => navigate("/profile/notifications")}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-              id="profile-row-notifications"
-            >
-              <div className="flex items-center gap-3.5">
-                <Bell
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Notifications
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Configure daily expense logging reminders
-                  </div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-(--text-muted)" />
-            </div>
+        <AboutSection />
 
-            {/* Appearance */}
-            <div
-              className="p-4 flex items-center justify-between w-full rounded-b-xl"
-              id="profile-row-appearance"
-            >
-              <div className="flex items-center gap-3.5">
-                <Sliders
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Appearance
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Theme and display preferences
-                  </div>
-                </div>
-              </div>
-              <CustomDropdown
-                options={themeOptions}
-                value={theme}
-                onChange={handleThemeChange}
-                id="appearance-theme-select"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Section: Data */}
-        <div className="flex flex-col gap-2">
-          <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
-            DATA & BACKUPS
-          </h3>
-          <div className="glass-card overflow-hidden divide-y divide-black/5 dark:divide-white/5">
-            {/* Month Setup */}
-            <div
-              onClick={() => setIsMonthSetupOpen(true)}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-              id="profile-row-month-setup"
-            >
-              <div className="flex items-center gap-3.5">
-                <Calendar
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Month Setup
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Review or edit current month details
-                  </div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-(--text-muted)" />
-            </div>
-
-            {/* Export History */}
-            <div
-              onClick={() => setIsExportOpen(true)}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-              id="profile-row-export"
-            >
-              <div className="flex items-center gap-3.5">
-                <Download
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Export History
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Download CSV spreadsheet of transactions
-                  </div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-(--text-muted)" />
-            </div>
-
-            {/* Backup Database */}
-            <div
-              onClick={async () => {
-                try {
-                  await exportDatabase();
-                  toast.success("Backup downloaded successfully.");
-                } catch {
-                  toast.error("Failed to export backup.");
-                }
-              }}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-              id="profile-row-backup"
-            >
-              <div className="flex items-center gap-3.5">
-                <Download
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0 rotate-180"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Backup Database
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Download a full database backup (.json)
-                  </div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-(--text-muted)" />
-            </div>
-
-            {/* Restore Database */}
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-              id="profile-row-restore"
-            >
-              <div className="flex items-center gap-3.5">
-                <Upload
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    Restore Database
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Upload and restore from a backup file (.json)
-                  </div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-(--text-muted)" />
-            </div>
-          </div>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept=".json"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              try {
-                const conf = await confirm({
-                  title: "Restore Backup",
-                  message:
-                    "This will replace all your current data with the backup. Are you sure?",
-                  confirmLabel: "Restore",
-                  variant: "danger",
-                });
-                if (!conf) return;
-                await importDatabase(file);
-                toast.success("Backup restored! Please restart the app.");
-                setTimeout(() => {
-                  window.location.reload();
-                }, 1500);
-              } catch (err) {
-                console.error("Failed to restore database backup:", err);
-                const msg = err instanceof Error ? err.message : String(err);
-                toast.error(`Failed to restore backup: ${msg}`);
-              }
-              if (fileInputRef.current) fileInputRef.current.value = "";
-            }}
-          />
-        </div>
-
-        {/* Section: About */}
-        <div className="flex flex-col gap-2">
-          <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
-            ABOUT
-          </h3>
-          <div className="glass-card overflow-hidden">
-            {/* About buckflo */}
-            <div
-              onClick={() => navigate("/profile/about")}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-              id="profile-row-about"
-            >
-              <div className="flex items-center gap-3.5">
-                <Info
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-(--text-secondary) shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                    About buckflo
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Offline-first accounting
-                  </div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-(--text-muted)" />
-            </div>
-          </div>
-        </div>
-
-        {/* Section: Danger Zone */}
-        <div className="flex flex-col gap-2">
-          <h3 className="text-[11px] font-semibold text-[#b82d23] uppercase tracking-[0.06em] px-1 mb-1 mt-2">
-            DANGER ZONE
-          </h3>
-          <div className="glass-card overflow-hidden">
-            <div
-              onClick={async () => {
-                const conf1 = await confirm({
-                  title: "Wipe All Data",
-                  message:
-                    "Are you absolutely sure you want to wipe all data? This is permanent and cannot be undone.",
-                  confirmLabel: "Wipe Data",
-                  variant: "danger",
-                });
-                if (!conf1) return;
-
-                try {
-                  await wipeDatabase(true);
-                  toast.success("App data wiped successfully.");
-                  setTimeout(() => {
-                    window.location.href = "/";
-                  }, 1000);
-                } catch {
-                  toast.error("Failed to wipe data.");
-                }
-              }}
-              className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-red-500/5 dark:hover:bg-red-500/10 active:opacity-80 transition-all"
-              id="profile-row-wipe-data"
-            >
-              <div className="flex items-center gap-3.5">
-                <Trash2
-                  size={20}
-                  strokeWidth={1.5}
-                  className="text-[#b82d23] shrink-0"
-                />
-                <div>
-                  <div className="font-sans text-[0.9375rem] font-medium text-[#b82d23]">
-                    Wipe All Data
-                  </div>
-                  <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                    Permanently delete all profile, settings, and transaction records
-                  </div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-(--text-muted)" />
-            </div>
-          </div>
-        </div>
+        <DangerZoneSection onWipeData={handleWipeData} />
 
         <div className="flex flex-col items-center my-4">
           <div className="flex items-center opacity-90 select-none">
@@ -539,7 +207,6 @@ export function ProfilePage() {
         </div>
       </div>
 
-      {/* Sheets / Modals */}
       <ExportSheet
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}
@@ -549,9 +216,7 @@ export function ProfilePage() {
         isOpen={isMonthSetupOpen}
         monthYear={currentMonth}
         onClose={() => setIsMonthSetupOpen(false)}
-        onSaved={() => {
-          setIsMonthSetupOpen(false);
-        }}
+        onSaved={() => setIsMonthSetupOpen(false)}
         isEdit={true}
       />
 

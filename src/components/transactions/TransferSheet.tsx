@@ -10,7 +10,6 @@ import { SegmentedControl } from "../ui/SegmentedControl";
 interface TransferSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  savingsBalance: number;
   defaultDirection?: "savings_to_expenditure" | "expenditure_to_savings";
   defaultAmount?: string;
   defaultNote?: string;
@@ -22,7 +21,7 @@ function TransferSheetContent({
   defaultDirection = "savings_to_expenditure",
   defaultAmount = "",
   defaultNote = "",
-}: Omit<TransferSheetProps, "isOpen" | "savingsBalance">) {
+}: Omit<TransferSheetProps, "isOpen">) {
   const savingsAcc = useAccount("savings");
   const spendingAcc = useAccount("spending");
   const savingsBalance = savingsAcc?.currentBalance ?? 0;
@@ -104,7 +103,9 @@ function TransferSheetContent({
         {/* Direction Segmented Control */}
         <SegmentedControl
           idPrefix="transfer-dir"
-          options={["savings_to_expenditure", "expenditure_to_savings"] as const}
+          options={
+            ["savings_to_expenditure", "expenditure_to_savings"] as const
+          }
           value={direction}
           onChange={(val) => {
             setDirection(val);

@@ -202,7 +202,6 @@ export function AppLayout({ children }: AppLayoutProps) {
           <TransferSheet
             isOpen={isTransferOpen}
             onClose={() => setIsTransferOpen(false)}
-            savingsBalance={0}
             defaultDirection={transferConfig.direction}
             defaultAmount={transferConfig.amount}
             defaultNote={transferConfig.note}
