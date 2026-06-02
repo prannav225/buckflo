@@ -51,7 +51,7 @@ export function NotificationCard({
   };
 
   return (
-    <div className="flex gap-3 p-3.5 bg-[var(--bg-glass)] border border-black/8 dark:border-white/6 rounded-[var(--r-lg)] shadow-[var(--glass-shadow)] transition-[transform,background] duration-150 ease-out hover:bg-[var(--bg-glass-strong)] fade-in-up">
+    <div className="flex gap-3 p-3.5 bg-(--bg-glass) border border-black/8 dark:border-white/6 rounded-(--r-lg) shadow-(--glass-shadow) transition-[transform,background] duration-150 ease-out hover:bg-(--bg-glass-strong) fade-in-up">
       <div
         className={`flex items-center justify-center w-[34px] h-[34px] rounded-lg shrink-0 ${typeClasses[alert.type] || typeClasses.info}`}
       >
@@ -59,19 +59,19 @@ export function NotificationCard({
       </div>
       <div className="flex-1">
         <div className="flex items-start justify-between gap-2 mb-[3px]">
-          <h4 className="font-sans text-sm font-semibold text-[var(--text)] m-0 leading-[1.3]">
+          <h4 className="font-sans text-sm font-semibold text-(--text) m-0 leading-[1.3]">
             {alert.title}
           </h4>
           <button
             onClick={() => onDismiss(alert.id)}
-            className="inline-flex items-center justify-center w-5 h-5 border-0 bg-transparent text-[var(--text-muted)] rounded cursor-pointer transition-[background,color] duration-150 p-0 shrink-0 hover:bg-black/5 dark:hover:bg-white/8 hover:text-[var(--text)]"
+            className="inline-flex items-center justify-center w-5 h-5 border-0 bg-transparent text-(--text-muted) rounded cursor-pointer transition-[background,color] duration-150 p-0 shrink-0 hover:bg-black/5 dark:hover:bg-white/8 hover:text-(--text)"
             title="Dismiss notification"
             aria-label="Dismiss"
           >
             <Check size={14} />
           </button>
         </div>
-        <p className="font-sans text-[0.8125rem] text-[var(--text-secondary)] leading-[1.4] m-0">
+        <p className="font-sans text-[0.8125rem] text-(--text-secondary) leading-[1.4] m-0">
           {alert.description}
         </p>
         {alert.actions ? (
@@ -83,7 +83,7 @@ export function NotificationCard({
                   act.onClick();
                   onCloseSheet();
                 }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--r-pill)] font-sans text-xs font-semibold text-[var(--text-secondary)] cursor-pointer transition-[background,color,border-color] duration-150 hover:bg-[var(--border)] hover:text-[var(--text)] hover:border-[var(--text-muted)]"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-(--bg-surface) border border-(--border) rounded-(--r-pill) font-sans text-xs font-semibold text-(--text-secondary) cursor-pointer transition-[background,color,border-color] duration-150 hover:bg-(--border) hover:text-(--text) hover:border-(--text-muted)"
               >
                 <span>{act.label}</span>
               </button>
@@ -95,7 +95,7 @@ export function NotificationCard({
               alert.action?.onClick();
               onCloseSheet();
             }}
-            className="inline-flex items-center gap-1 mt-2.5 px-3 py-1.5 bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--r-pill)] font-sans text-xs font-semibold text-[var(--text-secondary)] cursor-pointer transition-[background,color,border-color] duration-150 hover:bg-[var(--border)] hover:text-[var(--text)] hover:border-[var(--text-muted)]"
+            className="inline-flex items-center gap-1 mt-2.5 px-3 py-1.5 bg-(--bg-surface) border border-(--border) rounded-(--r-pill) font-sans text-xs font-semibold text-(--text-secondary) cursor-pointer transition-[background,color,border-color] duration-150 hover:bg-(--border) hover:text-(--text) hover:border-(--text-muted)"
           >
             <span>{alert.action.label}</span>
             <ArrowRight size={12} />

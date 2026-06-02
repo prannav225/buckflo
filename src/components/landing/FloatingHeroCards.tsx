@@ -3,7 +3,7 @@ import { PiggyBank } from "lucide-react";
 
 export const FloatingHeroCards = memo(function FloatingHeroCards() {
   return (
-    <div className="w-full lg:col-span-5 relative flex flex-col items-center justify-center perspective-[1200px] mt-16 lg:mt-0">
+    <div className="w-full lg:col-span-5 relative flex flex-col items-center justify-center perspective-distant mt-16 lg:mt-0">
       {/* Glowing backdrops behind mockup */}
       <div className="absolute -top-10 -left-10 w-72 h-72 bg-(--accent)/18 dark:bg-(--accent)/24 rounded-full blur-3xl opacity-70 pointer-events-none mix-blend-screen" />
       <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-(--credit)/12 dark:bg-(--credit)/18 rounded-full blur-3xl opacity-70 pointer-events-none mix-blend-screen" />
@@ -11,7 +11,7 @@ export const FloatingHeroCards = memo(function FloatingHeroCards() {
       {/* Group of floating cards */}
       <div className="relative w-full max-w-[340px] transform-gpu lg:-rotate-y-6 lg:rotate-x-4 lg:-rotate-z-2 transition-transform duration-700 hover:rotate-0 hover:scale-[1.02]">
         {/* Mock Hero Spending Card */}
-        <div className="hero-card hero-card-orange p-5 mb-4 rounded-[2rem] flex flex-col relative overflow-hidden text-left shadow-[0_25px_60px_-12px_rgba(0,0,0,0.35)] dark:shadow-[0_25px_60px_-12px_rgba(0,0,0,0.6)] z-20 transition-transform duration-500 hover:-translate-y-2">
+        <div className="hero-card hero-card-orange p-5 mb-4 rounded-4xl flex flex-col relative overflow-hidden text-left shadow-[0_25px_60px_-12px_rgba(0,0,0,0.35)] dark:shadow-[0_25px_60px_-12px_rgba(0,0,0,0.6)] z-20 transition-transform duration-500 hover:-translate-y-2">
           <div className="hero-card-orb-lg" />
           <div className="hero-card-orb-sm" />
 
@@ -27,7 +27,7 @@ export const FloatingHeroCards = memo(function FloatingHeroCards() {
             </span>
           </div>
 
-          <div className="relative z-10 w-full h-[1px] bg-white/20 mb-4" />
+          <div className="relative z-10 w-full h-px bg-white/20 mb-4" />
 
           <div className="relative z-10 flex justify-between items-center text-[10px] text-white/90 font-semibold">
             <div>

@@ -48,7 +48,7 @@ export function SpendingSection({
 
       <div className="form-group relative">
         <div className="flex items-center justify-between mb-1">
-          <label htmlFor="modal-monthly-budget" className="label !mb-0">
+          <label htmlFor="modal-monthly-budget" className="label mb-0!">
             Monthly Budget (₹)
           </label>
           {!isEdit && (

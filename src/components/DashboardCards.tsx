@@ -64,7 +64,11 @@ export function DashboardHeroCard({
           <div className="h-1 bg-white/22 rounded-full overflow-hidden mb-3">
             <div
               className={`h-full rounded-full transition-[width] duration-500 ease-in-out ${
-                overBudget ? "bg-[#ff8a8a]" : spentPct >= 80 ? "bg-[#fcd34d]" : "bg-white/88"
+                overBudget
+                  ? "bg-[#ff8a8a]"
+                  : spentPct >= 80
+                    ? "bg-[#fcd34d]"
+                    : "bg-white/88"
               }`}
               style={{ width: `${spentPct}%` }}
             />
@@ -168,7 +172,7 @@ export function SavingsQuickCard({
   return (
     <div
       className={`glass-card fade-in-up delay-1 p-[14px_18px] mb-3 flex items-center justify-between cursor-pointer ${
-        deEmphasized ? "opacity-50 scale-[0.98] grayscale-[30%]" : ""
+        deEmphasized ? "opacity-50 scale-[0.98] grayscale-30" : ""
       }`}
       onClick={onClick}
       role="button"
