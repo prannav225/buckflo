@@ -19,10 +19,10 @@ export function CategoryBudgetsSection({
   handleBlur,
 }: CategoryBudgetsSectionProps) {
   const activeCategories = budgetableCategories.filter(
-    (cat) => catBudgets[cat] !== undefined && catBudgets[cat] !== "" && catBudgets[cat] !== "0"
+    (cat) => catBudgets[cat] !== undefined && catBudgets[cat] !== "0"
   );
   const inactiveCategories = budgetableCategories.filter(
-    (cat) => catBudgets[cat] === undefined || catBudgets[cat] === "" || catBudgets[cat] === "0"
+    (cat) => catBudgets[cat] === undefined || catBudgets[cat] === "0"
   );
 
   return (

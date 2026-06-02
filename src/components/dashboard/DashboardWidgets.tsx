@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Database, X, Plus, ChevronRight, Lightbulb, PiggyBank } from "lucide-react";
+import { Upload, Database, X, Plus, ChevronRight, Lightbulb, PiggyBank, HelpCircle } from "lucide-react";
 import { formatINR } from "../../utils/currency";
 import type { FrequentPreset } from "../../hooks/useAnalytics";
 import toast from "react-hot-toast";
@@ -67,9 +67,17 @@ export function QuickPresets({
   return (
     <div id="quick-presets" className="fade-in-up delay-1 mb-5 mt-6">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] m-0">
-          Quick Presets
-        </h2>
+        <div className="flex items-center gap-1.5">
+          <h2 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] m-0">
+            Quick Presets
+          </h2>
+          <div className="group relative flex items-center cursor-help">
+            <HelpCircle size={12} className="text-(--text-muted) opacity-70 hover:opacity-100 transition-opacity" />
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2.5 bg-white dark:bg-[#2e2e2c] text-[11px] text-(--text) font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 text-center border border-black/10 dark:border-white/10 leading-relaxed">
+              Quick Presets let you log frequent transactions (like coffee or transport) with a single tap.
+            </div>
+          </div>
+        </div>
         {presets.length > 0 && (
           <button
             onClick={() => setIsManageMode(!isManageMode)}

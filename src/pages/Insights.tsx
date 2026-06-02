@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import { Calendar, Sparkles, BrainCircuit } from "lucide-react";
@@ -16,6 +16,20 @@ import { MonthPicker } from "../components/MonthPicker";
 import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
 import { BurnVelocityCard } from "../components/insights/BurnVelocityCard";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
+
+const SMART_SUMMARY_STORAGE_KEY = "buckflo_smart_summary_state";
+
+function loadSummaryState() {
+  try {
+    const data = localStorage.getItem(SMART_SUMMARY_STORAGE_KEY);
+    if (data) return JSON.parse(data);
+  } catch (e) {}
+  return { isOpen: false, seenHashes: {} };
+}
+
+function saveSummaryState(state: any) {
+  localStorage.setItem(SMART_SUMMARY_STORAGE_KEY, JSON.stringify(state));
+}
 
 export function Insights() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -63,69 +77,83 @@ export function Insights() {
   const burnRateData = useBurnRate(monthSetup?.monthlyBudget || 0, totalExpense);
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showSummary, setShowSummary] = useState(false);
+  const [summaryState, setSummaryState] = useState(loadSummaryState());
+
+  const isCurrentMonth = monthYear === getCurrentMonthYear();
+
+  // Compute the summary segments unconditionally to generate the hash
+  const summarySegments: WordSegment[] = [];
+  if (isCurrentMonth) {
+    summarySegments.push({ text: "You spent " });
+    summarySegments.push({ text: formatCurrency(wowData.thisWeekTotal), className: "font-bold text-(--text)" });
+    summarySegments.push({ text: " over the last 7 days." });
+    
+    if (wowData.lastWeekTotal > 0) {
+      summarySegments.push({ text: "This is " });
+      summarySegments.push({ 
+        text: `${Math.abs(wowData.percentChange)}% ${wowData.percentChange > 0 ? "more" : "less"}`,
+        className: `font-bold ${wowData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}` 
+      });
+      summarySegments.push({ text: " than the previous week." });
+    }
+
+    if (highestCategory) {
+      summarySegments.push({ text: `Your highest drain for ${formatMonthYear(monthYear)} is ` });
+      summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
+      summarySegments.push({ text: "." });
+    }
+  } else {
+    // Historical Month Narrative
+    summarySegments.push({ text: `In ${formatMonthYear(monthYear)}, you spent a total of ` });
+    summarySegments.push({ text: formatCurrency(momData.thisMonthTotal), className: "font-bold text-(--text)" });
+    summarySegments.push({ text: "." });
+
+    if (momData.lastMonthTotal > 0) {
+      summarySegments.push({ text: " That was " });
+      summarySegments.push({ 
+        text: `${Math.abs(momData.percentChange)}% ${momData.percentChange > 0 ? "more" : "less"}`,
+        className: `font-bold ${momData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}` 
+      });
+      summarySegments.push({ text: " than the month prior." });
+    }
+
+    if (highestCategory) {
+      summarySegments.push({ text: " Your highest spending category was " });
+      summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
+      summarySegments.push({ text: "." });
+    } else {
+      summarySegments.push({ text: " You had no recorded expenses." });
+    }
+  }
+
+  const currentHash = summarySegments.map((s) => s.text).join("");
+  const hasNewSummary = summaryState.seenHashes[monthYear] && summaryState.seenHashes[monthYear] !== currentHash;
+  const shouldShowSummary = summaryState.isOpen && !hasNewSummary;
+
+  // Auto-save the hash for a newly visited month if the widget is globally open
+  useEffect(() => {
+    if (summaryState.isOpen && !summaryState.seenHashes[monthYear]) {
+      const newState = {
+        ...summaryState,
+        seenHashes: { ...summaryState.seenHashes, [monthYear]: currentHash }
+      };
+      setSummaryState(newState);
+      saveSummaryState(newState);
+    }
+  }, [summaryState.isOpen, summaryState.seenHashes, monthYear, currentHash]);
 
   const handleGenerateSummary = () => {
     setIsGenerating(true);
     setTimeout(() => {
       setIsGenerating(false);
-      setShowSummary(true);
+      const newState = {
+        isOpen: true,
+        seenHashes: { ...summaryState.seenHashes, [monthYear]: currentHash }
+      };
+      setSummaryState(newState);
+      saveSummaryState(newState);
     }, 1500);
   };
-
-  const isCurrentMonth = monthYear === getCurrentMonthYear();
-
-  // Re-hide summary if month changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useState(() => {
-    setShowSummary(false);
-  });
-
-  const summarySegments: WordSegment[] = [];
-  if (showSummary) {
-    if (isCurrentMonth) {
-      summarySegments.push({ text: "You spent " });
-      summarySegments.push({ text: formatCurrency(wowData.thisWeekTotal), className: "font-bold text-(--text)" });
-      summarySegments.push({ text: " over the last 7 days." });
-      
-      if (wowData.lastWeekTotal > 0) {
-        summarySegments.push({ text: "This is " });
-        summarySegments.push({ 
-          text: `${Math.abs(wowData.percentChange)}% ${wowData.percentChange > 0 ? "more" : "less"}`,
-          className: `font-bold ${wowData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}` 
-        });
-        summarySegments.push({ text: " than the previous week." });
-      }
-
-      if (highestCategory) {
-        summarySegments.push({ text: `Your highest drain for ${formatMonthYear(monthYear)} is ` });
-        summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
-        summarySegments.push({ text: "." });
-      }
-    } else {
-      // Historical Month Narrative
-      summarySegments.push({ text: `In ${formatMonthYear(monthYear)}, you spent a total of ` });
-      summarySegments.push({ text: formatCurrency(momData.thisMonthTotal), className: "font-bold text-(--text)" });
-      summarySegments.push({ text: "." });
-
-      if (momData.lastMonthTotal > 0) {
-        summarySegments.push({ text: " That was " });
-        summarySegments.push({ 
-          text: `${Math.abs(momData.percentChange)}% ${momData.percentChange > 0 ? "more" : "less"}`,
-          className: `font-bold ${momData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}` 
-        });
-        summarySegments.push({ text: " than the month prior." });
-      }
-
-      if (highestCategory) {
-        summarySegments.push({ text: " Your highest spending category was " });
-        summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
-        summarySegments.push({ text: "." });
-      } else {
-        summarySegments.push({ text: " You had no recorded expenses." });
-      }
-    }
-  }
 
   return (
     <>
@@ -150,7 +178,7 @@ export function Insights() {
 
       {/* ── Narrative Insights Card ─────────────────────────────────────── */}
       <div className="glass-card fade-in-up delay-1 mb-4 overflow-hidden border border-black/5 dark:border-white/5 bg-(--bg-glass-strong)">
-          {!showSummary && !isGenerating ? (
+          {!shouldShowSummary && !isGenerating ? (
             <div 
               onClick={handleGenerateSummary}
               className="p-6 flex flex-col items-center justify-center cursor-pointer bg-linear-to-b from-transparent to-black/5 dark:to-white/5 hover:to-black/10 dark:hover:to-white/10 transition-colors group"

@@ -5,7 +5,6 @@ import { useMonthSetup } from "../db/hooks";
 import { useProfile } from "../hooks/useProfile";
 import { useNotificationScheduler } from "../hooks/useNotificationScheduler";
 
-
 // Lazy loaded pages
 const Dashboard = lazy(() =>
   import("../pages/Dashboard").then((m) => ({ default: m.Dashboard })),

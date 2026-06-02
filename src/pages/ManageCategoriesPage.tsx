@@ -97,10 +97,10 @@ export function ManageCategoriesPage() {
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="btn-ghost flex items-center gap-1.5 text-(--accent) font-semibold"
+          className="btn-primary flex items-center gap-1.5 h-8 px-3 text-xs cursor-pointer shadow-sm"
           id="btn-create-category"
         >
-          {showForm ? <X size={16} /> : <Plus size={16} />}
+          {showForm ? <X size={14} /> : <Plus size={14} />}
           {showForm ? "Cancel" : "Create"}
         </button>
       </div>

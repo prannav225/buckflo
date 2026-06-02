@@ -8,6 +8,7 @@ import {
   Edit3,
   Trash2,
   Plus,
+  HelpCircle,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { formatINR } from "../../utils/currency";
@@ -74,13 +75,19 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
 
         {/* Subscription List Title & Add Button */}
         <div className="flex justify-between items-center mt-2.5">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] m-0">
               Committed Spends ({sortedSubs.length})
             </h3>
+            <div className="group relative flex items-center cursor-help">
+              <HelpCircle size={12} className="text-(--text-muted) opacity-70 hover:opacity-100 transition-opacity" />
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 p-2.5 bg-white dark:bg-[#2e2e2c] text-[11px] text-(--text) font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 text-center border border-black/10 dark:border-white/10 leading-relaxed">
+                Recurring bills and subscriptions that are automatically deducted from your safe-to-spend balance.
+              </div>
+            </div>
           </div>
           <button
-            className="header-action-pill-btn h-7 px-2.5 text-xs inline-flex items-center gap-1"
+            className="btn-primary h-7 px-3 text-[11px] font-bold inline-flex items-center gap-1 cursor-pointer"
             onClick={() => openForm(null)}
           >
             <Plus size={14} /> Add
