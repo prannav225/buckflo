@@ -113,7 +113,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   }`}
                 >
                   <img
-                    src="/buckflo_favicon.png"
+                    src="/buckflo_favicon.svg"
                     alt="buckflo"
                     className={`object-contain rounded-full transition-all duration-300 ${
                       scrolled ? "w-10 h-10" : "w-12 h-12"

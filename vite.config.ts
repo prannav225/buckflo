@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["buckflo_favicon.png", "buckflo_appicon.png"],
+      includeAssets: ["buckflo_favicon.svg", "buckflo_appicon.png"],
       manifest: {
         name: "buckflo",
         short_name: "buckflo",

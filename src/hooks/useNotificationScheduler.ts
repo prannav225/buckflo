@@ -48,7 +48,7 @@ export function useNotificationScheduler() {
                 reg.showNotification("buckflo", {
                   body: `Hey ${profile.displayName || "there"}, anything to log today?`,
                   icon: "/buckflo_appicon.png",
-                  badge: "/buckflo_favicon.png",
+                  badge: "/buckflo_favicon.svg",
                   tag: "daily-reminder",
                   renotify: true,
                 } as NotificationOptions);

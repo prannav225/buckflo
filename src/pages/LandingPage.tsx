@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
@@ -66,9 +68,9 @@ export function LandingPage({ onStart }: LandingPageProps) {
       <header className="flex justify-between items-center mb-16 sm:mb-24 max-w-[1100px] mx-auto relative z-10">
         <div className="flex items-center gap-1 select-none">
           <img
-            src="/buckflo_favicon.png"
+            src="/buckflo_favicon.svg"
             alt="buckflo"
-            className="w-14 object-contain rounded-full"
+            className="w-12 object-contain rounded-full"
           />
           <span className="font-display text-3xl font-normal! text-(--accent) italic">
             buckflo

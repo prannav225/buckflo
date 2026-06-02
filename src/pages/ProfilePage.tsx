@@ -74,7 +74,8 @@ export function ProfilePage() {
   const handleWipeData = async () => {
     const conf1 = await confirm({
       title: "Wipe All Data",
-      message: "Are you absolutely sure you want to wipe all data? This is permanent and cannot be undone.",
+      message:
+        "Are you absolutely sure you want to wipe all data? This is permanent and cannot be undone.",
       confirmLabel: "Wipe Data",
       variant: "danger",
     });
@@ -97,7 +98,8 @@ export function ProfilePage() {
     try {
       const conf = await confirm({
         title: "Restore Backup",
-        message: "This will replace all your current data with the backup. Are you sure?",
+        message:
+          "This will replace all your current data with the backup. Are you sure?",
         confirmLabel: "Restore",
         variant: "danger",
       });
@@ -152,7 +154,8 @@ export function ProfilePage() {
                 Member since {memberSince}
               </p>
               <p className="m-0 text-xs text-(--accent) font-semibold tracking-wide">
-                {transactionCount} {transactionCount === 1 ? "transaction" : "transactions"} logged
+                {transactionCount}{" "}
+                {transactionCount === 1 ? "transaction" : "transactions"} logged
               </p>
             </div>
           </div>
@@ -189,7 +192,7 @@ export function ProfilePage() {
         <div className="flex flex-col items-center my-4">
           <div className="flex items-center opacity-90 select-none">
             <img
-              src="/buckflo_favicon.png"
+              src="/buckflo_favicon.svg"
               alt="buckflo"
               className="w-5 h-5 object-contain rounded-full"
             />
