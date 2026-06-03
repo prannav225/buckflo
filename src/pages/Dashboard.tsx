@@ -393,10 +393,8 @@ export function Dashboard() {
         <SavingsNudgeSheet
           isOpen={showSavingsNudgeSheet}
           onClose={() => setShowSavingsNudgeSheet(false)}
-          spendingBalance={0}
-          onSuccess={function (): void {
-            throw new Error("Function not implemented.");
-          }}
+          spendingBalance={summary.closingBalance}
+          onSuccess={() => setShowSavingsNudgeSheet(false)}
         />
       )}
     </>

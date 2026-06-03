@@ -5,6 +5,7 @@ import { BrandedAvatar } from "../components/layout/BrandedAvatar";
 import { cleanDisplayName } from "../utils/validation";
 import { seedSampleData } from "../utils/seedData";
 import { CustomDropdown } from "../components/layout/CustomDropdown";
+import { PixelBanner } from "../components/layout/PixelBanner";
 
 const currencyOptions = [
   { value: "INR", label: "₹ INR (Rupee)" },
@@ -65,20 +66,35 @@ export function ProfileSetupPage() {
   const avatarName = name.trim() || "buckflo";
 
   return (
-    <div className="fixed inset-0 z-9999 bg-(--bg) flex flex-col items-center justify-center p-6 text-(--text) font-sans animate-fade-in overflow-y-auto">
+    <div className="fixed inset-0 z-9999 bg-(--bg) flex flex-col items-center justify-center text-(--text) font-sans animate-fade-in overflow-y-auto">
       {/* Background ambient radial glows */}
       <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-(--accent)/10 dark:bg-(--accent)/12 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-(--credit)/10 dark:bg-(--credit)/12 blur-3xl pointer-events-none" />
 
-      <div className="w-full max-w-[340px] flex flex-col items-center text-center">
-        {/* Large Avatar Centered */}
-        <BrandedAvatar name={avatarName} size={96} className="shadow-lg mb-8" />
+      {/* Header Area with Banner */}
+      <div className="relative w-full flex flex-col items-center pt-8 pb-4 mb-4 overflow-hidden">
+        {/* Background Pixel Banner Identity */}
+        {name.trim() && (
+          <div className="absolute inset-0 pointer-events-none z-0">
+            <PixelBanner seed={avatarName} />
+            {/* Fading gradient at the bottom of the banner so it blends nicely into the background */}
+            <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-(--bg)" />
+          </div>
+        )}
 
-        {/* Heading */}
-        <h1 className="font-display text-4xl font-bold tracking-tight mb-3 text-(--text)">
-          What should we call you?
-        </h1>
+        <div className="relative z-10 flex flex-col items-center text-center px-6">
+          <BrandedAvatar
+            name={avatarName}
+            size={104}
+            className="shadow-lg border-4 border-white dark:border-[#2d2d2c] mb-6"
+          />
+          <h1 className="font-display text-4xl font-bold tracking-tight mb-2 text-(--text)">
+            What should we call you?
+          </h1>
+        </div>
+      </div>
 
+      <div className="w-full max-w-[340px] flex flex-col items-center text-center px-6 relative z-10">
         {/* Form */}
         <form
           onSubmit={handleSubmit}

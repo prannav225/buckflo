@@ -172,7 +172,7 @@ export function Insights() {
       </div>
 
       {/* ── Burn Velocity Meter (Current Month Only) ────────────────────── */}
-      {isCurrentMonth && monthSetup?.monthlyBudget && monthSetup.monthlyBudget > 0 ? (
+      {isCurrentMonth && monthSetup?.monthlyBudget && monthSetup.monthlyBudget > 0 && totalExpense > 0 ? (
         <BurnVelocityCard burnRateData={burnRateData} budget={monthSetup.monthlyBudget} />
       ) : null}
 

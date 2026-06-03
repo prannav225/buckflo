@@ -48,9 +48,18 @@ export function DashboardHeroCard({
         <span className="font-sans text-[0.6875rem] font-semibold text-white/65 tracking-widest uppercase">
           Spending Balance
         </span>
-        <span className="font-sans text-xs text-white/60">
-          {formatMonthYear(monthYear)}
-        </span>
+        {monthSetup && budget > 0 ? (
+          <button 
+            onClick={onSetup}
+            className="font-sans text-xs text-white/60 hover:text-white/90 transition-colors bg-transparent border-none p-0 cursor-pointer underline decoration-white/20 underline-offset-2 text-right leading-tight"
+          >
+            {formatMonthYear(monthYear)} setup:<br />{formatINR(budget)}
+          </button>
+        ) : (
+          <span className="font-sans text-xs text-white/60">
+            {formatMonthYear(monthYear)}
+          </span>
+        )}
       </div>
 
       {/* Balance amount */}

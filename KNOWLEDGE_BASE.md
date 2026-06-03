@@ -29,21 +29,19 @@ Below is the step-by-step operational guide for the application:
 1.  **Profile Setup Gate**: On first launch, you are prompted to input your display name. Special characters, spaces, and numbers are blocked, enforcing alphabet-only validation up to 20 characters. This name is used to generate a unique, brand-colored deterministic avatar.
 2.  **Onboarding slides**: Swipe through the slides to understand how buckflo manages your cash flow across two separate wallets (Spending and Savings).
 3.  If you choose **"Skip for now"** during month setup, the app loads the dashboard immediately but hides transactional tracking. To begin, tap **"Set Up Now"** inside the orange dashboard card.
-4.  Fill out the **New Month Setup** form:
-    - **Currency Selection**: Pick your preferred currency (₹, $, €, £). The app handles global currency formatting.
-    - **Seed Sample Data** (Optional): A checkbox to instantly populate the app with mocked transactions, budgets, goals, and subscriptions—perfect for exploring the app's smart features without manual data entry.
-    - **Spending Wallet Opening Balance**: Starting funds available for daily spending.
-    - **Monthly Budget**: Total amount you plan to spend this month.
-    - **Category Budgets** (Optional): Set individual budgets for standard categories.
-    - **Savings Opening Balance** (Optional): Seed your Savings wallet balance.
-    - **Opening Transfer** (Optional): Log a starting transfer from Savings to Spending.
+4.  **Income-Based Month Setup Wizard**: Set up your month using a conversational flow:
+    - **Income Input**: Enter your total expected monthly income. (If you prefer not to share this, you can skip to an alternative flow where you simply set your starting Spending and Savings wallet balances manually).
+    - **Committed Expenditure**: Assign fixed budgets to standard categories (Rent, Bills, etc.) with the option to create custom categories.
+    - **Leftover Decision**: Decide what to do with the remaining unassigned funds—send it all to Savings, keep it flexible in Spending, or split it.
+    - **Monthly Close Summary**: When a new month begins, you are greeted with a "month wrapped" screen detailing your total spend, top category, and leftover savings opportunity from the previous month.
 
 ### Step 2: Log Transactions & Use Shortcuts
 
 1.  **Manual Logging**: Tap the **`+`** button in the center of the bottom navigation bar to log a transaction.
     - Select **Debit** (Expense), **Credit** (Income), or **Transfer** (Move cash between Savings and Spending).
     - Fill out the Amount, Category, Date, and Description.
-2.  **One-Tap Presets**: Once you log repeated transactions, the dashboard automatically surfaces them under **Quick Presets** (e.g. _"Coffee — ₹80"_). Tap any preset to log it instantly.
+2.  **CSV Import**: You can bulk import transactions from other apps or bank statements. Navigate to the main transaction feed header and tap the import icon to upload a CSV file.
+3.  **One-Tap Presets**: Once you log repeated transactions, the dashboard automatically surfaces them under **Quick Presets** (e.g. _"Coffee — ₹80"_). Tap any preset to log it instantly.
 
 ### Step 3: Track Burn Rate & Feed
 
@@ -98,7 +96,7 @@ The directory structure is organized logically into modules:
 
 Data persistence relies on **IndexedDB** wrapped in Dexie. Configured in [`src/db/database.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/db/database.ts), the database name is `BuckfloDB`. (Legacy data is safely migrated from `PocketLedgerDB` via `src/db/migration.ts`).
 
-### Table Schemas & Indexes (Upgraded to v8)
+### Table Schemas & Indexes (Upgraded to v9)
 
 - **`accounts`**: Stores account records. Seeded on setup with two accounts.
   - _Schema_: `{ id?: number, name: string, type: 'spending' | 'savings', currentBalance: number }`
@@ -153,14 +151,15 @@ To prevent discrepancies between stored account balances and transaction totals:
 - **Spending Wallet**: Recalculates balance by taking the active month's `MonthSetup.openingBalance` plus/minus all transactions recorded within the active month.
 - Overwrites the wallets' `currentBalance` values only if a mismatch is found.
 
-### Database Upgrades & Migration (`migration.ts`)
+### Database Upgrades & Migration (`migration.ts` & `core.ts`)
 
-The database schema is heavily versioned (currently v8) to gracefully handle feature expansions like the `notifications` table or multi-currency `profile` settings. If a user updates their app from an older version, Dexie intercepts the initialization and executes custom upgrader logic defined in `src/db/migration.ts` to transform their legacy data safely.
+The database schema is heavily versioned (currently v9) to gracefully handle feature expansions like the `notifications` table or multi-currency `profile` settings. If a user updates their app from an older version, Dexie intercepts the initialization and executes custom upgrader logic defined in `src/db/core.ts` (and legacy fallback in `migration.ts`) to transform their legacy data safely.
 
-Specifically, `migration.ts` orchestrates the upgrade path from v7 to v8, ensuring full schema evolution without data loss. It performs several critical data transformations:
-- Scans and upgrades the `profile` table to include the new `monthlyIncome` schema.
+Specifically, the upgrade path ensures full schema evolution without data loss. It performs several critical data transformations in v9:
+
+- Scans and upgrades the `profile` table to include the new `monthlyIncome`, `wizardCompleted`, and `watchCategories` schema fields.
 - Transforms legacy `Account` definitions by migrating the string types (`'expenditure'`, `'savings'`) to align with the new Wallet terminology (`'spending'`, `'savings'`).
-- Renames the physical database from `PocketLedgerDB` to `BuckfloDB` securely, copying over all tables, records, and preferences.
+- Renames the physical database from `PocketLedgerDB` to `BuckfloDB` securely (via legacy migration block), copying over all tables, records, and preferences.
 
 ---
 
@@ -245,12 +244,20 @@ The [`useAutopayTrigger`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/ho
 
 1. Records a debit transaction on the Spending wallet (using the subscription's scheduled date for historical accuracy).
 2. Advances the subscription's `nextDueDate` by its frequency (weekly/monthly/yearly).
-3. Surfaces a toast notification confirming the autopay execution.
+3. Surfaces a visible toast notification (e.g. "Netflix — ₹649 auto-logged today ✓") confirming the autopay execution so the user knows it happened silently.
    All mutations run inside a single Dexie transaction for atomicity.
 
 ### 16. Haptic Feedback System
 
 The [`haptics.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/utils/haptics.ts) utility wraps the Web Vibration API with preset patterns for different interaction contexts: `light` (10ms — toggles, tabs), `medium` (30ms — save, add), `heavy` (double pulse — destructive actions), `success` (confirm pattern), and `error` (rapid triple pulse). Gracefully degrades on unsupported devices.
+
+**Where it is used:**
+
+- `BottomNav.tsx`: Light feedback when switching primary tabs.
+- `Dashboard.tsx`: Medium feedback when tapping a Quick Preset to log.
+- `AddEditTransaction.tsx`: Medium feedback when saving a transaction.
+- `TransactionDetailsCard.tsx`: Heavy feedback when confirming transaction deletion.
+- `ChangelogModal.tsx`: Light feedback when opening the changelog.
 
 ### 17. Full Category Management System
 

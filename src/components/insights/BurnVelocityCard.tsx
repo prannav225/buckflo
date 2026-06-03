@@ -1,4 +1,4 @@
-import { Flame, CheckCircle, TrendingUp } from "lucide-react";
+import { Flame, CheckCircle, TrendingUp, HelpCircle } from "lucide-react";
 import { type BurnRateResult } from "../../hooks/analytics/useBurnRate";
 import { formatCurrency } from "../../utils/currency";
 
@@ -38,11 +38,22 @@ export function BurnVelocityCard({
         >
           {isSafe ? <CheckCircle size={16} /> : <Flame size={16} />}
         </div>
-        <div>
-          <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider">
-            Burn Velocity
-          </h3>
-          <p className="text-[10px] text-(--text-muted) font-medium">
+        <div className="flex-1">
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider">
+              Burn Velocity
+            </h3>
+            <div className="group relative flex items-center cursor-help">
+              <HelpCircle
+                size={13}
+                className="text-(--text-muted) opacity-70 hover:opacity-100 transition-opacity"
+              />
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-52 p-2.5 bg-white dark:bg-[#2e2e2c] text-[11px] text-(--text) font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 text-center border border-black/10 dark:border-white/10 leading-relaxed">
+                Projects if you'll stay under budget based on your average daily spend this month.
+              </div>
+            </div>
+          </div>
+          <p className="text-[10px] text-(--text-muted) font-medium mt-0.5 m-0">
             Based on your average daily spend of {formatCurrency(avgDailySpend)}
           </p>
         </div>
