@@ -5,6 +5,8 @@ import { Sun, Moon } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { PixelBanner } from "../components/layout/PixelBanner";
 import { LandingHero } from "../components/landing/LandingHero";
+import { LandingProblem } from "../components/landing/LandingProblem";
+import { LandingHowItWorks } from "../components/landing/LandingHowItWorks";
 import { LandingFeatures } from "../components/landing/LandingFeatures";
 import { LandingFooter } from "../components/landing/LandingFooter";
 
@@ -59,10 +61,8 @@ export function LandingPage({ onStart }: LandingPageProps) {
 
   return (
     <div className="fade-in w-full pb-24 pt-4 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-[700px] opacity-40 dark:opacity-20 pointer-events-none select-none flex justify-center z-0">
-        <div className="w-[800px] h-full max-w-[100vw] relative mask-[linear-gradient(to_bottom,black_40%,transparent_100%)]">
-          <PixelBanner seed="buckflo-landing-ambient" />
-        </div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[400px] opacity-40 dark:opacity-20 pointer-events-none select-none z-0 mask-[radial-gradient(ellipse_at_top,black_40%,transparent_70%)]">
+        <PixelBanner seed="buckflo-landing-ambient" />
       </div>
 
       <header className="flex justify-between items-center mb-16 sm:mb-24 max-w-[1100px] mx-auto relative z-10">
@@ -95,6 +95,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
         </div>
       </header>
 
+      {/* Section 1: Hero */}
       <LandingHero
         onStart={onStart}
         deferredPrompt={deferredPrompt}
@@ -102,8 +103,16 @@ export function LandingPage({ onStart }: LandingPageProps) {
         isInstalled={isInstalled}
       />
 
+      {/* Section 2: The Problem — "Sound Familiar?" */}
+      <LandingProblem />
+
+      {/* Section 3: How It Works */}
+      <LandingHowItWorks />
+
+      {/* Section 4: Feature Cards */}
       <LandingFeatures />
 
+      {/* Sections 5–8: Stats, Privacy, FAQ, CTA, Footer */}
       <LandingFooter onStart={onStart} />
     </div>
   );

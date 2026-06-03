@@ -176,7 +176,7 @@ Instead of hardcoding shortcuts, the app groups historical debit transactions by
 
 ### 2. CSV Data Portability & JSON Data Backup
 
-- **JSON Data Backup (Data Ownership)**: Users can export their entire IndexedDB instance (`flo_backup.json`) directly from the Profile page. This supports complete migration of profiles, setups, goals, and transactions. A dangerous "Wipe All Data" action also resets the local database entirely.
+- **JSON Data Backup (Data Ownership)**: Users can export their entire IndexedDB instance (`Buckflo_Backup.json`) directly from the Profile page. This supports complete migration of profiles, setups, goals, and transactions. A dangerous "Wipe All Data" action also resets the local database entirely.
 - **CSV Import / Export**: Users can upload external bank sheets or export transaction histories by date ranges directly from the main transaction feed header.
 
 ### 3. Urgency-Based Bill Alerts (`useSubscriptionAlerts`)

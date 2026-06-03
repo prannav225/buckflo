@@ -68,7 +68,8 @@ export function LandingFooter({ onStart }: LandingFooterProps = {}) {
       </section>
 
       <section className="py-24 border-t border-black/8 dark:border-white/6 max-w-[1100px] mx-auto text-left relative overflow-hidden">
-        <div className="absolute -top-25 left-1/2 -translate-x-1/2 w-full h-[150%] opacity-100 dark:opacity-100 pointer-events-none select-none z-0 mask-[radial-gradient(ellipse_at_center,black_10%,transparent_60%)]">
+        {/* Bottom-center offset pixel accent — standardized to 1200x400 for consistent pixel sizing */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1200px] h-[400px] rotate-180 opacity-35 dark:opacity-18 pointer-events-none select-none z-0 mask-[radial-gradient(ellipse_at_bottom,black_20%,transparent_70%)]">
           <PixelBanner seed="faq-answers-pixels" />
         </div>
 
@@ -77,7 +78,7 @@ export function LandingFooter({ onStart }: LandingFooterProps = {}) {
             <div className="text-xs uppercase tracking-[0.15em] text-(--text-muted) font-semibold mb-3">
               Common Enquiries
             </div>
-            <h3 className="text-3xl font-bold tracking-tight text-(--text) font-display">
+            <h3 className="text-5xl font-normal! tracking-tight text-(--text) font-display">
               Frequently Asked Questions
             </h3>
           </div>
@@ -97,14 +98,18 @@ export function LandingFooter({ onStart }: LandingFooterProps = {}) {
             />
             <FAQItem
               q="Is the ledger free to use?"
-              a="Yes, buckflo is 100% free, open, and client-side software. Since we do not host servers, run databases, or collect advertising metrics, our operational costs are non-existent, letting us distribute this premium finance ledger freely."
+              a="Yes, buckflo is 100% free, open, and client-side software. Since we do not host servers, run databases, or collect advertising metrics, our operational costs are non-existent, letting us distribute this finance ledger freely."
+            />
+            <FAQItem
+              q="Do I need two bank accounts to use buckflo?"
+              a="No. The two wallets in buckflo are virtual — they're a mental accounting system, not linked to real bank accounts. You can use just the Spending Wallet if you prefer."
             />
           </div>
         </div>
       </section>
 
       <section className="py-24 border-t border-black/8 dark:border-white/6 text-center max-w-[1100px] mx-auto flex flex-col items-center justify-center">
-        <h3 className="text-3xl font-bold tracking-tight text-(--text) font-display pb-4">
+        <h3 className="text-9xl tracking-tight text-(--text) landing-headline pb-4">
           Ready to track smarter?
         </h3>
         <button

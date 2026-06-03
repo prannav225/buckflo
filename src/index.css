@@ -1013,3 +1013,94 @@ body.sheet-open .page-header {
   fill: var(--accent);
   transition: opacity 0.3s ease;
 }
+
+/* ─── Landing Page — Typography & Sections ──────────────────────────────────── */
+
+.landing-eyebrow {
+  font-family: "Inter", sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.landing-headline {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.landing-body {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* "Sound Familiar?" — always dark bg regardless of theme */
+.landing-problem-section {
+  background: #161615;
+  color: #f5f5f3;
+  position: relative;
+  overflow: hidden;
+}
+.landing-problem-section .landing-eyebrow {
+  color: var(--accent);
+}
+.landing-problem-section .landing-headline {
+  color: #f5f5f3;
+}
+.landing-problem-section .landing-body {
+  color: #9d9d99;
+}
+
+/* Stagger-in animation for problem statements */
+@keyframes fadeInStagger {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-item {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.stagger-item.visible {
+  animation: fadeInStagger 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.stagger-item.visible:nth-child(1) { animation-delay: 0s; }
+.stagger-item.visible:nth-child(2) { animation-delay: 0.15s; }
+.stagger-item.visible:nth-child(3) { animation-delay: 0.3s; }
+
+/* How It Works — step number */
+.step-number {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 3.5rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0.15;
+}
+
+/* How It Works — mini UI snippet cards */
+.snippet-card {
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--glass-shadow);
+  padding: 16px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
