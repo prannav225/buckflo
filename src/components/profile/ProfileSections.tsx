@@ -300,7 +300,7 @@ export function DataBackupSection({
 
 export function AboutSection() {
   const navigate = useNavigate();
-  const FEEDBACK_FORM_URL = "https://forms.gle/JGU4iXccCsmu6X9q9";
+  const FEEDBACK_FORM_URL = "https://forms.gle/Uhrat9TGnRzYr3p69";
 
   return (
     <div className="flex flex-col gap-2">
