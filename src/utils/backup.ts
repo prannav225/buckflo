@@ -1,7 +1,7 @@
 import { db, DEFAULT_CATEGORIES } from '../db/database';
 import { exportDB } from 'dexie-export-import';
 
-export async function exportDatabase(fileName: string = 'flo_backup.json') {
+export async function exportDatabase(fileName: string = 'buckflo_backup.json') {
   const blob = await exportDB(db, { prettyJson: true });
   const url = URL.createObjectURL(blob);
   

@@ -1,17 +1,22 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import { Calendar, Sparkles, BrainCircuit } from "lucide-react";
-import { RichWordFadeIn, type WordSegment } from "../components/ui/rich-word-fade-in";
+import {
+  RichWordFadeIn,
+  type WordSegment,
+} from "../components/ui/rich-word-fade-in";
 import { commonOptions } from "../utils/chartConfig";
 import { getCurrentMonthYear, formatMonthYear } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/currency";
+import { useAccount, useMonthSetup, useTransactions } from "../db/hooks";
 import {
-  useAccount,
-  useMonthSetup,
-  useTransactions,
-} from "../db/hooks";
-import { useHistoricalData, useWeekOverWeek, useMonthOverMonth, useBurnRate } from "../hooks/useAnalytics";
+  useHistoricalData,
+  useWeekOverWeek,
+  useMonthOverMonth,
+  useBurnRate,
+} from "../hooks/useAnalytics";
 import { MonthPicker } from "../components/MonthPicker";
 import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
 import { BurnVelocityCard } from "../components/insights/BurnVelocityCard";
@@ -23,11 +28,13 @@ function loadSummaryState() {
   try {
     const data = localStorage.getItem(SMART_SUMMARY_STORAGE_KEY);
     if (data) return JSON.parse(data);
-  } catch (e) {}
+  } catch {
+    /* empty */
+  }
   return { isOpen: false, seenHashes: {} };
 }
 
-function saveSummaryState(state: any) {
+function saveSummaryState(state) {
   localStorage.setItem(SMART_SUMMARY_STORAGE_KEY, JSON.stringify(state));
 }
 
@@ -74,7 +81,10 @@ export function Insights() {
   const highestCategory =
     sortedCategories.length > 0 ? sortedCategories[0].name : null;
 
-  const burnRateData = useBurnRate(monthSetup?.monthlyBudget || 0, totalExpense);
+  const burnRateData = useBurnRate(
+    monthSetup?.monthlyBudget || 0,
+    totalExpense,
+  );
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [summaryState, setSummaryState] = useState(loadSummaryState());
@@ -85,41 +95,57 @@ export function Insights() {
   const summarySegments: WordSegment[] = [];
   if (isCurrentMonth) {
     summarySegments.push({ text: "You spent " });
-    summarySegments.push({ text: formatCurrency(wowData.thisWeekTotal), className: "font-bold text-(--text)" });
+    summarySegments.push({
+      text: formatCurrency(wowData.thisWeekTotal),
+      className: "font-bold text-(--text)",
+    });
     summarySegments.push({ text: " over the last 7 days." });
-    
+
     if (wowData.lastWeekTotal > 0) {
       summarySegments.push({ text: "This is " });
-      summarySegments.push({ 
+      summarySegments.push({
         text: `${Math.abs(wowData.percentChange)}% ${wowData.percentChange > 0 ? "more" : "less"}`,
-        className: `font-bold ${wowData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}` 
+        className: `font-bold ${wowData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}`,
       });
       summarySegments.push({ text: " than the previous week." });
     }
 
     if (highestCategory) {
-      summarySegments.push({ text: `Your highest drain for ${formatMonthYear(monthYear)} is ` });
-      summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
+      summarySegments.push({
+        text: `Your highest drain for ${formatMonthYear(monthYear)} is `,
+      });
+      summarySegments.push({
+        text: highestCategory,
+        className: "font-bold text-(--text)",
+      });
       summarySegments.push({ text: "." });
     }
   } else {
     // Historical Month Narrative
-    summarySegments.push({ text: `In ${formatMonthYear(monthYear)}, you spent a total of ` });
-    summarySegments.push({ text: formatCurrency(momData.thisMonthTotal), className: "font-bold text-(--text)" });
+    summarySegments.push({
+      text: `In ${formatMonthYear(monthYear)}, you spent a total of `,
+    });
+    summarySegments.push({
+      text: formatCurrency(momData.thisMonthTotal),
+      className: "font-bold text-(--text)",
+    });
     summarySegments.push({ text: "." });
 
     if (momData.lastMonthTotal > 0) {
       summarySegments.push({ text: " That was " });
-      summarySegments.push({ 
+      summarySegments.push({
         text: `${Math.abs(momData.percentChange)}% ${momData.percentChange > 0 ? "more" : "less"}`,
-        className: `font-bold ${momData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}` 
+        className: `font-bold ${momData.percentChange > 0 ? "text-[#b82d23]" : "text-(--credit)"}`,
       });
       summarySegments.push({ text: " than the month prior." });
     }
 
     if (highestCategory) {
       summarySegments.push({ text: " Your highest spending category was " });
-      summarySegments.push({ text: highestCategory, className: "font-bold text-(--text)" });
+      summarySegments.push({
+        text: highestCategory,
+        className: "font-bold text-(--text)",
+      });
       summarySegments.push({ text: "." });
     } else {
       summarySegments.push({ text: " You had no recorded expenses." });
@@ -127,7 +153,9 @@ export function Insights() {
   }
 
   const currentHash = summarySegments.map((s) => s.text).join("");
-  const hasNewSummary = summaryState.seenHashes[monthYear] && summaryState.seenHashes[monthYear] !== currentHash;
+  const hasNewSummary =
+    summaryState.seenHashes[monthYear] &&
+    summaryState.seenHashes[monthYear] !== currentHash;
   const shouldShowSummary = summaryState.isOpen && !hasNewSummary;
 
   // Auto-save the hash for a newly visited month if the widget is globally open
@@ -135,12 +163,18 @@ export function Insights() {
     if (summaryState.isOpen && !summaryState.seenHashes[monthYear]) {
       const newState = {
         ...summaryState,
-        seenHashes: { ...summaryState.seenHashes, [monthYear]: currentHash }
+        seenHashes: { ...summaryState.seenHashes, [monthYear]: currentHash },
       };
       setSummaryState(newState);
       saveSummaryState(newState);
     }
-  }, [summaryState.isOpen, summaryState.seenHashes, monthYear, currentHash]);
+  }, [
+    summaryState.isOpen,
+    summaryState.seenHashes,
+    monthYear,
+    currentHash,
+    summaryState,
+  ]);
 
   const handleGenerateSummary = () => {
     setIsGenerating(true);
@@ -148,7 +182,7 @@ export function Insights() {
       setIsGenerating(false);
       const newState = {
         isOpen: true,
-        seenHashes: { ...summaryState.seenHashes, [monthYear]: currentHash }
+        seenHashes: { ...summaryState.seenHashes, [monthYear]: currentHash },
       };
       setSummaryState(newState);
       saveSummaryState(newState);
@@ -172,55 +206,61 @@ export function Insights() {
       </div>
 
       {/* ── Burn Velocity Meter (Current Month Only) ────────────────────── */}
-      {isCurrentMonth && monthSetup?.monthlyBudget && monthSetup.monthlyBudget > 0 && totalExpense > 0 ? (
-        <BurnVelocityCard burnRateData={burnRateData} budget={monthSetup.monthlyBudget} />
+      {isCurrentMonth &&
+      monthSetup?.monthlyBudget &&
+      monthSetup.monthlyBudget > 0 &&
+      totalExpense > 0 ? (
+        <BurnVelocityCard
+          burnRateData={burnRateData}
+          budget={monthSetup.monthlyBudget}
+        />
       ) : null}
 
       {/* ── Narrative Insights Card ─────────────────────────────────────── */}
       <div className="glass-card fade-in-up delay-1 mb-4 overflow-hidden border border-black/5 dark:border-white/5 bg-(--bg-glass-strong)">
-          {!shouldShowSummary && !isGenerating ? (
-            <div 
-              onClick={handleGenerateSummary}
-              className="p-6 flex flex-col items-center justify-center cursor-pointer bg-linear-to-b from-transparent to-black/5 dark:to-white/5 hover:to-black/10 dark:hover:to-white/10 transition-colors group"
-            >
-              <div className="relative mb-3.5">
-                <div className="absolute inset-0 bg-(--accent) blur-[10px] opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-full" />
-                <div className="relative w-12 h-12 rounded-full bg-linear-to-br from-(--accent)/20 to-(--accent)/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-(--accent)/20 shadow-sm">
-                  <Sparkles size={20} className="text-(--accent)" />
-                </div>
+        {!shouldShowSummary && !isGenerating ? (
+          <div
+            onClick={handleGenerateSummary}
+            className="p-6 flex flex-col items-center justify-center cursor-pointer bg-linear-to-b from-transparent to-black/5 dark:to-white/5 hover:to-black/10 dark:hover:to-white/10 transition-colors group"
+          >
+            <div className="relative mb-3.5">
+              <div className="absolute inset-0 bg-(--accent) blur-[10px] opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-full" />
+              <div className="relative w-12 h-12 rounded-full bg-linear-to-br from-(--accent)/20 to-(--accent)/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-(--accent)/20 shadow-sm">
+                <Sparkles size={20} className="text-(--accent)" />
               </div>
-              <h3 className="text-[15px] font-bold m-0 mb-1.5 tracking-wide bg-linear-to-r from-(--text) to-(--text-muted) bg-clip-text text-transparent">
-                Smart Summary
+            </div>
+            <h3 className="text-[15px] font-bold m-0 mb-1.5 tracking-wide bg-linear-to-r from-(--text) to-(--text-muted) bg-clip-text text-transparent">
+              Smart Summary
+            </h3>
+            <p className="text-[12px] font-medium text-(--text-muted) text-center max-w-[200px]">
+              Tap to analyze your recent spending patterns
+            </p>
+          </div>
+        ) : (
+          <div className="p-5 relative">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-full bg-linear-to-br from-(--accent)/20 to-transparent flex items-center justify-center">
+                <BrainCircuit size={14} className="text-(--accent)" />
+              </div>
+              <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider opacity-80">
+                Smart Analysis
               </h3>
-              <p className="text-[12px] font-medium text-(--text-muted) text-center max-w-[200px]">
-                Tap to analyze your recent spending patterns
-              </p>
             </div>
-          ) : (
-            <div className="p-5 relative">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-full bg-linear-to-br from-(--accent)/20 to-transparent flex items-center justify-center">
-                  <BrainCircuit size={14} className="text-(--accent)" />
-                </div>
-                <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider opacity-80">
-                  Smart Analysis
-                </h3>
+
+            {isGenerating ? (
+              <div className="flex flex-col gap-2.5 animate-pulse">
+                <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-full"></div>
+                <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-[85%]"></div>
+                <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-[60%]"></div>
               </div>
-              
-              {isGenerating ? (
-                <div className="flex flex-col gap-2.5 animate-pulse">
-                  <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-full"></div>
-                  <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-[85%]"></div>
-                  <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-[60%]"></div>
-                </div>
-              ) : (
-                <div className="text-[14px] leading-[1.6] text-(--text-secondary) font-medium">
-                  <RichWordFadeIn segments={summarySegments} delay={0.1} />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="text-[14px] leading-[1.6] text-(--text-secondary) font-medium">
+                <RichWordFadeIn segments={summarySegments} delay={0.1} />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* ── Spending Trend Chart Card ───────────────────────────────────── */}
       <div className="glass-card fade-in-up delay-2 mb-4 p-5">

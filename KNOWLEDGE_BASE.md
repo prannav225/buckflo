@@ -76,7 +76,7 @@ The directory structure is organized logically into modules:
   - [`App.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/App.tsx): Entry container setting up contexts and notifications.
   - [`index.css`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/index.css): Main stylesheet housing CSS variables, glassmorphic layout rules, typography setups, and Tailwind imports.
   - [`components/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components): Shared components, sub-divided into domain directories:
-    - [`layout/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout): [`AppLayout.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/AppLayout.tsx) (global header/notifications wrapper), [`BottomNav.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/BottomNav.tsx) (main layout tabs navigation), [`BrandedAvatar.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/BrandedAvatar.tsx) (deterministic boring-avatar wrapper), [`CustomDropdown.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/CustomDropdown.tsx) (upward-opening custom theme selector), [`NotificationSheet.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/NotificationSheet.tsx) (full-screen hub with Active/History tabs), [`NotificationCard.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/NotificationCard.tsx) (individual alert renderer with action buttons), [`PixelBanner.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/PixelBanner.tsx) (generative pixel-art mosaic for profile headers).
+    - [`layout/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout): [`AppLayout.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/AppLayout.tsx) (global header/notifications wrapper), [`BottomNav.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/BottomNav.tsx) (main layout tabs navigation), [`BrandedAvatar.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/BrandedAvatar.tsx) (deterministic boring-avatar wrapper), [`CustomDropdown.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/CustomDropdown.tsx) (upward-opening custom theme selector), [`NotificationSheet.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/NotificationSheet.tsx) (full-screen hub with Active/History tabs), [`NotificationCard.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/NotificationCard.tsx) (individual alert renderer with action buttons), [`PixelBanner.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/PixelBanner.tsx) (generative pixel-art mosaic for profile headers), [`ChangelogModal.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/layout/ChangelogModal.tsx) (version update announcement modal).
     - [`ui/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/ui): Reusable interface controls — [`SegmentedControl.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/ui/SegmentedControl.tsx), [`Tooltip.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/ui/Tooltip.tsx), [`blur-fade.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/ui/blur-fade.tsx), [`rich-word-fade-in.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/ui/rich-word-fade-in.tsx).
     - [`transactions/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/transactions): Sheets, presets, cards, and row item renderers.
     - [`savings/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/savings): Goal allocation, lists, and form cards.
@@ -120,7 +120,7 @@ Data persistence relies on **IndexedDB** wrapped in Dexie. Configured in [`src/d
   - _Schema_: `{ id?: number, name: string, amount: number, category: string, accountId: number, isCustom: boolean, usageCount: number, createdAt: number }`
   - _Indexes_: `++id, name, category, accountId, isCustom, usageCount`
 - **`profile`**: Singleton table housing user preferences.
-  - _Schema_: `{ id?: number, displayName: string, currency: string, currencySymbol: string, theme: 'light' | 'dark' | 'system', createdAt: Date, updatedAt: Date }`
+  - _Schema_: `{ id?: number, displayName: string, currency: string, currencySymbol: string, theme: 'light' | 'dark' | 'system', createdAt: Date, updatedAt: Date, monthlyIncome?: number | null, wizardCompleted?: boolean, watchCategories?: string[] }`
   - _Indexes_: `++id`
 - **`notifications`**: Persistent store for dismissed alerts, enabling historical recall in the Notification Hub's History tab.
   - _Schema_: `{ id?: number, title: string, message: string, type: 'info' | 'warning' | 'alert' | 'success', date: string, read: boolean, referenceId?: string }`
@@ -280,7 +280,7 @@ The [`useConfirm`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/use
 
 ## 6. Zero-to-One & Empty States (Cold Start)
 
-When a brand new user joins, all 14 smart features (presets, trend analytics, subscription detection, etc.) are invisible due to the lack of historical data. To handle this "cold start" period gracefully:
+When a brand new user joins, all 19 smart features (presets, trend analytics, subscription detection, etc.) are invisible due to the lack of historical data. To handle this "cold start" period gracefully:
 
 - **Seed Data Generator**: During Profile Setup, users can check "Generate sample data". This securely invokes `src/utils/seedData.ts` which populates:
   - 3 months of mock realistic transactions (including salary, groceries, transit, etc.)
@@ -304,6 +304,12 @@ When a brand new user joins, all 14 smart features (presets, trend analytics, su
 - If the singleton profile does not exist in IndexedDB, the app gates access and presents the **Profile Setup Page** ([`ProfileSetupPage.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/pages/ProfileSetupPage.tsx)).
 - Enforces alphabet-only string sanitization on name inputs (up to 20 characters) and presents a reactive avatar preview utilizing brand colors: Orange (`#d97757`), Dark Orange (`#c2633e`), Sage Green (`#788c5d`), Warm Cream (`#e8e6dc`), and Dark Charcoal (`#141413`).
 - Submitting writes the singleton profile record to the database, completing the gate.
+
+### Income-Based Month Setup Wizard
+
+- The first time a user encounters a new month, they are prompted via the **Income-Based Setup Wizard** ([`IncomeWizard.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/setup/IncomeWizard.tsx)).
+- This multi-step wizard handles the most critical onboarding flow: capturing expected monthly income, allocating fixed committed expenses, and intelligently deciding how to partition the leftover surplus (between the Savings Wallet and flexible Spending).
+- At the end of the flow, a `MonthSetup` record is generated, establishing the budget baseline that all smart analytics will track against.
 
 ### Generative Pixel-Art Profile Banner
 

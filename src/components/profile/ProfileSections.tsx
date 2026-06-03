@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import {
   ChevronRight,
@@ -12,6 +13,8 @@ import {
   Upload,
   Trash2,
   Bell,
+  MessageSquare,
+  ExternalLink,
 } from "lucide-react";
 import { formatINR } from "../../utils/currency";
 import { CustomDropdown } from "../layout/CustomDropdown";
@@ -297,12 +300,14 @@ export function DataBackupSection({
 
 export function AboutSection() {
   const navigate = useNavigate();
+  const FEEDBACK_FORM_URL = "https://forms.gle/JGU4iXccCsmu6X9q9";
+
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
         ABOUT
       </h3>
-      <div className="glass-card overflow-hidden">
+      <div className="glass-card overflow-hidden divide-y divide-black/5 dark:divide-white/5">
         <div
           onClick={() => navigate("/profile/about")}
           className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
@@ -325,6 +330,30 @@ export function AboutSection() {
           <ChevronRight size={16} className="text-(--text-muted)" />
         </div>
 
+        <div
+          onClick={() =>
+            window.open(FEEDBACK_FORM_URL, "_blank", "noopener,noreferrer")
+          }
+          className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
+        >
+          <div className="flex items-center gap-3.5">
+            <MessageSquare
+              size={20}
+              strokeWidth={1.5}
+              className="text-(--text-secondary) shrink-0"
+            />
+            <div>
+              <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
+                Send Feedback
+              </div>
+              <div className="font-sans text-xs text-(--text-muted) mt-0.5">
+                Help us improve — opens external form
+              </div>
+            </div>
+          </div>
+          <ExternalLink size={14} className="text-(--text-muted)" />
+        </div>
+
         {typeof navigator !== "undefined" && "share" in navigator && (
           <div
             onClick={() => {
@@ -336,7 +365,7 @@ export function AboutSection() {
                 })
                 .catch(() => {});
             }}
-            className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all border-t border-black/5 dark:border-white/5"
+            className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
           >
             <div className="flex items-center gap-3.5">
               <Upload
