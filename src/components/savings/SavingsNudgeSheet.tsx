@@ -5,6 +5,7 @@ import { updateSheetOpenState } from "../../utils/modalHelper";
 import { formatINR } from "../../utils/currency";
 import { recordTransferBidirectional } from "../../db/database";
 import { todayISO } from "../../utils/dateUtils";
+import { useBackHandler } from "../../hooks/useBackHandler";
 import toast from "react-hot-toast";
 
 interface SavingsNudgeSheetProps {
@@ -22,6 +23,8 @@ export function SavingsNudgeSheet({
 }: SavingsNudgeSheetProps) {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useBackHandler(isOpen, onClose);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

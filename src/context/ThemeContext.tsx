@@ -7,6 +7,8 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { hapticFeedback } from "../utils/haptics";
+
 
 export type Theme = "light" | "dark" | "system";
 
@@ -69,12 +71,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   });
 
   const setTheme = useCallback((nextTheme: Theme) => {
+    hapticFeedback.medium();
     setThemeState(nextTheme);
     localStorage.setItem("theme", nextTheme);
     applyTheme(nextTheme);
   }, []);
 
   const toggleTheme = useCallback(() => {
+    hapticFeedback.medium();
     setThemeState((prev) => {
       const nextTheme = prev === "dark" ? "light" : "dark";
       localStorage.setItem("theme", nextTheme);

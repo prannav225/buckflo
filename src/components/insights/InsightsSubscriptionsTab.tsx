@@ -21,6 +21,8 @@ const formatFrequency = (freq: string): string => {
   if (f === "monthly") return "Monthly";
   if (f === "weekly") return "Weekly";
   if (f === "yearly") return "Yearly";
+  if (f === "3_months") return "3 Months";
+  if (f === "6_months") return "6 Months";
   return freq.charAt(0).toUpperCase() + freq.slice(1);
 };
 

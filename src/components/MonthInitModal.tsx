@@ -8,6 +8,7 @@ import { useMonthInit } from "../hooks/useMonthInit";
 import { SpendingSection } from "./month-init/SpendingSection";
 import { CategoryBudgetsSection } from "./month-init/CategoryBudgetsSection";
 import { SavingsSection } from "./month-init/SavingsSection";
+import { useBackHandler } from "../hooks/useBackHandler";
 
 interface MonthInitModalProps {
   isOpen: boolean;
@@ -30,6 +31,10 @@ function MonthInitContent({
   onSaved,
   isEdit,
 }: ContentProps) {
+  useBackHandler(!!onClose, () => {
+    if (onClose) onClose();
+  });
+
   const {
     expendBalance,
     setExpendBalance,

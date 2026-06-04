@@ -93,7 +93,13 @@ export function AppLayout({ children }: AppLayoutProps) {
       {isOnboarded ? (
         <>
           {isMainPage && (
-            <div className="fixed top-0 left-0 right-0 h-[calc(84px+env(safe-area-inset-top,0))] bg-linear-to-b from-(--bg) via-(--bg)/30 to-transparent z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+            <div
+              className="fixed top-0 left-0 right-0 h-[calc(84px+env(safe-area-inset-top,0))] z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              style={{
+                background:
+                  "linear-gradient(to bottom, var(--bg) 0%, var(--bg) 40%, color-mix(in srgb, var(--bg) 30%, transparent) 70%, transparent 100%)",
+              }}
+            />
           )}
           <main
             className={

@@ -6,6 +6,7 @@ import type { ParsedCSVRow } from "../../utils/csvImport";
 import { useAccount } from "../../db/hooks";
 import { SegmentedControl } from "../ui/SegmentedControl";
 import { updateSheetOpenState } from "../../utils/modalHelper";
+import { useBackHandler } from "../../hooks/useBackHandler";
 import toast from "react-hot-toast";
 
 interface ImportModalProps {
@@ -20,6 +21,8 @@ export function ImportModal({ isOpen, onClose, onSuccess, activeTab }: ImportMod
   const [file, setFile] = useState<File | null>(null);
   const [parsedRows, setParsedRows] = useState<ParsedCSVRow[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useBackHandler(isOpen, () => handleCancel());
 
   // Destination account default if not specified inside CSV rows
   const [destAccount, setDestAccount] = useState<"spending" | "savings">(

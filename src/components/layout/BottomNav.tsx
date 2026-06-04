@@ -27,6 +27,7 @@ export function BottomNav() {
             key={id}
             to={to}
             end={end}
+            viewTransition
             onClick={() => hapticFeedback.light()}
             className={({ isActive }) =>
               isFab

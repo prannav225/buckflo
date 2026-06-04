@@ -5,6 +5,7 @@ import {
   nextMonthYear,
   getCurrentMonthYear,
 } from "../utils/dateUtils";
+import { hapticFeedback } from "../utils/haptics";
 
 interface MonthPickerProps {
   monthYear: string;
@@ -22,10 +23,14 @@ export function MonthPicker({
   const currentMonthYear = getCurrentMonthYear();
   const isCurrentMonth = monthYear === currentMonthYear;
 
-  const goToPrev = () => onChange(prevMonthYear(monthYear));
+  const goToPrev = () => {
+    hapticFeedback.light();
+    onChange(prevMonthYear(monthYear));
+  };
   const goToNext = () => {
     const next = nextMonthYear(monthYear);
     if (next <= currentMonthYear) {
+      hapticFeedback.light();
       onChange(next);
     }
   };

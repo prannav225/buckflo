@@ -38,7 +38,7 @@ export interface Subscription {
   id?: number;
   name: string;
   amount: number;
-  frequency: "weekly" | "monthly" | "yearly";
+  frequency: "weekly" | "monthly" | "3_months" | "6_months" | "yearly";
   nextDueDate: string; // YYYY-MM-DD
   category: string;
   status: "active" | "cancelled" | "paused";

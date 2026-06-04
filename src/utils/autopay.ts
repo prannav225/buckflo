@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 /**
  * Calculates the next due date based on current due date and frequency.
  */
-export function advanceDueDate(dateStr: string, frequency: 'weekly' | 'monthly' | 'yearly'): string {
+export function advanceDueDate(dateStr: string, frequency: 'weekly' | 'monthly' | '3_months' | '6_months' | 'yearly'): string {
   try {
     const date = parseISO(dateStr);
     let nextDate;
@@ -13,6 +13,10 @@ export function advanceDueDate(dateStr: string, frequency: 'weekly' | 'monthly' 
       nextDate = addWeeks(date, 1);
     } else if (frequency === 'yearly') {
       nextDate = addYears(date, 1);
+    } else if (frequency === '3_months') {
+      nextDate = addMonths(date, 3);
+    } else if (frequency === '6_months') {
+      nextDate = addMonths(date, 6);
     } else {
       // Default: monthly
       nextDate = addMonths(date, 1);

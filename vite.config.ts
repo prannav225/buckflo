@@ -17,9 +17,30 @@ export default defineConfig({
         theme_color: "#1f1f1e",
         background_color: "#1f1f1e",
         display: "standalone",
+        display_override: ["standalone"],
         orientation: "portrait",
         start_url: "/home",
         scope: "/",
+        shortcuts: [
+          {
+            name: "Add Transaction",
+            short_name: "Add",
+            url: "/add",
+            icons: [{ src: "buckflo_favicon.svg", sizes: "96x96", type: "image/svg+xml" }],
+          },
+          {
+            name: "View Insights",
+            short_name: "Insights",
+            url: "/insights",
+            icons: [{ src: "buckflo_favicon.svg", sizes: "96x96", type: "image/svg+xml" }],
+          },
+          {
+            name: "Monthly Budget",
+            short_name: "Budget",
+            url: "/monthly",
+            icons: [{ src: "buckflo_favicon.svg", sizes: "96x96", type: "image/svg+xml" }],
+          },
+        ],
         icons: [
           {
             src: "buckflo_appicon.svg",

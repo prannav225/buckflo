@@ -6,6 +6,7 @@ import { useProfile } from "../../hooks/useProfile";
 import { getCurrentMonthYear } from "../../utils/dateUtils";
 import { useCategories } from "../../hooks/useCategories";
 import { getSpendingWallet, db } from "../../db/database";
+import { useBackHandler } from "../../hooks/useBackHandler";
 import toast from "react-hot-toast";
 
 interface IncomeWizardProps {
@@ -17,6 +18,10 @@ interface IncomeWizardProps {
 export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps) {
   const { profile, updateProfile } = useProfile();
   const categoriesDb = useCategories();
+
+  useBackHandler(isOpen && !!onClose, () => {
+    if (onClose) onClose();
+  });
   
   const [step, setStep] = useState(1);
   const [income, setIncome] = useState("");

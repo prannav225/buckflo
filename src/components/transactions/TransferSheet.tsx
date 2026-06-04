@@ -6,6 +6,7 @@ import { useAccount } from "../../db/hooks";
 import { formatINR } from "../../utils/currency";
 import { useTransferForm } from "../../hooks/useTransferForm";
 import { SegmentedControl } from "../ui/SegmentedControl";
+import { useBackHandler } from "../../hooks/useBackHandler";
 
 interface TransferSheetProps {
   isOpen: boolean;
@@ -23,6 +24,8 @@ function TransferSheetContent({
   defaultNote = "",
 }: Omit<TransferSheetProps, "isOpen">) {
   const savingsAcc = useAccount("savings");
+
+  useBackHandler(true, onClose);
   const spendingAcc = useAccount("spending");
   const savingsBalance = savingsAcc?.currentBalance ?? 0;
   const expenditureBalance = spendingAcc?.currentBalance ?? 0;

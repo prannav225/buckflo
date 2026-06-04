@@ -7,6 +7,7 @@ import { CustomDatePicker } from "../CustomDatePicker";
 import { updateSheetOpenState } from "../../utils/modalHelper";
 import { useManageGoal } from "../../hooks/useManageGoal";
 import { todayISO } from "../../utils/dateUtils";
+import { useBackHandler } from "../../hooks/useBackHandler";
 
 function ManageGoalSheetContent({
   onClose,
@@ -17,6 +18,8 @@ function ManageGoalSheetContent({
   goal: SavingGoal;
   unallocatedBalance: number;
 }) {
+  useBackHandler(true, onClose);
+
   const {
     name,
     setName,

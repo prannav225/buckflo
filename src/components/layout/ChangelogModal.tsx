@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { CheckCircle2, ChevronRight, Sparkles, X } from "lucide-react";
 import { hapticFeedback } from "../../utils/haptics";
+import { useBackHandler } from "../../hooks/useBackHandler";
 
 const CURRENT_VERSION = "2.0";
 
 export function ChangelogModal() {
   const [isOpen, setIsOpen] = useState(false);
+
+  useBackHandler(isOpen, () => handleClose());
 
   useEffect(() => {
     // Check if the user has an existing profile

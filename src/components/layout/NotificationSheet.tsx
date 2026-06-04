@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Bell, History, Clock } from "lucide-react";
 import { updateSheetOpenState } from "../../utils/modalHelper";
+import { useBackHandler } from "../../hooks/useBackHandler";
 import { NotificationCard } from "./NotificationCard";
 import { type NotificationItem } from "../../hooks/useNotificationHub";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -21,6 +22,8 @@ export function NotificationSheet({
   onDismiss,
 }: NotificationSheetProps) {
   const [activeTab, setActiveTab] = useState<"new" | "history">("new");
+
+  useBackHandler(isOpen, onClose);
 
   const history = useLiveQuery(
     () => db.notifications.orderBy("date").reverse().toArray(),

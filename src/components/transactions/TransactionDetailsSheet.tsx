@@ -4,6 +4,7 @@ import type { Transaction } from "../../db/database";
 import { formatINR } from "../../utils/currency";
 import { formatDate } from "../../utils/dateUtils";
 import { useTransactionDetails } from "../../hooks/useTransactionDetails";
+import { useBackHandler } from "../../hooks/useBackHandler";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -35,6 +36,8 @@ export function TransactionDetailsSheet({
 }: TransactionDetailsSheetProps) {
   const { confirmDelete, setConfirmDelete, handleDelete, handleEdit } =
     useTransactionDetails(tx, onClose);
+
+  useBackHandler(isOpen, onClose);
 
   if (!isOpen) return null;
 

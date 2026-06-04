@@ -1,5 +1,7 @@
 import React from "react";
-import { Wallet, ChevronDown, X } from "lucide-react";
+import { Wallet, ChevronDown, X, Check } from "lucide-react";
+import { addCategory } from "../../db/database";
+import toast from "react-hot-toast";
 
 interface CategoryBudgetsSectionProps {
   showCatBudgets: boolean;
@@ -18,6 +20,39 @@ export function CategoryBudgetsSection({
   setCatBudgets,
   handleBlur,
 }: CategoryBudgetsSectionProps) {
+  const [isAddingCategory, setIsAddingCategory] = React.useState(false);
+  const [newCategoryName, setNewCategoryName] = React.useState("");
+  const categoryInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleSaveNewCategory = async () => {
+    const name = newCategoryName.trim();
+    if (name) {
+      const isDuplicate = budgetableCategories.some(
+        (cat) => cat.toLowerCase() === name.toLowerCase(),
+      );
+      if (isDuplicate) {
+        toast.error("Category already exists");
+        return;
+      }
+      try {
+        await addCategory({
+          name,
+          color: "#d97757",
+          isCustom: true,
+        });
+        setCatBudgets((prev) => ({
+          ...prev,
+          [name]: "",
+        }));
+        toast.success("Category created and added to budgets");
+      } catch (err) {
+        toast.error("Failed to create category");
+      }
+    }
+    setIsAddingCategory(false);
+    setNewCategoryName("");
+  };
+
   const activeCategories = budgetableCategories.filter(
     (cat) => catBudgets[cat] !== undefined && catBudgets[cat] !== "0"
   );
@@ -131,7 +166,47 @@ export function CategoryBudgetsSection({
                   <span>+</span> {cat}
                 </button>
               ))}
-              {inactiveCategories.length === 0 && (
+
+              {isAddingCategory ? (
+                <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 rounded-full pl-3 pr-1 py-1 border border-black/10 dark:border-white/10">
+                  <input
+                    ref={categoryInputRef}
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Name..."
+                    className="bg-transparent border-none outline-none text-xs text-(--text) w-20 p-0 m-0"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSaveNewCategory();
+                      } else if (e.key === "Escape") {
+                        setIsAddingCategory(false);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveNewCategory}
+                    className="w-6 h-6 flex items-center justify-center bg-(--accent) text-white rounded-full transition-transform active:scale-90 cursor-pointer"
+                  >
+                    <Check size={12} strokeWidth={3} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="px-3 py-1.5 text-xs font-medium rounded-full border border-dashed border-black/20 dark:border-white/20 hover:border-black/40 dark:hover:border-white/40 bg-transparent text-(--text-secondary) hover:text-(--text) cursor-pointer transition-all flex items-center gap-1 select-none"
+                  onClick={() => {
+                    setIsAddingCategory(true);
+                    setTimeout(() => categoryInputRef.current?.focus(), 50);
+                  }}
+                >
+                  + New
+                </button>
+              )}
+
+              {inactiveCategories.length === 0 && !isAddingCategory && (
                 <span className="text-xs text-(--text-muted) italic">All categories have budgets set.</span>
               )}
             </div>

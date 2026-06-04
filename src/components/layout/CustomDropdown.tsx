@@ -11,6 +11,7 @@ interface CustomDropdownProps<T> {
   value: T;
   onChange: (value: T) => void;
   id?: string;
+  variant?: "default" | "form";
 }
 
 export function CustomDropdown<T extends string>({
@@ -18,6 +19,7 @@ export function CustomDropdown<T extends string>({
   value,
   onChange,
   id,
+  variant = "default",
 }: CustomDropdownProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,6 +41,7 @@ export function CustomDropdown<T extends string>({
   }, []);
 
   const activeOption = options.find((opt) => opt.value === value);
+  const isForm = variant === "form";
 
   return (
     <div className="relative inline-block w-full text-left" ref={containerRef}>
@@ -46,12 +49,16 @@ export function CustomDropdown<T extends string>({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full justify-between bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/8 rounded-lg px-3 py-2 text-[0.8125rem] font-semibold text-(--text) outline-none cursor-pointer flex items-center gap-1.5 hover:bg-black/8 dark:hover:bg-white/8 transition-colors select-none"
+        className={
+          isForm
+            ? "input-field flex items-center justify-between cursor-pointer select-none text-left w-full"
+            : "w-full justify-between bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/8 rounded-lg px-3 py-2 text-[0.8125rem] font-semibold text-(--text) outline-none cursor-pointer flex items-center gap-1.5 hover:bg-black/8 dark:hover:bg-white/8 transition-colors select-none"
+        }
         id={id}
       >
         <span>{activeOption?.label || value}</span>
         <ChevronDown
-          size={14}
+          size={isForm ? 18 : 14}
           className={`text-(--text-muted) transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}

@@ -160,6 +160,7 @@ export interface HistoricalDataPoint {
   monthYear: string;
   totalDebited: number;
   netWorth: number;
+  savingsBalance: number;
 }
 
 export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
@@ -199,6 +200,7 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
             monthYear: mYear,
             totalDebited: 0,
             netWorth: 0,
+            savingsBalance: 0,
           });
           continue;
         }
@@ -246,6 +248,7 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
           monthYear: mYear,
           totalDebited: +totalExpense.toFixed(2),
           netWorth: +(expBal + savBal).toFixed(2),
+          savingsBalance: +savBal.toFixed(2),
         });
       }
 

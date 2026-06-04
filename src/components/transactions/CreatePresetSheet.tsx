@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { X, CreditCard, PiggyBank } from "lucide-react";
-import { db, addPreset, updatePreset } from "../../db/database";
+import { X, CreditCard, PiggyBank, Check } from "lucide-react";
+import { db, addPreset, updatePreset, addCategory } from "../../db/database";
 import { useAccount } from "../../db/hooks";
 import { useCategories } from "../../hooks/useCategories";
 import { updateSheetOpenState } from "../../utils/modalHelper";
+import { useBackHandler } from "../../hooks/useBackHandler";
 import toast from "react-hot-toast";
 
 interface CreatePresetSheetProps {
@@ -17,6 +18,8 @@ interface CreatePresetSheetProps {
 export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePresetSheetProps) {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
+
+  useBackHandler(isOpen, onClose);
   const [category, setCategory] = useState("");
   const [accountType, setAccountType] = useState<"spending" | "savings">("spending");
   const [saving, setSaving] = useState(false);
@@ -24,6 +27,36 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
   const spendingAcc = useAccount("spending");
   const savingsAcc = useAccount("savings");
   const categories = useCategories();
+
+  // Category creator states
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const categoryInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSaveNewCategory = async () => {
+    const name = newCategoryName.trim();
+    if (name) {
+      const isDuplicate = categories.some(
+        (c) => c.name.toLowerCase() === name.toLowerCase(),
+      );
+      if (isDuplicate) {
+        toast.error("Category already exists");
+        return;
+      }
+      try {
+        await addCategory({
+          name,
+          color: "#d97757",
+          isCustom: true,
+        });
+        setCategory(name);
+      } catch {
+        toast.error("Failed to create category");
+      }
+    }
+    setIsAddingCategory(false);
+    setNewCategoryName("");
+  };
 
   useEffect(() => {
     updateSheetOpenState();
@@ -165,6 +198,45 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
                     {c.name}
                   </button>
                 ))}
+
+              {isAddingCategory ? (
+                <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 rounded-full pl-3 pr-1 py-1 border border-black/10 dark:border-white/10">
+                  <input
+                    ref={categoryInputRef}
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Name..."
+                    className="bg-transparent border-none outline-none text-[0.8125rem] text-(--text) w-20 p-0 m-0"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSaveNewCategory();
+                      } else if (e.key === "Escape") {
+                        setIsAddingCategory(false);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveNewCategory}
+                    className="w-6 h-6 flex items-center justify-center bg-(--accent) text-white rounded-full transition-transform active:scale-90 cursor-pointer"
+                  >
+                    <Check size={12} strokeWidth={3} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="chip py-2 px-4 text-[0.8125rem] border-dashed border-black/20 dark:border-white/20 hover:border-black/40 dark:hover:border-white/40 bg-transparent cursor-pointer"
+                  onClick={() => {
+                    setIsAddingCategory(true);
+                    setTimeout(() => categoryInputRef.current?.focus(), 50);
+                  }}
+                >
+                  + New
+                </button>
+              )}
             </div>
           </div>
 

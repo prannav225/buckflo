@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { updateSheetOpenState } from "../utils/modalHelper";
+import { useBackHandler } from "../hooks/useBackHandler";
 
 // ─── Shared Types (imported by useConfirm.ts) ─────────────────────────────────
 
@@ -28,6 +29,13 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
+  const handleCancel = () => {
+    state?.resolve(false);
+    onClose();
+  };
+
+  useBackHandler(!!state, handleCancel);
+
   // Handle active overlay body class for inactive background visual dimming
   useEffect(() => {
     updateSheetOpenState();
@@ -35,6 +43,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
       setTimeout(updateSheetOpenState, 0);
     };
   }, [state]);
+
 
   // Focus Cancel on open for accessibility
   useEffect(() => {
@@ -63,11 +72,6 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
 
   const handleConfirm = () => {
     state.resolve(true);
-    onClose();
-  };
-
-  const handleCancel = () => {
-    state.resolve(false);
     onClose();
   };
 

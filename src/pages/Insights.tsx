@@ -319,6 +319,54 @@ export function Insights() {
         )}
       </div>
 
+      {/* ── Savings Trend Chart Card ─────────────────────────────────────── */}
+      <div className="glass-card fade-in-up delay-2 mb-4 p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 className="text-xs font-semibold text-(--text-secondary) uppercase tracking-wider mb-1">
+              Savings Trend
+            </h3>
+            <p className="text-[0.6875rem] text-(--text-muted) m-0">
+              Your overall savings balance over time
+            </p>
+          </div>
+        </div>
+
+        {historicalData.length > 0 ? (
+          <div className="h-[180px] w-full mt-2">
+            <Line
+              data={{
+                labels: historicalData.map((d) => d.label),
+                datasets: [
+                  {
+                    label: "Savings Balance",
+                    data: historicalData.map((d) => d.savingsBalance),
+                    borderColor: "#5a9e6f", // var(--credit)
+                    backgroundColor: (context) => {
+                      const ctx = context.chart.ctx;
+                      const gradient = ctx.createLinearGradient(0, 0, 0, 150);
+                      gradient.addColorStop(0, "rgba(90, 158, 111, 0.2)");
+                      gradient.addColorStop(1, "rgba(90, 158, 111, 0)");
+                      return gradient;
+                    },
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    borderWidth: 2.5,
+                  },
+                ],
+              }}
+              options={commonOptions}
+            />
+          </div>
+        ) : (
+          <div className="py-12 text-center text-(--text-muted) text-xs">
+            No historical savings trend records found
+          </div>
+        )}
+      </div>
+
       {/* ── Category Spend breakdown ────────────────────────────────────── */}
       {sortedCategories.length > 0 ? (
         <BudgetOverviewCard

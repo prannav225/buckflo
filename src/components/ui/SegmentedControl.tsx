@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { hapticFeedback } from "../../utils/haptics";
 
 interface SegmentedControlProps<T extends string> {
   options: readonly T[] | T[];
@@ -49,7 +50,10 @@ export function SegmentedControl<T extends string>({
             key={option}
             id={idPrefix ? `${idPrefix}-${option}` : undefined}
             type="button"
-            onClick={() => onChange(option)}
+            onClick={() => {
+              hapticFeedback.light();
+              onChange(option);
+            }}
             className={`flex-1 border-none rounded-full py-1.5 text-[0.6875rem] font-bold tracking-wider uppercase cursor-pointer transition-all duration-200 ease-out flex items-center justify-center gap-1 ${
               isActive
                 ? getActiveClass(option)

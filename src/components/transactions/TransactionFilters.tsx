@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, X, SlidersHorizontal } from "lucide-react";
 import { SegmentedControl } from "../ui/SegmentedControl";
+import { hapticFeedback } from "../../utils/haptics";
 
 interface TransactionFiltersProps {
   searchQuery: string;
@@ -60,7 +61,10 @@ export function TransactionFilters({
         </div>
 
         <button
-          onClick={() => setShowFilters(!showFilters)}
+          onClick={() => {
+            hapticFeedback.light();
+            setShowFilters(!showFilters);
+          }}
           className={`p-0 rounded-xl flex items-center justify-center cursor-pointer shrink-0 transition-all w-[38px] h-[38px] outline-none ${
             showFilters
               ? "bg-(--accent)/10 text-(--accent) border border-(--accent)/40 shadow-xs"
@@ -135,6 +139,7 @@ export function TransactionFilters({
                 <button
                   key={preset.label}
                   onClick={() => {
+                    hapticFeedback.light();
                     setMinAmount(preset.value);
                     onResetPage();
                   }}
@@ -194,6 +199,7 @@ export function TransactionFilters({
             <div className="flex justify-end pt-1 border-t border-black/5 dark:border-white/5">
               <button
                 onClick={() => {
+                  hapticFeedback.light();
                   setMinAmount("");
                   setMaxAmount("");
                   setSortBy("date_desc");

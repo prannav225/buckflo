@@ -68,7 +68,7 @@
       (function() {
         const saved = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const isDark = saved === 'dark' || (!saved && prefersDark);
+        const isDark = saved === 'dark' || (saved !== 'light' && prefersDark);
         if (isDark) {
           document.documentElement.classList.add('dark');
           document.documentElement.classList.remove('light');
@@ -80,7 +80,7 @@
         const color = isDark ? "#1f1f1e" : "#f8f8f6";
         metas.forEach(meta => {
           meta.setAttribute("content", color);
-          if (saved) {
+          if (saved && saved !== "system") {
             meta.removeAttribute("media");
           }
         });

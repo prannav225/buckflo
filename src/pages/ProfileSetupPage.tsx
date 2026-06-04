@@ -120,6 +120,7 @@ export function ProfileSetupPage() {
               options={currencyOptions}
               value={currency}
               onChange={(val) => setCurrency(val as string)}
+              variant="form"
             />
           </div>
 

@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { formatINR } from "../../utils/currency";
 import { CustomDatePicker } from "../CustomDatePicker";
 import { useCreateGoal } from "../../hooks/useCreateGoal";
+import { useBackHandler } from "../../hooks/useBackHandler";
 
 interface CreateGoalSheetProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ function CreateGoalSheetContent({
   onClose: () => void;
   unallocatedBalance: number;
 }) {
+  useBackHandler(true, onClose);
+
   const {
     name,
     setName,

@@ -122,6 +122,7 @@ export function EditProfilePage() {
               options={currencyOptions}
               value={currency}
               onChange={(val) => setCurrency(val as string)}
+              variant="form"
             />
           </div>
 

@@ -7,6 +7,7 @@ import { getCurrentMonthYear } from "../../utils/dateUtils";
 import { MonthPicker } from "../MonthPicker";
 import { CustomDatePicker } from "../CustomDatePicker";
 import { updateSheetOpenState } from "../../utils/modalHelper";
+import { useBackHandler } from "../../hooks/useBackHandler";
 import { db } from "../../db/database";
 
 interface ExportSheetProps {
@@ -23,6 +24,8 @@ export function ExportSheet({
   const [rangeType, setRangeType] = useState<
     "current" | "specific" | "range" | "all"
   >("current");
+
+  useBackHandler(isOpen, onClose);
   const [specificMonth, setSpecificMonth] = useState(getCurrentMonthYear());
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
