@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, ChevronRight, Target, ShieldCheck, Plus, X, ReceiptText, Zap } from "lucide-react";
+import { ArrowLeft, ChevronRight, Target } from "lucide-react";
 import { DueDatePicker } from "../ui/DueDatePicker";
 import { updateSheetOpenState } from "../../utils/modalHelper";
 import { useProfile } from "../../hooks/useProfile";
