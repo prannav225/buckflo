@@ -15,7 +15,7 @@ import { formatINR } from "../../utils/currency";
 import { updateSubscription, type Subscription } from "../../db/database";
 import { useConfirm } from "../../hooks/useConfirm";
 import { useSubscriptionLogic } from "../../hooks/useSubscriptionLogic";
-import { formatMonthYear } from "../../utils/dateUtils";
+import { formatMonthYear, getCurrentMonthYear } from "../../utils/dateUtils";
 
 const formatFrequency = (freq: string): string => {
   const f = freq.toLowerCase();
@@ -42,6 +42,8 @@ export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
     toggleStatus,
   } = useSubscriptionLogic(monthYear);
 
+  const isCurrentMonth = !monthYear || monthYear === getCurrentMonthYear();
+
   // Calculate days remaining helper
   const getDaysLeft = (dateStr: string) => {
     const today = startOfDay(new Date());
@@ -59,6 +61,23 @@ export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
     return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20";
   };
 
+  if (!isCurrentMonth) {
+    return (
+      <div className="fade-in-up flex flex-col items-center justify-center p-8 text-center glass-card rounded-xl">
+        <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-4">
+          <Clock size={24} className="text-(--text-muted) opacity-50" />
+        </div>
+        <h3 className="text-[14px] font-bold text-(--text) m-0 mb-1">
+          No Historical Data
+        </h3>
+        <p className="text-[12px] text-(--text-muted) leading-relaxed">
+          Subscriptions are globally tracked to manage active and future
+          recurring bills. Past subscription states are not recorded.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       {confirmDialog}
@@ -67,7 +86,8 @@ export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
         <div className="glass-card-strong px-5 py-3.5 flex items-center justify-between">
           <div>
             <div className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider mb-0.5">
-              Active Total {monthYear ? `(${formatMonthYear(monthYear).split(' ')[0]})` : ''}
+              Active Total{" "}
+              {monthYear ? `(${formatMonthYear(monthYear).split(" ")[0]})` : ""}
             </div>
             <div className="text-xl font-display text-(--text)">
               {formatINR(totalCommitted)}
@@ -78,7 +98,8 @@ export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
               Subscriptions
             </div>
             <div className="text-lg font-display text-(--text)">
-              {approvedSubs.filter((s) => s.status === "active").length} <span className="text-xs text-(--text-muted)">active</span>
+              {approvedSubs.filter((s) => s.status === "active").length}{" "}
+              <span className="text-xs text-(--text-muted)">active</span>
             </div>
           </div>
         </div>
@@ -90,9 +111,14 @@ export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
               Active Subscriptions ({sortedSubs.length})
             </h3>
             <div className="group relative flex items-center cursor-help">
-              <HelpCircle size={12} className="text-(--text-muted) opacity-70 hover:opacity-100 transition-opacity" />
+              <HelpCircle
+                size={12}
+                className="text-(--text-muted) opacity-70 hover:opacity-100 transition-opacity"
+              />
               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 p-2.5 bg-white dark:bg-[#2e2e2c] text-[11px] text-(--text) font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 text-center border border-black/10 dark:border-white/10 leading-relaxed">
-                Recurring bills and subscriptions that are automatically deducted. These are completely separate from your Planned Budgets.
+                Recurring bills and subscriptions that are automatically
+                deducted. These are completely separate from your Planned
+                Budgets.
               </div>
             </div>
           </div>

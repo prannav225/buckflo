@@ -26,6 +26,7 @@ export function useMonthInit({
   const [catBudgets, setCatBudgets] = useState<Record<string, string>>({});
   const [catDueDays, setCatDueDays] = useState<Record<string, number | undefined>>({});
   const [showCatBudgets, setShowCatBudgets] = useState(false);
+  const [hasPreviousMonth, setHasPreviousMonth] = useState(false);
 
   const handleBlur = (val: string, setter: (v: string) => void) => {
     if (!val) return;
@@ -90,10 +91,21 @@ export function useMonthInit({
     if (isEdit) return;
 
     let cancelled = false;
+
+    const [yearStr, monthStr] = monthYear.split("-");
+    let y = parseInt(yearStr, 10);
+    let m = parseInt(monthStr, 10) - 1;
+    if (m === 0) {
+      m = 12;
+      y -= 1;
+    }
+    const prevMonthStr = `${y}-${m.toString().padStart(2, "0")}`;
+
     Promise.all([
       getSpendingWallet(),
       getSavingsWallet(),
-    ]).then(([spendingAcc, savingsAcc]) => {
+      db.monthSetups.where("monthYear").equals(prevMonthStr).count(),
+    ]).then(([spendingAcc, savingsAcc, prevCount]) => {
       if (cancelled) return;
       if (spendingAcc) {
         setExpendBalance(formatNumber(spendingAcc.currentBalance, 2, 0));
@@ -101,6 +113,7 @@ export function useMonthInit({
       if (savingsAcc) {
         setSavingsBalance(formatNumber(savingsAcc.currentBalance, 2, 0));
       }
+      setHasPreviousMonth(prevCount > 0);
     });
 
     return () => {
@@ -336,5 +349,6 @@ export function useMonthInit({
     handleBlur,
     handleSubmit,
     copyFromPreviousMonth,
+    hasPreviousMonth,
   };
 }

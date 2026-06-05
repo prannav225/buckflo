@@ -56,6 +56,7 @@ function MonthInitContent({
     handleBlur,
     handleSubmit,
     copyFromPreviousMonth,
+    hasPreviousMonth,
   } = useMonthInit({ onClose, monthYear, onSaved, isEdit });
 
   const categoriesDb = useCategories();
@@ -115,13 +116,19 @@ function MonthInitContent({
           onSubmit={handleSubmit}
           className="max-h-[70vh] overflow-y-auto pr-1 pb-4"
         >
-          {!isEdit && (
+          {!isEdit && hasPreviousMonth ? (
             <div className="bg-(--accent)/10 border border-(--accent)/20 rounded-xl p-3 mb-5 mt-2">
               <p className="text-[12px] leading-relaxed text-(--text) font-sans m-0">
                 Your remaining balances from last month have been automatically carried forward. You can adjust them if needed.
               </p>
             </div>
-          )}
+          ) : !isEdit && !hasPreviousMonth ? (
+             <div className="bg-(--accent)/10 border border-(--accent)/20 rounded-xl p-3 mb-5 mt-2">
+              <p className="text-[12px] leading-relaxed text-(--text) font-sans m-0">
+                Enter your starting balance for this month. We have pre-filled it with your current wallet balance for convenience.
+              </p>
+            </div>
+          ) : null}
 
           <SpendingSection
             expendBalance={expendBalance}
