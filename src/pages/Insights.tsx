@@ -56,6 +56,7 @@ export function Insights() {
   for (const tx of transactions) {
     if (tx.type === "debit") {
       if (
+        tx.isCommitted ||
         tx.category === "transfer" ||
         tx.category === "Transfer" ||
         tx.category === "starting-transfer"

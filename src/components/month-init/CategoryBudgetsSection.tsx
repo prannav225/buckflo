@@ -2,6 +2,7 @@ import React from "react";
 import { Wallet, ChevronDown, X, Check } from "lucide-react";
 import { addCategory } from "../../db/database";
 import toast from "react-hot-toast";
+import { DueDatePicker } from "../ui/DueDatePicker";
 
 interface CategoryBudgetsSectionProps {
   showCatBudgets: boolean;
@@ -9,6 +10,8 @@ interface CategoryBudgetsSectionProps {
   budgetableCategories: string[];
   catBudgets: Record<string, string>;
   setCatBudgets: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  catDueDays: Record<string, number | undefined>;
+  setCatDueDays: React.Dispatch<React.SetStateAction<Record<string, number | undefined>>>;
   handleBlur: (val: string, setter: (val: string) => void) => void;
 }
 
@@ -18,6 +21,8 @@ export function CategoryBudgetsSection({
   budgetableCategories,
   catBudgets,
   setCatBudgets,
+  catDueDays,
+  setCatDueDays,
   handleBlur,
 }: CategoryBudgetsSectionProps) {
   const [isAddingCategory, setIsAddingCategory] = React.useState(false);
@@ -44,7 +49,11 @@ export function CategoryBudgetsSection({
           ...prev,
           [name]: "",
         }));
-        toast.success("Category created and added to budgets");
+        setCatDueDays((prev) => ({
+          ...prev,
+          [name]: undefined,
+        }));
+        toast.success("Category created and added to committed expenses");
       } catch (err) {
         toast.error("Failed to create category");
       }
@@ -77,7 +86,7 @@ export function CategoryBudgetsSection({
             <Wallet size={15} className="text-(--accent)" />
           </div>
           <span className="font-sans text-sm font-semibold tracking-tight">
-            Category Budgets{" "}
+            Committed Expenses{" "}
             <span className="font-normal opacity-60 text-[0.8125rem]">
               — optional
             </span>
@@ -96,51 +105,65 @@ export function CategoryBudgetsSection({
           {activeCategories.length > 0 && (
             <div className="flex flex-col gap-2.5">
               <div className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
-                Active Budgets ({activeCategories.length})
+                Active Committed Expenses ({activeCategories.length})
               </div>
               {activeCategories.map((cat) => (
-                <div key={cat} className="flex items-center gap-2.5 bg-black/2 dark:bg-white/2 p-2 rounded-xl border border-black/5 dark:border-white/5">
-                  <span className="font-sans text-[0.8125rem] font-medium text-(--text) min-w-[90px] shrink-0 pl-1">
-                    {cat}
-                  </span>
-                  <div className="flex-1 flex items-center gap-1 bg-(--bg-surface) rounded-(--r-md) px-2.5 border border-black/8 dark:border-white/6">
-                    <span className="text-[0.8125rem] text-(--text-muted) font-medium">
-                      ₹
+                <div key={cat} className="flex flex-col gap-2 bg-black/2 dark:bg-white/2 p-3 rounded-xl border border-black/5 dark:border-white/5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-sans text-sm font-medium text-(--text) pl-1">
+                      {cat}
                     </span>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      placeholder="Enter limit"
-                      value={catBudgets[cat] || ""}
-                      onChange={(e) =>
+                    <button
+                      type="button"
+                      onClick={() => {
                         setCatBudgets((prev) => ({
                           ...prev,
-                          [cat]: e.target.value,
-                        }))
-                      }
-                      onBlur={() => {
-                        const val = catBudgets[cat];
-                        if (val)
-                          handleBlur(val, (v) =>
-                            setCatBudgets((prev) => ({ ...prev, [cat]: v })),
-                          );
+                          [cat]: "0",
+                        }));
+                        setCatDueDays((prev) => ({
+                          ...prev,
+                          [cat]: undefined,
+                        }));
                       }}
-                      className="border-none bg-transparent outline-none font-sans text-sm font-semibold text-(--text) py-2 w-full"
+                      className="btn-ghost p-1.5 min-h-0 h-auto rounded-full text-(--text-muted) hover:text-(--debit) cursor-pointer"
+                      title="Remove expense"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex items-center gap-1.5 bg-(--bg-surface) rounded-(--r-md) px-3 border border-black/8 dark:border-white/6">
+                      <span className="text-sm text-(--text-muted) font-medium">
+                        ₹
+                      </span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        placeholder="Amount"
+                        value={catBudgets[cat] || ""}
+                        onChange={(e) =>
+                          setCatBudgets((prev) => ({
+                            ...prev,
+                            [cat]: e.target.value,
+                          }))
+                        }
+                        onBlur={() => {
+                          const val = catBudgets[cat];
+                          if (val)
+                            handleBlur(val, (v) =>
+                              setCatBudgets((prev) => ({ ...prev, [cat]: v })),
+                            );
+                        }}
+                        className="border-none bg-transparent outline-none font-sans text-sm font-semibold text-(--text) py-2.5 w-full min-w-0"
+                      />
+                    </div>
+                    
+                    <DueDatePicker
+                      value={catDueDays[cat]}
+                      onChange={(val) => setCatDueDays(prev => ({ ...prev, [cat]: val }))}
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCatBudgets((prev) => ({
-                        ...prev,
-                        [cat]: "0",
-                      }));
-                    }}
-                    className="btn-ghost p-1.5 min-h-0 h-auto rounded-full text-(--text-muted) hover:text-(--debit) cursor-pointer"
-                    title="Remove budget"
-                  >
-                    <X size={14} />
-                  </button>
                 </div>
               ))}
             </div>
@@ -148,7 +171,7 @@ export function CategoryBudgetsSection({
 
           <div className="flex flex-col gap-2">
             <div className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
-              {activeCategories.length > 0 ? "Add budget for other categories" : "Select categories to budget"}
+              Add Other Committed Expenses
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
               {inactiveCategories.map((cat) => (

@@ -5,6 +5,16 @@ export interface Account {
   currentBalance: number;
 }
 
+export interface CommittedExpenseEntry {
+  name: string;
+  category: string;
+  amount: number;
+  dueDay?: number; // 1-31
+  isPaid: boolean;
+  paidDate?: string; // ISO date
+  transactionId?: number;
+}
+
 export interface MonthSetup {
   id?: number;
   monthYear: string; // e.g. "2026-05"
@@ -12,6 +22,7 @@ export interface MonthSetup {
   monthlyBudget: number;
   accountId: number;
   categoryBudgets?: Record<string, number>;
+  committedExpenses?: CommittedExpenseEntry[];
 }
 
 export interface Transaction {
@@ -24,6 +35,7 @@ export interface Transaction {
   category?: string;
   createdAt: number; // Date.now()
   transferId?: number;
+  isCommitted?: boolean; // true = committed expense, excluded from flexible wallet math
 }
 
 export interface SavingGoal {

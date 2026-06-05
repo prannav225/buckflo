@@ -11,6 +11,7 @@ export function useActiveAlerts({
   spent,
   spentPct,
   monthYear,
+  monthSetup,
   subAlerts,
   catAlerts,
   advisor,
@@ -27,7 +28,7 @@ export function useActiveAlerts({
     if (budget > 0) {
       if (spent >= budget) {
         alerts.push({
-          id: `budget-exceeded-${monthYear}-${Math.floor(spent)}`,
+          id: `budget-exceeded-${monthYear}`,
           type: "danger",
           category: "alerts",
           title: "Over your target",
@@ -40,7 +41,7 @@ export function useActiveAlerts({
         });
       } else if (spentPct >= 80) {
         alerts.push({
-          id: `budget-warning-${monthYear}-${Math.floor(spentPct)}`,
+          id: `budget-warning-${monthYear}`,
           type: "warning",
           category: "alerts",
           title: "Budget Threshold Crossed",
@@ -56,7 +57,7 @@ export function useActiveAlerts({
 
     for (const cat of catAlerts) {
       alerts.push({
-        id: `cat-alert-${monthYear}-${cat.category}-${cat.isExceeded ? "exceeded" : "warning"}-${Math.floor(cat.spent)}`,
+        id: `cat-alert-${monthYear}-${cat.category}-${cat.isExceeded ? "exceeded" : "warning"}`,
         type: cat.isExceeded ? "danger" : "warning",
         category: "alerts",
         title: `${cat.category} Budget ${cat.isExceeded ? "Exceeded" : "Alert"}`,
@@ -65,28 +66,49 @@ export function useActiveAlerts({
           : `Spent ${Math.round(cat.percentUsed)}% of ${formatINR(cat.budget)} category limit (${formatINR(cat.spent)} used).`,
         iconName: cat.isExceeded ? "alert" : "budget",
         action: {
-          label: "Adjust Budgets",
+          label: "View Feed",
           onClick: () => navigate("/monthly"),
         },
       });
     }
 
-    for (const sub of subAlerts) {
-      if (sub.daysLeft <= 7) {
-        alerts.push({
-          id: `sub-due-${sub.description}-${sub.nextDueDate}`,
-          type: sub.daysLeft <= 2 ? "warning" : "info",
-          category: "bills",
-          title: `Upcoming Auto-Pay: ${sub.description}`,
-          description: `${formatINR(sub.amount)} is auto-renewing in ${sub.daysLeft} days (${sub.nextDueDate}).`,
-          iconName: "sub",
-          action: {
-            label: "Manage Subs",
-            onClick: () => navigate("/insights"),
-          },
-        });
+    // ── Committed Expense Due Date Alerts ─────────────────────────────
+    if (monthSetup?.committedExpenses) {
+      const today = new Date().getDate();
+      for (const ce of monthSetup.committedExpenses) {
+        if (ce.isPaid || !ce.dueDay) continue;
+        const daysUntilDue = ce.dueDay - today;
+
+        if (daysUntilDue === 0) {
+          alerts.push({
+            id: `committed-due-today-${ce.name}-${monthYear}`,
+            type: "warning",
+            category: "bills",
+            title: `${ce.name} is due today`,
+            description: `${formatINR(ce.amount)} for ${ce.name} is due today. Go to Monthly → Committed Expenses to mark it as paid.`,
+            iconName: "sub",
+            action: {
+              label: "Go to Monthly",
+              onClick: () => navigate("/monthly?tab=committed"),
+            },
+          });
+        } else if (daysUntilDue > 0 && daysUntilDue <= 2) {
+          alerts.push({
+            id: `committed-due-soon-${ce.name}-${monthYear}-${daysUntilDue}`,
+            type: "info",
+            category: "bills",
+            title: `${ce.name} due in ${daysUntilDue} day${daysUntilDue > 1 ? "s" : ""}`,
+            description: `${formatINR(ce.amount)} for ${ce.name} is due on the ${ce.dueDay}${ce.dueDay === 1 ? "st" : ce.dueDay === 2 ? "nd" : ce.dueDay === 3 ? "rd" : "th"}.`,
+            iconName: "sub",
+            action: {
+              label: "Go to Monthly",
+              onClick: () => navigate("/monthly?tab=committed"),
+            },
+          });
+        }
       }
     }
+
 
     if (advisor?.shouldShow) {
       alerts.push({
@@ -130,7 +152,7 @@ export function useActiveAlerts({
           type: "success",
           category: "insights",
           title: "Efficient Spend Velocity",
-          description: `Excellent, Sir! Weekly spending is down by ${Math.abs(wow.percentChange)}% (${formatINR(wow.thisWeekTotal)} spent vs ${formatINR(wow.lastWeekTotal)} last week).`,
+          description: `Excellent! Weekly spending is down by ${Math.abs(wow.percentChange)}% (${formatINR(wow.thisWeekTotal)} spent vs ${formatINR(wow.lastWeekTotal)} last week).`,
           iconName: "trend-down",
           action: {
             label: "View Analytics",
@@ -152,7 +174,7 @@ export function useActiveAlerts({
             type: "success",
             category: "insights",
             title: "Goal Achieved!",
-            description: `Congratulations, Sir! '${goal.name}' is fully funded at ${formatINR(goal.targetAmount)}.`,
+            description: `Congratulations! '${goal.name}' is fully funded at ${formatINR(goal.targetAmount)}.`,
             iconName: "goal",
             action: {
               label: "View Goals",
@@ -227,6 +249,10 @@ export function useActiveAlerts({
                 ? `Autopay for ${sub.name} (₹${sub.amount.toFixed(2)}) is due tomorrow. Action will be taken automatically.`
                 : `${formatINR(sub.amount)} is auto-renewing in ${daysLeft} days (${sub.nextDueDate}).`,
               iconName: "sub",
+              action: {
+                label: "View Subscription",
+                onClick: () => navigate("/monthly?tab=subscriptions"),
+              },
               actions: [
                 {
                   label: "Skip Cycle",
@@ -251,6 +277,7 @@ export function useActiveAlerts({
     spent,
     spentPct,
     monthYear,
+    monthSetup,
     subAlerts,
     catAlerts,
     advisor,

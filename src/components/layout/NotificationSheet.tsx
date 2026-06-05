@@ -150,8 +150,8 @@ export function NotificationSheet({
               <h4 className="font-sans text-[15px] font-semibold text-(--text) mt-0 mb-1.5">
                 All Systems Nominal
               </h4>
-              <p className="font-sans text-[0.8125rem] text-(--text-muted) max-w-[240px] m-0 leading-[1.4]">
-                You are operating perfectly within your budget parameters, Sir.
+              <p className="text-sm font-medium text-(--text-muted) leading-relaxed">
+                You are operating perfectly within your budget parameters.
               </p>
             </div>
           ) : (

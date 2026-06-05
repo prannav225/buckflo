@@ -97,11 +97,10 @@ export function useTransactionForm(): TransactionFormState {
     if (!description.trim() || isEdit || category !== "") return;
 
     const guessCategory = async () => {
+      const searchDesc = description.trim().toLowerCase();
       const match = await db.transactions
-        .where("description")
-        .equalsIgnoreCase(description.trim())
-        .reverse()
-        .first();
+        .filter(tx => tx.description.toLowerCase() === searchDesc)
+        .last();
 
       if (match && match.category) {
         setCategory(match.category);

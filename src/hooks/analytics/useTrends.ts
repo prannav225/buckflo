@@ -40,6 +40,7 @@ export function useWeekOverWeek(): WoWResult {
 
       for (const tx of txs) {
         if (
+          tx.isCommitted ||
           tx.category === "transfer" ||
           tx.category === "Transfer" ||
           tx.category === "starting-transfer"
@@ -123,6 +124,7 @@ export function useMonthOverMonth(monthYear: string): MoMResult {
       ]);
 
       const isNotTransfer = (tx: any) =>
+        !tx.isCommitted &&
         tx.category !== "transfer" &&
         tx.category !== "Transfer" &&
         tx.category !== "starting-transfer";
@@ -211,6 +213,7 @@ export function useHistoricalData(monthsCount = 6): HistoricalDataPoint[] {
         )) {
           if (tx.type === "debit") {
             if (
+              !tx.isCommitted &&
               tx.category !== "transfer" &&
               tx.category !== "Transfer" &&
               tx.category !== "starting-transfer"

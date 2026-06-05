@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   useAccount,
@@ -13,7 +13,11 @@ import { formatINR } from "../utils/currency";
 import { getCurrentMonthYear, formatMonthYear } from "../utils/dateUtils";
 import { InsightsSubscriptionsTab } from "../components/insights/InsightsSubscriptionsTab";
 import { SubscriptionFormSheet } from "../components/insights/SubscriptionFormSheet";
-import type { Subscription } from "../db/database";
+import { SegmentedControl } from "../components/ui/SegmentedControl";
+import { db, addTransaction, type Subscription } from "../db/database";
+import { Check, Undo2, CalendarDays } from "lucide-react";
+import { format } from "date-fns";
+import toast from "react-hot-toast";
 
 export function MonthlyView() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,6 +26,19 @@ export function MonthlyView() {
   const spendingAcc = useAccount("spending");
   const monthSetup = useMonthSetup(monthYear);
   const transactions = useTransactions(spendingAcc?.id, monthYear);
+
+  const tabParam = searchParams.get("tab");
+  const activeTab = tabParam === "subscriptions" ? "subscriptions" : "committed";
+  const setActiveTab = (tab: "committed" | "subscriptions") => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("tab", tab);
+        return next;
+      },
+      { replace: true }
+    );
+  };
 
   const reconstructedOpeningBalance = useOpeningBalanceReconstructor(
     spendingAcc?.id,
@@ -41,13 +58,100 @@ export function MonthlyView() {
   const overBudget = spent > budget && budget > 0;
 
   const [showInitModal, setShowInitModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(searchParams.get("edit") === "true");
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingSub, setEditingSub] = useState<Subscription | null>(null);
+
+  // Clear the edit param so it doesn't reopen if they close and do something else
+  if (showEditModal && searchParams.has("edit")) {
+    setSearchParams(prev => {
+      const p = new URLSearchParams(prev);
+      p.delete("edit");
+      return p;
+    }, { replace: true });
+  }
 
   const handleMonthChange = (newMonth: string) => {
     setSearchParams({ month: newMonth }, { replace: true });
   };
+
+  // ── Mark as Paid handler ──────────────────────────────────────────────
+  const handleMarkAsPaid = useCallback(async (expenseIdx: number) => {
+    if (!monthSetup || !spendingAcc?.id) return;
+    const expenses = monthSetup.committedExpenses;
+    if (!expenses || !expenses[expenseIdx]) return;
+    const expense = expenses[expenseIdx];
+
+    try {
+      const todayStr = format(new Date(), "yyyy-MM-dd");
+      const txId = await addTransaction({
+        date: todayStr,
+        description: `${expense.name} (Committed)`,
+        amount: expense.amount,
+        type: "debit",
+        accountId: spendingAcc.id,
+        category: expense.category,
+        isCommitted: true,
+      });
+
+      // Update the monthSetup with paid status
+      const updatedExpenses = [...expenses];
+      updatedExpenses[expenseIdx] = {
+        ...expense,
+        isPaid: true,
+        paidDate: todayStr,
+        transactionId: txId,
+      };
+
+      await db.monthSetups
+        .where("[accountId+monthYear]")
+        .equals([spendingAcc.id, monthSetup.monthYear])
+        .modify({ committedExpenses: updatedExpenses });
+
+      toast.success(`${expense.name} marked as paid ✓`);
+    } catch (err) {
+      console.error("Failed to mark as paid:", err);
+      toast.error("Failed to mark as paid");
+    }
+  }, [monthSetup, spendingAcc]);
+
+  // ── Undo Paid handler ─────────────────────────────────────────────────
+  const handleUndoPaid = useCallback(async (expenseIdx: number) => {
+    if (!monthSetup || !spendingAcc?.id) return;
+    const expenses = monthSetup.committedExpenses;
+    if (!expenses || !expenses[expenseIdx]) return;
+    const expense = expenses[expenseIdx];
+
+    try {
+      // Delete the associated transaction
+      if (expense.transactionId) {
+        await db.transactions.delete(expense.transactionId);
+      }
+
+      // Update the monthSetup
+      const updatedExpenses = [...expenses];
+      updatedExpenses[expenseIdx] = {
+        ...expense,
+        isPaid: false,
+        paidDate: undefined,
+        transactionId: undefined,
+      };
+
+      await db.monthSetups
+        .where("[accountId+monthYear]")
+        .equals([spendingAcc.id, monthSetup.monthYear])
+        .modify({ committedExpenses: updatedExpenses });
+
+      toast.success(`${expense.name} unmarked ✓`);
+    } catch (err) {
+      console.error("Failed to undo:", err);
+      toast.error("Failed to undo");
+    }
+  }, [monthSetup, spendingAcc]);
+
+  // Compute committed totals
+  const committedTotal = monthSetup?.committedExpenses?.reduce((sum, e) => sum + e.amount, 0) ?? 0;
+  const committedPaid = monthSetup?.committedExpenses?.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0) ?? 0;
 
   return (
     <>
@@ -200,13 +304,139 @@ export function MonthlyView() {
         </>
       ) : null}
 
-      {/* ── Subscriptions Section (Replacing RecentTransactionsList) ────── */}
-      <InsightsSubscriptionsTab
-        openForm={(sub) => {
-          setEditingSub(sub);
-          setShowFormModal(true);
-        }}
-      />
+      {/* ── Tabs: Committed Expenses vs Subscriptions ──────────────── */}
+      <div className="mb-4">
+        <SegmentedControl
+          options={["committed", "subscriptions"]}
+          value={activeTab}
+          onChange={(val) => setActiveTab(val as "committed" | "subscriptions")}
+          renderLabel={(val) => val === "committed" ? "Committed Expenses" : "Subscriptions"}
+        />
+      </div>
+
+      {activeTab === "committed" ? (
+        <div className="space-y-3 mb-6 fade-in-up">
+          {/* Committed Total Summary */}
+          {monthSetup?.committedExpenses && monthSetup.committedExpenses.length > 0 && (
+            <div className="glass-card-strong px-5 py-3.5 flex items-center justify-between">
+              <div>
+                <div className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider mb-0.5">
+                  Committed Total
+                </div>
+                <div className="text-xl font-display text-(--text)">
+                  {formatINR(committedTotal)}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider mb-0.5">
+                  Paid
+                </div>
+                <div className="text-lg font-display text-(--credit)">
+                  {formatINR(committedPaid)} <span className="text-xs text-(--text-muted)">/ {formatINR(committedTotal)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {monthSetup?.committedExpenses && monthSetup.committedExpenses.length > 0 ? (
+            monthSetup.committedExpenses.map((expense, idx) => {
+              const today = new Date().getDate();
+              const isDue = expense.dueDay !== undefined && today >= expense.dueDay && !expense.isPaid;
+
+              return (
+                <div
+                  key={`${expense.name}-${idx}`}
+                  className={`glass-card p-4 rounded-xl transition-all duration-200 ${
+                    expense.isPaid ? "opacity-75" : isDue ? "ring-1 ring-(--accent)/40" : ""
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-(--text) dark:text-white text-sm">
+                          {expense.name}
+                        </span>
+                        {expense.isPaid && (
+                          <span className="text-[0.625rem] font-medium px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20">
+                            Paid ✓
+                          </span>
+                        )}
+                        {isDue && (
+                          <span className="text-[0.625rem] font-medium px-2 py-0.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-full border border-orange-500/20 animate-pulse">
+                            Due
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-(--text-muted)">
+                        {expense.category !== expense.name && (
+                          <span className="whitespace-nowrap">{expense.category}</span>
+                        )}
+                        {expense.dueDay && (
+                          <>
+                            {expense.category !== expense.name && <span className="opacity-50">•</span>}
+                            <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                              <CalendarDays size={10} />
+                              Due on {expense.dueDay}{expense.dueDay === 1 ? "st" : expense.dueDay === 2 ? "nd" : expense.dueDay === 3 ? "rd" : "th"}
+                            </span>
+                          </>
+                        )}
+                        {expense.paidDate && (
+                          <>
+                            {(expense.category !== expense.name || expense.dueDay) && <span className="opacity-50">•</span>}
+                            <span className="text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Paid {expense.paidDate}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right flex flex-col items-end gap-2.5 shrink-0">
+                      <span className="font-display text-base font-bold text-(--text) dark:text-white whitespace-nowrap">
+                        {formatINR(expense.amount)}
+                      </span>
+                      {expense.isPaid ? (
+                        <button
+                          onClick={() => handleUndoPaid(idx)}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-(--text-muted) hover:text-(--text) transition-colors cursor-pointer"
+                        >
+                          <Undo2 size={12} /> Undo
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleMarkAsPaid(idx)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[rgba(217,119,87,0.1)] text-(--accent) rounded-lg font-semibold text-[11px] border border-(--accent)/20 hover:bg-(--accent) hover:text-white transition-all cursor-pointer whitespace-nowrap"
+                        >
+                          <Check size={12} strokeWidth={3} /> Mark Paid
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="glass-card text-center py-8 px-4 rounded-xl">
+              <p className="text-(--text-secondary) dark:text-white/60 mb-4 text-sm">
+                No committed expenses set for this month.
+              </p>
+              <button
+                className="btn-primary py-2 px-5 text-sm"
+                onClick={() => setShowEditModal(true)}
+              >
+                Edit Setup
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="fade-in-up">
+          <InsightsSubscriptionsTab
+            openForm={(sub) => {
+              setEditingSub(sub);
+              setShowFormModal(true);
+            }}
+            monthYear={monthYear}
+          />
+        </div>
+      )}
 
       {/* ── Setup / Edit Modals ──────────────────────────────────────────── */}
       <MonthInitModal

@@ -23,11 +23,15 @@ export function useCategoryBudgetAlerts(): CategoryBudgetAlert[] {
   }
 
   const catBudgets = monthSetup.categoryBudgets;
+  const committedCatNames = new Set(
+    (monthSetup.committedExpenses || []).map(e => e.category || e.name)
+  );
 
   const catSpend: Record<string, number> = {};
   for (const tx of transactions) {
     if (tx.type === "debit") {
       if (
+        tx.isCommitted ||
         tx.category === "transfer" ||
         tx.category === "Transfer" ||
         tx.category === "starting-transfer"
@@ -41,6 +45,9 @@ export function useCategoryBudgetAlerts(): CategoryBudgetAlert[] {
 
   const alerts: CategoryBudgetAlert[] = [];
   for (const [category, budget] of Object.entries(catBudgets)) {
+    if (committedCatNames.has(category)) {
+      continue; // Do not alert on committed expenses
+    }
     const spent = catSpend[category] || 0;
     const percentUsed = budget > 0 ? +((spent / budget) * 100).toFixed(1) : 0;
     if (percentUsed >= 80) {

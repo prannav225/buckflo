@@ -189,7 +189,7 @@ export function ProfilePage() {
 
         <DangerZoneSection onWipeData={handleWipeData} />
 
-        <div className="flex flex-col items-center my-4">
+        <div className="flex flex-col items-center">
           <div className="flex items-center opacity-90 select-none">
             <img
               src="/buckflo_favicon.svg"

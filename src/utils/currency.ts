@@ -2,7 +2,7 @@
  * Format a number based on the user's preferred currency in localStorage.
  * Defaults to INR.
  */
-export function formatCurrency(amount: number, decimals = 2): string {
+export function formatCurrency(amount: number, decimals = 2, compactThreshold: number = 100000): string {
   let currencyCode = 'INR';
   if (typeof window !== 'undefined') {
     currencyCode = localStorage.getItem('buckflo_currency') || 'INR';
@@ -13,11 +13,14 @@ export function formatCurrency(amount: number, decimals = 2): string {
   else if (currencyCode === 'EUR') locale = 'de-DE';
   else if (currencyCode === 'GBP') locale = 'en-GB';
 
+  const isCompact = Math.abs(amount) >= compactThreshold;
+
   const formatter = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currencyCode,
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+    minimumFractionDigits: isCompact ? 0 : decimals,
+    maximumFractionDigits: isCompact ? 1 : decimals,
+    notation: isCompact ? "compact" : "standard",
   });
   return formatter.format(amount);
 }

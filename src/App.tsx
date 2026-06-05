@@ -27,7 +27,7 @@ export function App() {
               },
             }}
           />
-          <Analytics />
+          <Analytics debug={false} />
         </TooltipProvider>
       </BrowserRouter>
     </ThemeProvider>

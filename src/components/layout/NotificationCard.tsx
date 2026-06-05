@@ -50,8 +50,24 @@ export function NotificationCard({
     success: "bg-[rgba(90,158,111,0.08)] text-[var(--credit)]",
   };
 
+  const hasAction = alert.action || (alert.actions && alert.actions.length > 0);
+  const handleCardClick = () => {
+    if (alert.action) {
+      alert.action.onClick();
+      onCloseSheet();
+    } else if (alert.actions && alert.actions.length > 0) {
+      // If multiple actions, tapping the card could trigger the first one, or do nothing.
+      // Usually better to trigger the primary (first) action.
+      alert.actions[0].onClick();
+      onCloseSheet();
+    }
+  };
+
   return (
-    <div className="flex gap-3 p-3.5 bg-(--bg-glass) border border-black/8 dark:border-white/6 rounded-(--r-lg) shadow-(--glass-shadow) transition-[transform,background] duration-150 ease-out hover:bg-(--bg-glass-strong) fade-in-up">
+    <div 
+      className={`flex gap-3 p-3.5 bg-(--bg-glass) border border-black/8 dark:border-white/6 rounded-(--r-lg) shadow-(--glass-shadow) transition-[transform,background] duration-150 ease-out hover:bg-(--bg-glass-strong) fade-in-up ${hasAction ? 'cursor-pointer active:scale-[0.98]' : ''}`}
+      onClick={hasAction ? handleCardClick : undefined}
+    >
       <div
         className={`flex items-center justify-center w-[34px] h-[34px] rounded-lg shrink-0 ${typeClasses[alert.type] || typeClasses.info}`}
       >
@@ -63,7 +79,10 @@ export function NotificationCard({
             {alert.title}
           </h4>
           <button
-            onClick={() => onDismiss(alert.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDismiss(alert.id);
+            }}
             className="inline-flex items-center justify-center w-5 h-5 border-0 bg-transparent text-(--text-muted) rounded cursor-pointer transition-[background,color] duration-150 p-0 shrink-0 hover:bg-black/5 dark:hover:bg-white/8 hover:text-(--text)"
             title="Dismiss notification"
             aria-label="Dismiss"
@@ -79,7 +98,8 @@ export function NotificationCard({
             {alert.actions.map((act, idx) => (
               <button
                 key={idx}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   act.onClick();
                   onCloseSheet();
                 }}
@@ -91,7 +111,8 @@ export function NotificationCard({
           </div>
         ) : alert.action ? (
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               alert.action?.onClick();
               onCloseSheet();
             }}

@@ -181,6 +181,22 @@ export class FloDB extends Dexie {
           DEFAULT_CATEGORIES.map((c, i) => ({ ...c, createdAt: now + i })),
         );
       }
+
+      // Migrate old categoryBudgets to committedExpenses for existing users
+      const setups = await this.monthSetups.toArray();
+      for (const setup of setups) {
+        if (!setup.committedExpenses && setup.categoryBudgets) {
+          const committedExpensesList = Object.entries(setup.categoryBudgets).map(([cat, amount]) => ({
+            name: cat,
+            category: cat,
+            amount,
+            isPaid: false,
+          }));
+          await this.monthSetups.update(setup.id!, {
+            committedExpenses: committedExpensesList
+          });
+        }
+      }
     });
   }
 }

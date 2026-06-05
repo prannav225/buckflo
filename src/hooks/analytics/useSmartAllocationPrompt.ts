@@ -30,7 +30,7 @@ export function useSmartAllocationPrompt(): SmartAllocationResult | null {
 
     const currentBalance = summary.closingBalance;
 
-    const dismissedTime = localStorage.getItem("flo_advisor_dismissed");
+    const dismissedTime = localStorage.getItem("buckflo_advisor_dismissed");
     if (isDismissedWithin24Hours(dismissedTime)) {
       return {
         shouldShow: false,

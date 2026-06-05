@@ -147,7 +147,7 @@ export function SubscriptionFormSheet({
               {editingSub ? "Edit Subscription" : "New Subscription"}
             </h3>
             <p className="mt-[3px] text-xs text-(--text-muted)">
-              Set up committed recurring expenditures
+              Set up subscriptions or services
             </p>
           </div>
           <button

@@ -45,8 +45,12 @@ export async function addTransaction(
   tx: Omit<Transaction, "id" | "createdAt">,
 ): Promise<number> {
   const id = await db.transactions.add({ ...tx, createdAt: Date.now() });
-  const delta = tx.type === "credit" ? tx.amount : -tx.amount;
-  await adjustBalance(tx.accountId, delta);
+  // Committed expense transactions don't adjust the spending wallet balance
+  // because those funds were already deducted from income during setup
+  if (!tx.isCommitted) {
+    const delta = tx.type === "credit" ? tx.amount : -tx.amount;
+    await adjustBalance(tx.accountId, delta);
+  }
   return id as number;
 }
 
@@ -129,14 +133,18 @@ export async function updateTransaction(
   if (!oldTx) throw new Error("Transaction not found");
 
   await db.transaction("rw", db.transactions, db.accounts, async () => {
-    // 1. Revert old balance adjustment
-    const oldDelta = oldTx.type === "credit" ? -oldTx.amount : oldTx.amount;
-    await adjustBalance(oldTx.accountId, oldDelta);
+    // 1. Revert old balance adjustment (only if it wasn't committed)
+    if (!oldTx.isCommitted) {
+      const oldDelta = oldTx.type === "credit" ? -oldTx.amount : oldTx.amount;
+      await adjustBalance(oldTx.accountId, oldDelta);
+    }
 
-    // 2. Apply new balance adjustment
-    const newDelta =
-      updated.type === "credit" ? updated.amount : -updated.amount;
-    await adjustBalance(updated.accountId, newDelta);
+    // 2. Apply new balance adjustment (only if the new one isn't committed)
+    if (!updated.isCommitted) {
+      const newDelta =
+        updated.type === "credit" ? updated.amount : -updated.amount;
+      await adjustBalance(updated.accountId, newDelta);
+    }
 
     // 3. Update the transaction record
     await db.transactions.update(id, {
@@ -188,8 +196,10 @@ export async function deleteTransaction(id: number): Promise<void> {
         await db.transactions.delete(sibling.id!);
       }
     } else {
-      const delta = tx.type === "credit" ? -tx.amount : tx.amount;
-      await adjustBalance(tx.accountId, delta);
+      if (!tx.isCommitted) {
+        const delta = tx.type === "credit" ? -tx.amount : tx.amount;
+        await adjustBalance(tx.accountId, delta);
+      }
       await db.transactions.delete(id);
     }
   });

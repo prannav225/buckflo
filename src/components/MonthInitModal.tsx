@@ -49,6 +49,8 @@ function MonthInitContent({
     loading,
     catBudgets,
     setCatBudgets,
+    catDueDays,
+    setCatDueDays,
     showCatBudgets,
     setShowCatBudgets,
     handleBlur,
@@ -137,6 +139,8 @@ function MonthInitContent({
             budgetableCategories={budgetableCategories}
             catBudgets={catBudgets}
             setCatBudgets={setCatBudgets}
+            catDueDays={catDueDays}
+            setCatDueDays={setCatDueDays}
             handleBlur={handleBlur}
           />
 

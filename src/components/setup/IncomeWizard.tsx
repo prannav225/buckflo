@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, ChevronRight, Target } from "lucide-react";
+import { ArrowLeft, ChevronRight, Target, ShieldCheck, Plus, X, ReceiptText, Zap } from "lucide-react";
+import { DueDatePicker } from "../ui/DueDatePicker";
 import { updateSheetOpenState } from "../../utils/modalHelper";
 import { useProfile } from "../../hooks/useProfile";
 import { getCurrentMonthYear } from "../../utils/dateUtils";
@@ -27,6 +28,7 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
   const [income, setIncome] = useState("");
   // Replaces fixed commitments with a full category map
   const [catBudgets, setCatBudgets] = useState<Record<string, string>>({});
+  const [catDueDays, setCatDueDays] = useState<Record<string, number | undefined>>({});
   const [newCatName, setNewCatName] = useState("");
   const [loading, setLoading] = useState(false);
   const [existingOpeningBal, setExistingOpeningBal] = useState<number | null>(null);
@@ -50,6 +52,7 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
   const handleNext = () => {
     setStep((s) => {
       if (s === 2) {
+        if (skippedIncome) return 5; // Go to manual balance entry
         const incAmt = parseFloat(income.replace(/,/g, "")) || 0;
         const totalBudget = calculateTotalBudget();
         if (totalBudget >= incAmt) {
@@ -62,6 +65,13 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
 
   const handlePrev = () => {
     setStep((s) => {
+      if (s === 2 && skippedIncome) {
+        setSkippedIncome(false);
+        return 1;
+      }
+      if (s === 5 && skippedIncome) {
+        return 2;
+      }
       if (s === 4) {
         const incAmt = parseFloat(income.replace(/,/g, "")) || 0;
         const totalBudget = calculateTotalBudget();
@@ -102,10 +112,17 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
           setExistingOpeningBal(existingSetup.openingBalance);
           
           const loadedBudgets: Record<string, string> = {};
+          const loadedDueDays: Record<string, number | undefined> = {};
           if (existingSetup.categoryBudgets) {
             Object.entries(existingSetup.categoryBudgets).forEach(([cat, val]) => {
               loadedBudgets[cat] = val.toString();
             });
+          }
+          // Load due days from committedExpenses if they exist
+          if (existingSetup.committedExpenses) {
+            for (const ce of existingSetup.committedExpenses) {
+              loadedDueDays[ce.name] = ce.dueDay;
+            }
           }
           
           const budgetableCategories = categoriesDb
@@ -119,6 +136,7 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
           });
           
           setCatBudgets(loadedBudgets);
+          setCatDueDays(loadedDueDays);
           hasInitialized.current = true;
           return;
         }
@@ -184,20 +202,21 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
       let savingsAllocation = 0;
       let updateProfileIncome = 0;
 
+      // Parse category budgets universally so committed expenses are always saved
+      for (const [cat, val] of Object.entries(catBudgets)) {
+        const num = parseFloat(val.replace(/,/g, "")) || 0;
+        if (num > 0) {
+          parsedCatBudgets[cat] = num;
+          totalBudget += num;
+        }
+      }
+
       if (skippedIncome) {
         spendingAllocation = parseFloat(manualSpendingBal.replace(/,/g, "")) || 0;
         savingsAllocation = parseFloat(manualSavingsBal.replace(/,/g, "")) || 0;
       } else {
         const inc = parseFloat(income.replace(/,/g, "")) || 0;
         updateProfileIncome = inc;
-        
-        for (const [cat, val] of Object.entries(catBudgets)) {
-          const num = parseFloat(val.replace(/,/g, "")) || 0;
-          if (num > 0) {
-            parsedCatBudgets[cat] = num;
-            totalBudget += num;
-          }
-        }
         
         const leftover = Math.max(0, inc - totalBudget);
         
@@ -236,13 +255,39 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
       }
       await db.accounts.update(spendingAcc.id, { currentBalance: +currentExpendBalance.toFixed(2) });
 
+      // Build committedExpenses array from catBudgets with amounts > 0
+      const committedExpensesList = Object.entries(parsedCatBudgets).map(([cat, amount]) => ({
+        name: cat,
+        category: cat,
+        amount,
+        dueDay: catDueDays[cat],
+        isPaid: false,
+      }));
+
+      // Preserve paid status from existing setup if editing
+      const existingSetupForMerge = await db.monthSetups
+        .where("[accountId+monthYear]")
+        .equals([spendingAcc.id, monthYear])
+        .first();
+      if (existingSetupForMerge?.committedExpenses) {
+        for (const ce of committedExpensesList) {
+          const existing = existingSetupForMerge.committedExpenses.find(e => e.name === ce.name && e.amount === ce.amount);
+          if (existing?.isPaid) {
+            ce.isPaid = true;
+            (ce as any).paidDate = existing.paidDate;
+            (ce as any).transactionId = existing.transactionId;
+          }
+        }
+      }
+
       // Use PUT to safely insert or update
       await db.monthSetups.put({
         monthYear,
         openingBalance: spendingAllocation,
         monthlyBudget: spendingAllocation,
         accountId: spendingAcc.id,
-        categoryBudgets: parsedCatBudgets,
+        categoryBudgets: {},
+        committedExpenses: committedExpensesList,
       });
 
       // 3. Handle Savings Wallet
@@ -309,7 +354,7 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
               </button>
               <button
                 className="btn-secondary w-full h-[52px] text-sm font-semibold"
-                onClick={() => { setSkippedIncome(true); setStep(5); }}
+                onClick={() => { setSkippedIncome(true); setStep(2); }}
               >
                 Skip / I'd rather not share
               </button>
@@ -320,26 +365,35 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
         return (
           <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
             <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <h2 className="text-2xl font-bold text-(--text) mb-2">Committed Expenditure</h2>
-              <p className="text-sm text-(--text-muted) mb-6 leading-relaxed">
-                Enter your fixed or inevitable spends (Rent, Bills, Food, etc.). Any remaining balance from your income will become your flexible cash to track and save out of.
+              <h2 className="text-2xl font-bold text-(--text) mb-2">Committed Expenses</h2>
+              <p className="text-sm text-(--text-muted) mb-4 leading-relaxed">
+                Enter your fixed, inevitable spends (Rent, Loans, Bills, etc.). These will be deducted from your income — the leftover becomes your flexible spending wallet.
               </p>
+              <div className="bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs p-3 rounded-lg mb-6">
+                <strong>Tip:</strong> Set a due day to get notified when it's time to pay. You can mark them as paid later from the Monthly tab.
+              </div>
               
               <div className="flex flex-col gap-3 mb-6">
                 {activeCategories.map((cat) => (
-                  <div key={cat} className="glass-card p-3 flex items-center gap-3">
-                    <span className="font-sans text-sm font-medium text-(--text) min-w-[90px] shrink-0">
+                  <div key={cat} className="glass-card p-3 flex flex-col gap-2">
+                    <span className="font-sans text-sm font-medium text-(--text)">
                       {cat}
                     </span>
-                    <div className="flex-1 flex items-center gap-1 bg-black/5 dark:bg-white/5 rounded-(--r-md) px-3 border border-black/8 dark:border-white/6">
-                      <span className="text-sm text-(--text-muted) font-medium">₹</span>
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        placeholder="0"
-                        value={catBudgets[cat] || ""}
-                        onChange={(e) => handleMoneyInputChange(e.target.value, (formatted) => setCatBudgets(prev => ({ ...prev, [cat]: formatted })))}
-                        className="border-none bg-transparent outline-none font-sans text-sm font-semibold text-(--text) py-2.5 w-full"
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 flex items-center gap-1 bg-black/5 dark:bg-white/5 rounded-(--r-md) px-3 border border-black/8 dark:border-white/6">
+                        <span className="text-sm text-(--text-muted) font-medium">₹</span>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          placeholder="0"
+                          value={catBudgets[cat] || ""}
+                          onChange={(e) => handleMoneyInputChange(e.target.value, (formatted) => setCatBudgets(prev => ({ ...prev, [cat]: formatted })))}
+                          className="border-none bg-transparent outline-none font-sans text-sm font-semibold text-(--text) py-2.5 w-full"
+                        />
+                      </div>
+                      <DueDatePicker
+                        value={catDueDays[cat]}
+                        onChange={(val) => setCatDueDays(prev => ({ ...prev, [cat]: val }))}
                       />
                     </div>
                   </div>
@@ -540,7 +594,7 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
               </div>
             </div>
             <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0 flex gap-3">
-              <button className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0" onClick={() => { setSkippedIncome(false); setStep(1); }} aria-label="Go back">
+              <button className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0" onClick={handlePrev} aria-label="Go back">
                 <ArrowLeft size={18} />
               </button>
               <button className="btn-primary flex-1 h-[52px]" onClick={handleFinish} disabled={loading || !manualSpendingBal}>

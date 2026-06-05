@@ -67,7 +67,7 @@ export async function processAutopaySubscriptions(): Promise<number> {
           await db.subscriptions.update(sub.id!, { nextDueDate });
         });
 
-        toast.success(`Autopay executed: ${sub.name} (₹${sub.amount.toFixed(2)}) logged ✓`, {
+        toast.success(`${sub.name} (₹${sub.amount.toFixed(2)}) auto-logged (subscription due today) ✓`, {
           duration: 4000,
         });
 

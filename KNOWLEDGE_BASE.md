@@ -161,6 +161,16 @@ Specifically, the upgrade path ensures full schema evolution without data loss. 
 - Transforms legacy `Account` definitions by migrating the string types (`'expenditure'`, `'savings'`) to align with the new Wallet terminology (`'spending'`, `'savings'`).
 - Renames the physical database from `PocketLedgerDB` to `BuckfloDB` securely (via legacy migration block), copying over all tables, records, and preferences.
 
+### Dexie Querying Limitations & Best Practices
+
+- **Strict Indexing Requirements:** Dexie throws `SchemaError` if you attempt to run a `.where("field")` clause on a field that is not explicitly indexed in the schema (e.g., querying `.where("description")` on the `transactions` table). 
+- **The Filter Fallback Pattern:** If you need to search or match against a non-indexed field, you must retrieve the records via a broad indexed query or `.toArray()` first, and then apply a memory filter using standard JavaScript `.filter(tx => tx.description === ...)` before picking the `.last()` or `.first()` record.
+
+### Local Storage & Client State Key Nomenclature
+
+While IndexedDB handles all heavy transactional data, `localStorage` is used exclusively for lightweight client-state persistence (like theme settings, dismissed banners, and seen alerts).
+- **Prefix Rule:** All `localStorage` keys and custom window events must be strictly prefixed with `buckflo_` (e.g., `buckflo_onboarded`, `buckflo_seen_alerts`, `buckflo_profile_updated`) to maintain brand consistency and avoid collisions. Legacy `flo_` keys have been systematically purged.
+
 ---
 
 ## 5. Smart Features List
@@ -168,7 +178,9 @@ Specifically, the upgrade path ensures full schema evolution without data loss. 
 **buckflo** contains a collection of smart analytical engines inside [`src/hooks/useAnalytics.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useAnalytics.ts) and [`src/hooks/useNotificationHub.ts`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/useNotificationHub.ts):
 
 > [!NOTE]
-> **Data Aggregation Rule (Wealth Accumulation):** Across all analytical engines (Insights charts, Week-over-Week, Month-over-Month, Category Budgets, and Burn Rates), the application explicitly ignores debit transactions logged with the `transfer` or `opening-transfer` category. Moving funds from Spending to Savings is treated mathematically as wealth accumulation, ensuring it never penalizes the user's budget progress or triggers false spending alerts.
+> **Data Aggregation Rule (Analytics Isolation):** Across all analytical engines (Insights charts, Week-over-Week, Month-over-Month, Category Budgets, and Burn Rates), the application explicitly isolates two types of debits:
+> 1. **Wealth Accumulation**: Debit transactions logged with the `transfer` or `starting-transfer` category are ignored. Moving funds from Spending to Savings is treated mathematically as wealth accumulation, ensuring it never penalizes the user's budget progress.
+> 2. **Committed Expenses**: Any transaction with `isCommitted = true` (like Rent or Bills) is completely blacklisted from flexible spending algorithms, wallet balance mutators, and notification loops. Since these funds are "parked" at the start of the month, they are structurally walled off from the main ledger's mathematical totals.
 
 ### 1. Frequent Presets Auto-Detection (`useFrequentPresets`)
 
@@ -224,7 +236,7 @@ Performs real-time comparison of spending periods:
 
 ### 11. Category Budget Alerts (`useCategoryBudgetAlerts`)
 
-Matches current-month category debits against per-category budget allocations. Surfaces warning alerts once spending in a specific category crosses **80%** of its allocation, and turns red/danger if it exceeds **100%**.
+Matches current-month flexible category debits against per-category budget allocations. Surfaces warning alerts once spending in a specific category crosses **80%** of its allocation, and turns red/danger if it exceeds **100%**. Alert IDs are strictly deduplicated by month (stripping out fluctuating percentage mathematics) to guarantee the Notification Hub never spams the user with duplicate warnings as their spending scales up.
 
 ### 12. Global Multi-Currency Support
 
@@ -309,6 +321,7 @@ When a brand new user joins, all 19 smart features (presets, trend analytics, su
 
 - The first time a user encounters a new month, they are prompted via the **Income-Based Setup Wizard** ([`IncomeWizard.tsx`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/components/setup/IncomeWizard.tsx)).
 - This multi-step wizard handles the most critical onboarding flow: capturing expected monthly income, allocating fixed committed expenses, and intelligently deciding how to partition the leftover surplus (between the Savings Wallet and flexible Spending).
+- **Decoupled Income Flow**: For users with irregular income (e.g., students or freelancers), skipping the "Income" step intelligently reroutes them directly to the "Committed Expenses" setup, bypassing the surplus allocation screen and proceeding to manual balance entry. This ensures all users can access the flagship isolated-expense feature without providing artificial income data.
 - At the end of the flow, a `MonthSetup` record is generated, establishing the budget baseline that all smart analytics will track against.
 
 ### Generative Pixel-Art Profile Banner
@@ -375,3 +388,7 @@ For standard cards, overlays, and sheets, use:
 ### 7. Page Transition Classes
 
 - `AppRoutes.tsx` wraps each route's element in either `.page-transition-tab` (for main tab routes) or `.page-transition-sheet` (for sub-pages). These classes drive entry animations (fade, slide) based on navigation context.
+
+### 8. Copywriting & Tone
+
+- **Strict Gender Neutrality:** The application's UI copy, smart analytics, and push notifications must maintain a universally neutral and professional tone. Hardcoded gendered titles or colloquialisms (e.g., "Sir", "Bro", "Man") are strictly prohibited. The system acts as a financial ledger, not a gendered persona.

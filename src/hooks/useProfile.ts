@@ -55,7 +55,7 @@ export function useProfile() {
     await db.profile.put(updated);
     setProfile(updated);
     window.dispatchEvent(
-      new CustomEvent("flo_profile_updated", { detail: updated }),
+      new CustomEvent("buckflo_profile_updated", { detail: updated }),
     );
   };
 
@@ -63,7 +63,7 @@ export function useProfile() {
     await db.profile.delete(1);
     setProfile(null);
     window.dispatchEvent(
-      new CustomEvent("flo_profile_updated", { detail: null }),
+      new CustomEvent("buckflo_profile_updated", { detail: null }),
     );
   };
 
@@ -77,9 +77,9 @@ export function useProfile() {
       const detail = (e as CustomEvent).detail;
       setProfile(detail);
     };
-    window.addEventListener("flo_profile_updated", handleUpdate);
+    window.addEventListener("buckflo_profile_updated", handleUpdate);
     return () => {
-      window.removeEventListener("flo_profile_updated", handleUpdate);
+      window.removeEventListener("buckflo_profile_updated", handleUpdate);
     };
   }, []);
 

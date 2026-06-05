@@ -15,6 +15,7 @@ import { formatINR } from "../../utils/currency";
 import { updateSubscription, type Subscription } from "../../db/database";
 import { useConfirm } from "../../hooks/useConfirm";
 import { useSubscriptionLogic } from "../../hooks/useSubscriptionLogic";
+import { formatMonthYear } from "../../utils/dateUtils";
 
 const formatFrequency = (freq: string): string => {
   const f = freq.toLowerCase();
@@ -28,9 +29,10 @@ const formatFrequency = (freq: string): string => {
 
 interface Props {
   openForm: (sub: Subscription | null) => void;
+  monthYear?: string;
 }
 
-export function InsightsSubscriptionsTab({ openForm }: Props) {
+export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
   const { confirm, dialog: confirmDialog } = useConfirm();
   const {
     approvedSubs,
@@ -38,7 +40,7 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
     totalCommitted,
     handleDeleteSub,
     toggleStatus,
-  } = useSubscriptionLogic();
+  } = useSubscriptionLogic(monthYear);
 
   // Calculate days remaining helper
   const getDaysLeft = (dateStr: string) => {
@@ -62,16 +64,22 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
       {confirmDialog}
       <div className="fade-in-up flex flex-col gap-4">
         {/* Summary Card */}
-        <div className="glass-card-strong px-5 py-4 text-center">
-          <div className="text-xs font-semibold text-(--text-secondary) uppercase tracking-wider mb-1">
-            Monthly Committed Spends
+        <div className="glass-card-strong px-5 py-3.5 flex items-center justify-between">
+          <div>
+            <div className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider mb-0.5">
+              Active Total {monthYear ? `(${formatMonthYear(monthYear).split(' ')[0]})` : ''}
+            </div>
+            <div className="text-xl font-display text-(--text)">
+              {formatINR(totalCommitted)}
+            </div>
           </div>
-          <div className="text-3xl font-display text-(--text)">
-            {formatINR(totalCommitted)}
-          </div>
-          <div className="text-[0.6875rem] text-(--text-muted) mt-0.5">
-            Across {approvedSubs.filter((s) => s.status === "active").length}{" "}
-            active subscription(s)
+          <div className="text-right">
+            <div className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider mb-0.5">
+              Subscriptions
+            </div>
+            <div className="text-lg font-display text-(--text)">
+              {approvedSubs.filter((s) => s.status === "active").length} <span className="text-xs text-(--text-muted)">active</span>
+            </div>
           </div>
         </div>
 
@@ -79,12 +87,12 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
         <div className="flex justify-between items-center mt-2.5">
           <div className="flex items-center gap-1.5">
             <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] m-0">
-              Committed Spends ({sortedSubs.length})
+              Active Subscriptions ({sortedSubs.length})
             </h3>
             <div className="group relative flex items-center cursor-help">
               <HelpCircle size={12} className="text-(--text-muted) opacity-70 hover:opacity-100 transition-opacity" />
               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 p-2.5 bg-white dark:bg-[#2e2e2c] text-[11px] text-(--text) font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 text-center border border-black/10 dark:border-white/10 leading-relaxed">
-                Recurring bills and subscriptions that are automatically deducted from your safe-to-spend balance.
+                Recurring bills and subscriptions that are automatically deducted. These are completely separate from your Planned Budgets.
               </div>
             </div>
           </div>
@@ -149,8 +157,12 @@ export function InsightsSubscriptionsTab({ openForm }: Props) {
                             </span>
                           )}
                         </div>
-                        <div className="text-[0.6875rem] text-(--text-muted) mt-0.5 font-medium">
-                          {sub.category} • {formatFrequency(sub.frequency)}
+                        <div className="text-[0.6875rem] text-(--text-muted) mt-0.5 font-medium flex items-center gap-1.5">
+                          <span>{sub.category}</span>
+                          <span className="opacity-50">•</span>
+                          <span className="inline-flex items-center px-1.5 py-0.5 bg-black/5 dark:bg-white/10 rounded font-semibold text-(--text-secondary) dark:text-white/80">
+                            {formatFrequency(sub.frequency)}
+                          </span>
                         </div>
                       </div>
                     </div>

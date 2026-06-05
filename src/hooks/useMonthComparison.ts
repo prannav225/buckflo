@@ -69,8 +69,18 @@ export function useMonthComparison(): MonthComparisonResult {
         .filter((t) => t.type === 'debit')
         .toArray();
 
-      const thisMonthSpent = thisMonthTxs.reduce((sum, tx) => sum + tx.amount, 0);
-      const lastMonthSpent = lastMonthTxs.reduce((sum, tx) => sum + tx.amount, 0);
+      const isNotTransfer = (tx: any) =>
+        !tx.isCommitted &&
+        tx.category !== "transfer" &&
+        tx.category !== "Transfer" &&
+        tx.category !== "starting-transfer";
+
+      const thisMonthSpent = thisMonthTxs
+        .filter(isNotTransfer)
+        .reduce((sum, tx) => sum + tx.amount, 0);
+      const lastMonthSpent = lastMonthTxs
+        .filter(isNotTransfer)
+        .reduce((sum, tx) => sum + tx.amount, 0);
 
       if (lastMonthSpent === 0) {
         return { ...fallback, thisMonthSpent };

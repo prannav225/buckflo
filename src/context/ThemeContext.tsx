@@ -112,9 +112,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         applyTheme(updatedProfile.theme);
       }
     };
-    window.addEventListener("flo_profile_updated", handleProfileUpdate);
+    window.addEventListener("buckflo_profile_updated", handleProfileUpdate);
     return () => {
-      window.removeEventListener("flo_profile_updated", handleProfileUpdate);
+      window.removeEventListener("buckflo_profile_updated", handleProfileUpdate);
     };
   }, []);
 

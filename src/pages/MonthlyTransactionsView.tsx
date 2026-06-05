@@ -37,6 +37,7 @@ export function MonthlyTransactionsView() {
   const expenses = filteredItems
     .filter(
       (item) =>
+        !item.tx.isCommitted &&
         item.tx.type === "debit" &&
         item.tx.category !== "transfer" &&
         item.tx.category !== "Transfer" &&
@@ -48,6 +49,7 @@ export function MonthlyTransactionsView() {
   const income = filteredItems
     .filter(
       (item) =>
+        !item.tx.isCommitted &&
         item.tx.type === "credit" &&
         item.tx.category !== "transfer" &&
         item.tx.category !== "Transfer" &&
@@ -116,33 +118,33 @@ export function MonthlyTransactionsView() {
 
       {/* ── Transaction Activity Indicators ────────────────────────────── */}
       <div className="glass-card fade-in-up delay-1 grid grid-cols-3 gap-2 p-3.5 mb-4 text-[0.8125rem] text-center">
-        <div className="flex flex-col gap-0.5 border-r border-black/5 dark:border-white/5">
+        <div className="flex flex-col justify-center gap-0.5 border-r border-black/5 dark:border-white/5">
           <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
-            Expenses
+            Debits
           </span>
-          <span className="text-[0.9375rem] font-bold text-(--debit)">
-            -{formatINR(expenses)}
+          <span className="text-sm font-bold text-(--debit) whitespace-nowrap">
+            -{formatINR(expenses, expenses % 1 === 0 ? 0 : 2, 100000)}
           </span>
         </div>
-        <div className="flex flex-col gap-0.5 border-r border-black/5 dark:border-white/5">
+        <div className="flex flex-col justify-center gap-0.5 border-r border-black/5 dark:border-white/5">
           <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
-            Income
+            Credits
           </span>
-          <span className="text-[0.9375rem] font-bold text-(--credit)">
-            +{formatINR(income)}
+          <span className="text-sm font-bold text-(--credit) whitespace-nowrap">
+            +{formatINR(income, income % 1 === 0 ? 0 : 2, 100000)}
           </span>
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col justify-center gap-0.5">
           <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
             Transfers
           </span>
           <span
-            className={`text-[0.9375rem] font-bold ${
+            className={`text-sm font-bold whitespace-nowrap ${
               netTransfers >= 0 ? "text-(--credit)" : "text-(--debit)"
             }`}
           >
             {netTransfers >= 0 ? "+" : ""}
-            {formatINR(netTransfers)}
+            {formatINR(netTransfers, netTransfers % 1 === 0 ? 0 : 2, 100000)}
           </span>
         </div>
       </div>

@@ -24,6 +24,7 @@ export function useMonthInit({
   const [transferAmount, setTransferAmount] = useState("");
   const [loading, setLoading] = useState(isEdit); // start true only in edit mode
   const [catBudgets, setCatBudgets] = useState<Record<string, string>>({});
+  const [catDueDays, setCatDueDays] = useState<Record<string, number | undefined>>({});
   const [showCatBudgets, setShowCatBudgets] = useState(false);
 
   const handleBlur = (val: string, setter: (v: string) => void) => {
@@ -49,14 +50,17 @@ export function useMonthInit({
           setExpendBalance(formatNumber(setup.openingBalance, 2, 0));
           setBudget(formatNumber(setup.monthlyBudget, 2, 0));
           if (
-            setup.categoryBudgets &&
-            Object.keys(setup.categoryBudgets).length > 0
+            setup.committedExpenses &&
+            setup.committedExpenses.length > 0
           ) {
             const loaded: Record<string, string> = {};
-            for (const [cat, amt] of Object.entries(setup.categoryBudgets)) {
-              loaded[cat] = formatNumber(amt, 2, 0);
+            const loadedDays: Record<string, number | undefined> = {};
+            for (const ce of setup.committedExpenses) {
+              loaded[ce.name] = formatNumber(ce.amount, 2, 0);
+              loadedDays[ce.name] = ce.dueDay;
             }
             setCatBudgets(loaded);
+            setCatDueDays(loadedDays);
             setShowCatBudgets(true);
           }
         }
@@ -122,14 +126,17 @@ export function useMonthInit({
     if (prevSetup) {
       setBudget(formatNumber(prevSetup.monthlyBudget, 2, 0));
       if (
-        prevSetup.categoryBudgets &&
-        Object.keys(prevSetup.categoryBudgets).length > 0
+        prevSetup.committedExpenses &&
+        prevSetup.committedExpenses.length > 0
       ) {
         const loaded: Record<string, string> = {};
-        for (const [cat, amt] of Object.entries(prevSetup.categoryBudgets)) {
-          loaded[cat] = formatNumber(amt, 2, 0);
+        const loadedDays: Record<string, number | undefined> = {};
+        for (const ce of prevSetup.committedExpenses) {
+          loaded[ce.name] = formatNumber(ce.amount, 2, 0);
+          loadedDays[ce.name] = ce.dueDay;
         }
         setCatBudgets(loaded);
+        setCatDueDays(loadedDays);
         setShowCatBudgets(true);
       }
       toast.success(`Budgets copied from ${formatMonthYear(prevMonthStr)}`);
@@ -172,16 +179,31 @@ export function useMonthInit({
 
         if (!existingSetup?.id) throw new Error("Setup record not found");
 
-        // Build categoryBudgets map from non-zero entries
-        const categoryBudgets: Record<string, number> = {};
-        for (const [cat, val] of Object.entries(catBudgets)) {
-          const n = parseFloat(val.replace(/,/g, ""));
-          if (n > 0) categoryBudgets[cat] = n;
-        }
+        // Build committedExpenses array from non-zero entries
+        const committedExpensesList = Object.entries(catBudgets)
+          .filter(([_, val]) => {
+            const n = parseFloat(val.replace(/,/g, ""));
+            return n > 0;
+          })
+          .map(([cat, val]) => {
+            const n = parseFloat(val.replace(/,/g, ""));
+            // Preserve paid status if it exists
+            const existing = existingSetup.committedExpenses?.find(e => e.name === cat);
+            return {
+              name: cat,
+              category: cat,
+              amount: n,
+              dueDay: catDueDays[cat],
+              isPaid: existing?.isPaid || false,
+              paidDate: existing?.paidDate,
+              transactionId: existing?.transactionId,
+            };
+          });
         await db.monthSetups.update(existingSetup.id, {
           openingBalance: expBal,
           monthlyBudget: monthBudget,
-          categoryBudgets,
+          categoryBudgets: {},
+          committedExpenses: committedExpensesList,
         });
         // Recalculate Spending Wallet current balance based on the new opening balance and existing transactions
         const { startDate } = getMonthDateRange(monthYear);
@@ -243,18 +265,30 @@ export function useMonthInit({
           await db.accounts.update(savingsAcc.id, { currentBalance: savBal });
         }
 
-        // Build categoryBudgets map from non-zero entries
-        const categoryBudgets: Record<string, number> = {};
-        for (const [cat, val] of Object.entries(catBudgets)) {
-          const n = parseFloat(val.replace(/,/g, ""));
-          if (n > 0) categoryBudgets[cat] = n;
-        }
+        // Build committedExpenses array from non-zero entries
+        const committedExpensesList = Object.entries(catBudgets)
+          .filter(([_, val]) => {
+            const n = parseFloat(val.replace(/,/g, ""));
+            return n > 0;
+          })
+          .map(([cat, val]) => {
+            const n = parseFloat(val.replace(/,/g, ""));
+            return {
+              name: cat,
+              category: cat,
+              amount: n,
+              dueDay: catDueDays[cat],
+              isPaid: false,
+            };
+          });
+
         await db.monthSetups.add({
           monthYear,
           openingBalance: expBal,
           monthlyBudget: monthBudget,
           accountId: spendingAcc.id,
-          categoryBudgets,
+          categoryBudgets: {},
+          committedExpenses: committedExpensesList,
         });
 
         if (includeTransfer && transferAmount) {
@@ -295,6 +329,8 @@ export function useMonthInit({
     loading,
     catBudgets,
     setCatBudgets,
+    catDueDays,
+    setCatDueDays,
     showCatBudgets,
     setShowCatBudgets,
     handleBlur,

@@ -25,7 +25,7 @@ export function useNotificationHub(
 
   const [seenAlertKeys, setSeenAlertKeys] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem("flo_seen_alerts");
+      const saved = localStorage.getItem("buckflo_seen_alerts");
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -34,7 +34,7 @@ export function useNotificationHub(
 
   const [dismissedAlertKeys, setDismissedAlertKeys] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem("flo_dismissed_alerts");
+      const saved = localStorage.getItem("buckflo_dismissed_alerts");
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -69,6 +69,7 @@ export function useNotificationHub(
     spent,
     spentPct,
     monthYear,
+    monthSetup,
     subAlerts,
     catAlerts,
     advisor,
@@ -95,7 +96,7 @@ export function useNotificationHub(
   const openNotifications = () => {
     setIsNotificationsOpen(true);
     const activeIds = activeAlerts.map((a) => a.id);
-    localStorage.setItem("flo_seen_alerts", JSON.stringify(activeIds));
+    localStorage.setItem("buckflo_seen_alerts", JSON.stringify(activeIds));
     setSeenAlertKeys(activeIds);
 
     const activeIdsSet = new Set(activeIds);
@@ -104,7 +105,7 @@ export function useNotificationHub(
     );
     if (cleanedDismissed.length !== dismissedAlertKeys.length) {
       localStorage.setItem(
-        "flo_dismissed_alerts",
+        "buckflo_dismissed_alerts",
         JSON.stringify(cleanedDismissed),
       );
       setDismissedAlertKeys(cleanedDismissed);
@@ -130,7 +131,7 @@ export function useNotificationHub(
 
     setDismissedAlertKeys((prev) => {
       const updated = [...prev, id];
-      localStorage.setItem("flo_dismissed_alerts", JSON.stringify(updated));
+      localStorage.setItem("buckflo_dismissed_alerts", JSON.stringify(updated));
       return updated;
     });
   };

@@ -48,7 +48,7 @@ export function Dashboard() {
   const [showTransfer, setShowTransfer] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isImportDismissed, setIsImportDismissed] = useState(
-    () => localStorage.getItem("flo_import_dismissed") === "true",
+    () => localStorage.getItem("buckflo_import_dismissed") === "true",
   );
   const [isCreatePresetOpen, setIsCreatePresetOpen] = useState(false);
   const [presetToEdit, setPresetToEdit] = useState<FrequentPreset | null>(null);
@@ -60,7 +60,7 @@ export function Dashboard() {
   const [advisorDismissed, setAdvisorDismissed] = useState(false);
 
   const handleDismissImportCard = () => {
-    localStorage.setItem("flo_import_dismissed", "true");
+    localStorage.setItem("buckflo_import_dismissed", "true");
     setIsImportDismissed(true);
   };
 
@@ -76,7 +76,7 @@ export function Dashboard() {
             tx.category !== "starting-transfer",
         );
         if (realTxs.length === 0) {
-          localStorage.removeItem("flo_import_dismissed");
+          localStorage.removeItem("buckflo_import_dismissed");
           setIsImportDismissed(false);
         }
       } catch (err) {
@@ -108,7 +108,7 @@ export function Dashboard() {
   const monthYear = getCurrentMonthYear();
 
   const isMonthSkipped =
-    localStorage.getItem(`flo_skipped_setup_${monthYear}`) === "true";
+    localStorage.getItem(`buckflo_skipped_setup_${monthYear}`) === "true";
   const monthSetup = useMonthSetup(monthYear);
   const hasAutoPrompted = useRef(false);
 
@@ -188,7 +188,7 @@ export function Dashboard() {
   const advisorData = useSmartAllocationPrompt();
 
   const handleDismissAdvisor = () => {
-    localStorage.setItem("flo_advisor_dismissed", Date.now().toString());
+    localStorage.setItem("buckflo_advisor_dismissed", Date.now().toString());
     setAdvisorDismissed(true);
   };
 

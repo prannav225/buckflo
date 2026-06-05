@@ -149,8 +149,13 @@ export function useMonthSummary(
 
   for (const tx of transactions) {
     if (tx.type === "debit") {
-      totalDebited += tx.amount;
+      // Count all debits for the total debited display
+      if (!tx.isCommitted) {
+        totalDebited += tx.amount;
+      }
+      // Only count non-committed, non-transfer debits as flexible expenses
       if (
+        !tx.isCommitted &&
         tx.category !== "transfer" &&
         tx.category !== "Transfer" &&
         tx.category !== "starting-transfer"
@@ -158,7 +163,9 @@ export function useMonthSummary(
         totalExpense += tx.amount;
       }
     }
-    else totalCredited += tx.amount;
+    else if (!tx.isCommitted) {
+      totalCredited += tx.amount;
+    }
   }
 
   const closingBalance = +(
