@@ -106,7 +106,7 @@ export function AddEditTransaction() {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h3 className="text-xl tracking-[-0.02em] m-0">
-              {isEdit ? "Edit Entry" : "Add Entry"}
+              {isEdit ? "Edit Entry" : "Create Entry"}
             </h3>
             <p className="mt-[3px] text-xs text-(--text-muted)">
               {isEdit ? "Modify transaction details" : "Log a new transaction"}
@@ -227,7 +227,7 @@ export function AddEditTransaction() {
                   <Check size={18} strokeWidth={2.5} />
                   {isEdit
                     ? "Save Changes"
-                    : `Save ${type === "debit" ? "Expense" : "Income"}`}
+                    : `Create ${type === "debit" ? "Expense" : "Income"}`}
                   {parsedAmt > 0 && (
                     <span className="opacity-85 font-normal">
                       · {formatINR(parsedAmt)}

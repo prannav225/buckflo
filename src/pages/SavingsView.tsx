@@ -118,7 +118,7 @@ export function SavingsView() {
                 Goal Jars
                 <Tooltip
                   id="tooltip_goal_jars"
-                  text="Allocate portions of your savings toward specific goals. Tap + Add Jar to create one."
+                  text="Allocate portions of your savings toward specific goals. Tap + Create Jar to create one."
                   preferredPosition="top"
                 />
               </h3>
@@ -127,7 +127,7 @@ export function SavingsView() {
               onClick={() => setIsCreateOpen(true)}
               className="btn-ghost bg-transparent border-none text-(--accent) text-[0.8125rem] font-semibold cursor-pointer flex items-center gap-1 py-1 px-2 rounded-(--r-sm)"
             >
-              <Plus size={14} /> Add Jar
+              <Plus size={14} /> Create Jar
             </button>
           </div>
 

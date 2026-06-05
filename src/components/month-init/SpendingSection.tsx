@@ -55,7 +55,7 @@ export function SpendingSection({
             <button
               type="button"
               onClick={copyFromPreviousMonth}
-              className="text-[10px] text-(--accent) font-semibold hover:underline bg-transparent border-0 p-0 cursor-pointer"
+              className="flex items-center gap-1 text-[11px] font-semibold text-(--accent) bg-[rgba(217,119,87,0.1)] hover:bg-[rgba(217,119,87,0.15)] border border-(--accent)/20 px-2.5 py-1 rounded-full cursor-pointer transition-colors"
             >
               Copy from last month
             </button>

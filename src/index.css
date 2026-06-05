@@ -135,12 +135,12 @@ body {
     color 0.2s;
 }
 
-html, body {
+html,
+body {
   touch-action: pan-x pan-y;
   -ms-touch-action: pan-x pan-y;
   overscroll-behavior-y: none;
 }
-
 
 :root {
   color-scheme: light dark;
@@ -341,7 +341,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-style: dashed;
   cursor: not-allowed;
 }
-
 
 /* ─── Label ──────────────────────────────────────────────────────────────────── */
 .label {
@@ -1081,9 +1080,15 @@ body.sheet-open .page-header {
 .stagger-item.visible {
   animation: fadeInStagger 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-.stagger-item.visible:nth-child(1) { animation-delay: 0s; }
-.stagger-item.visible:nth-child(2) { animation-delay: 0.15s; }
-.stagger-item.visible:nth-child(3) { animation-delay: 0.3s; }
+.stagger-item.visible:nth-child(1) {
+  animation-delay: 0s;
+}
+.stagger-item.visible:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.stagger-item.visible:nth-child(3) {
+  animation-delay: 0.3s;
+}
 
 /* How It Works — step number */
 .step-number {
@@ -1124,17 +1129,28 @@ body.sheet-open .page-header {
 }
 
 @keyframes fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Native Drag and Touch Callout Suppression */
-img, a, button, [role="button"] {
+img,
+a,
+button,
+[role="button"] {
   -webkit-touch-callout: none;
   -webkit-user-drag: none;
   user-drag: none;
@@ -1145,9 +1161,8 @@ body {
   cursor: default;
 }
 
-input, textarea, [contenteditable="true"] {
+input,
+textarea,
+[contenteditable="true"] {
   cursor: text;
 }
-
-
-

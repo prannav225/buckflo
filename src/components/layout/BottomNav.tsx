@@ -5,7 +5,7 @@ import { hapticFeedback } from "../../utils/haptics";
 const navItems = [
   { to: "/home", end: false, label: "Home", id: "nav-home", Icon: Home },
   { to: "/monthly", end: true, label: "Monthly", id: "nav-monthly", Icon: Calendar },
-  { to: "/add", label: "Add entry", id: "nav-add", Icon: Plus, isFab: true },
+  { to: "/add", label: "Create entry", id: "nav-add", Icon: Plus, isFab: true },
   { to: "/insights", label: "Insights", id: "nav-insights", Icon: BarChart2 },
   { to: "/monthly/transactions", label: "History", id: "nav-history", Icon: History },
 ];
