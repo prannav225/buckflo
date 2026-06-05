@@ -8,6 +8,7 @@ import { updateSheetOpenState } from "../../utils/modalHelper";
 import { useManageGoal } from "../../hooks/useManageGoal";
 import { todayISO } from "../../utils/dateUtils";
 import { useBackHandler } from "../../hooks/useBackHandler";
+import { useSavingsVelocity } from "../../hooks/useSavingsVelocity";
 
 function ManageGoalSheetContent({
   onClose,
@@ -37,6 +38,8 @@ function ManageGoalSheetContent({
     parsedAlloc,
     confirmDialog,
   } = useManageGoal(goal, unallocatedBalance, onClose);
+
+  const { averageMonthlySavings, calculateETA } = useSavingsVelocity();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -198,6 +201,17 @@ function ManageGoalSheetContent({
                       </div>
                     );
                   }
+                  
+                  const eta = calculateETA(parsedTarget, parsedAlloc);
+                  if (parsedAlloc < parsedTarget && eta && eta > 0) {
+                    return (
+                      <div className="text-[11.5px] font-medium text-(--accent) mt-2 p-2 bg-[rgba(217,119,87,0.08)] rounded-md border border-(--accent)/10">
+                        <div className="font-semibold mb-0.5 text-(--text)">Velocity Tracker</div>
+                        At your current average savings rate of <strong>{formatINR(averageMonthlySavings)}/mo</strong>, you will reach this goal in <strong>{eta} {eta === 1 ? 'month' : 'months'}</strong>.
+                      </div>
+                    );
+                  }
+                  
                   return null;
                 })()}
               </div>

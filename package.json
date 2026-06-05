@@ -19,6 +19,7 @@
     "dexie-export-import": "^4.4.0",
     "dexie-react-hooks": "^4.4.0",
     "framer-motion": "^12.40.0",
+    "html-to-image": "^1.11.13",
     "lucide-react": "^1.17.0",
     "react": "^19.2.6",
     "react-chartjs-2": "^5.3.1",

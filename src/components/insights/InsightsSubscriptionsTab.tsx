@@ -16,7 +16,7 @@ import { updateSubscription, type Subscription } from "../../db/database";
 import { useConfirm } from "../../hooks/useConfirm";
 import { useSubscriptionLogic } from "../../hooks/useSubscriptionLogic";
 import { formatMonthYear, getCurrentMonthYear } from "../../utils/dateUtils";
-
+import { useCategories, getCategoryColor, hexToRgba } from "../../hooks/useCategories";
 const formatFrequency = (freq: string): string => {
   const f = freq.toLowerCase();
   if (f === "monthly") return "Monthly";
@@ -41,6 +41,8 @@ export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
     handleDeleteSub,
     toggleStatus,
   } = useSubscriptionLogic(monthYear);
+
+  const categories = useCategories();
 
   const isCurrentMonth = !monthYear || monthYear === getCurrentMonthYear();
 
@@ -147,6 +149,9 @@ export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
               const badgeClass = getDaysBadgeClass(daysLeft);
               const isPaused = sub.status === "paused";
               const isCancelled = sub.status === "cancelled";
+              
+              const catColor = getCategoryColor(categories, sub.category);
+              const initial = sub.category ? sub.category.charAt(0).toUpperCase() : "S";
 
               return (
                 <div
@@ -159,15 +164,16 @@ export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
                   <div className="flex items-start justify-between gap-2.5">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors"
+                        style={
                           isPaused
-                            ? "bg-[rgba(245,158,11,0.08)] text-[#f59e0b]"
+                            ? { backgroundColor: "rgba(245,158,11,0.08)", color: "#f59e0b" }
                             : isCancelled
-                              ? "bg-[rgba(239,68,68,0.08)] text-[#ef4444]"
-                              : "bg-[rgba(217,119,87,0.08)] text-(--accent)"
-                        }`}
+                              ? { backgroundColor: "rgba(239,68,68,0.08)", color: "#ef4444" }
+                              : { backgroundColor: hexToRgba(catColor, 0.12), color: catColor }
+                        }
                       >
-                        <Clock size={18} />
+                        <span className="font-display font-bold text-xl">{initial}</span>
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-(--text) flex items-center gap-2 flex-wrap">

@@ -34,7 +34,10 @@ function loadSummaryState() {
   return { isOpen: false, seenHashes: {} };
 }
 
-function saveSummaryState(state: { isOpen: boolean; seenHashes: Record<string, string> }) {
+function saveSummaryState(state: {
+  isOpen: boolean;
+  seenHashes: Record<string, string>;
+}) {
   localStorage.setItem(SMART_SUMMARY_STORAGE_KEY, JSON.stringify(state));
 }
 

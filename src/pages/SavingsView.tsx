@@ -17,6 +17,7 @@ import { CreateGoalSheet } from "../components/savings/CreateGoalSheet";
 import { ManageGoalSheet } from "../components/savings/ManageGoalSheet";
 import { SavingsGoalCard } from "../components/savings/SavingsGoalCard";
 import { useSavingsGoals } from "../hooks/useSavingsGoals";
+import { useSavingsVelocity } from "../hooks/useSavingsVelocity";
 import { Tooltip } from "../components/ui/Tooltip";
 
 export function SavingsView() {
@@ -49,6 +50,8 @@ export function SavingsView() {
     unallocatedBalance,
     currentSavingsBalance,
   } = useSavingsGoals();
+
+  const { calculateETA } = useSavingsVelocity();
 
   // Staggered delay classes based on current month layout
   const summaryDelay = isCurrentMonth ? "delay-2" : "delay-1";
@@ -168,6 +171,7 @@ export function SavingsView() {
                 <SavingsGoalCard
                   key={goal.id}
                   goal={goal}
+                  etaMonths={calculateETA(goal.targetAmount, goal.currentAllocated)}
                   onClick={() => setSelectedGoal(goal)}
                 />
               ))}

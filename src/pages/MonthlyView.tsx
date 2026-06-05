@@ -29,7 +29,7 @@ export function MonthlyView() {
   const transactions = useTransactions(spendingAcc?.id, monthYear);
 
   const tabParam = searchParams.get("tab");
-  const activeTab = tabParam === "subscriptions" ? "subscriptions" : "committed";
+  const activeTab = tabParam === "committed" ? "committed" : "subscriptions";
   const setActiveTab = (tab: "committed" | "subscriptions") => {
     setSearchParams(
       (prev) => {
@@ -132,11 +132,11 @@ export function MonthlyView() {
       {/* ── Tabs: Committed Expenses vs Subscriptions ──────────────── */}
       <div className="mb-4">
         <SegmentedControl
-          options={["committed", "subscriptions"]}
+          options={["subscriptions", "committed"]}
           value={activeTab}
-          onChange={(val) => setActiveTab(val as "committed" | "subscriptions")}
+          onChange={(val) => setActiveTab(val as "subscriptions" | "committed")}
           renderLabel={(val) =>
-            val === "committed" ? "Committed Expenses" : "Subscriptions"
+            val === "subscriptions" ? "Subscriptions" : "Committed Expenses"
           }
         />
       </div>

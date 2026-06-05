@@ -5,10 +5,11 @@ import { formatDate } from "../../utils/dateUtils";
 
 interface Props {
   goal: SavingGoal;
+  etaMonths?: number | null;
   onClick: () => void;
 }
 
-export function SavingsGoalCard({ goal, onClick }: Props) {
+export function SavingsGoalCard({ goal, etaMonths, onClick }: Props) {
   const percent = Math.min(
     100,
     Math.max(
@@ -76,15 +77,19 @@ export function SavingsGoalCard({ goal, onClick }: Props) {
           <div className="font-sans text-xs font-medium text-(--text-secondary) mb-1">
             {formatINR(goal.currentAllocated)}
           </div>
-          <div className="text-[11px] text-(--text-muted) mt-0.5">
-            of {formatINR(goal.targetAmount)}
+          <div className="flex flex-col items-center gap-1 mt-1.5">
+            {goal.deadline && (
+              <div className="flex items-center gap-0.75 justify-center text-[11px] text-(--text-muted)">
+                <Calendar size={10} />
+                <span>{formatDate(goal.deadline)}</span>
+              </div>
+            )}
+            {etaMonths !== undefined && etaMonths !== null && etaMonths > 0 && (
+              <div className="text-[9px] font-semibold tracking-wider uppercase bg-(--accent)/10 text-(--accent) px-2 py-0.5 rounded-full border border-(--accent)/20 inline-block mt-0.5">
+                Velocity ETA: {etaMonths} {etaMonths === 1 ? 'mo' : 'mos'}
+              </div>
+            )}
           </div>
-          {goal.deadline && (
-            <div className="flex items-center gap-0.75 justify-center text-[11px] text-(--text-muted) mt-1.5">
-              <Calendar size={10} />
-              <span>{formatDate(goal.deadline)}</span>
-            </div>
-          )}
         </>
       )}
     </div>
