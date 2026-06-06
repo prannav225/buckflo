@@ -43,7 +43,7 @@ export function MonthlyTransactionsView() {
 
   return (
     <>
-      <div className="sticky top-[calc(60px+env(safe-area-inset-top,0))] z-[90] bg-(--bg) pb-2 -mx-4 px-4">
+      <div className="sticky top-[calc(60px+env(safe-area-inset-top,0))] z-90 bg-(--bg) pb-2 -mx-4 px-4">
         {/* ── Header ───────────────────────────────────────────────────────── */}
         <div className="fade-in-up flex items-center justify-center mb-4">
           <MonthPicker

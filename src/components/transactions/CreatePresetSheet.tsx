@@ -12,16 +12,28 @@ import toast from "react-hot-toast";
 interface CreatePresetSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  presetToEdit?: { id?: number; description: string; amount: number; category: string; isCustom: boolean } | null;
+  presetToEdit?: {
+    id?: number;
+    description: string;
+    amount: number;
+    category: string;
+    isCustom: boolean;
+  } | null;
 }
 
-export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePresetSheetProps) {
+export function CreatePresetSheet({
+  isOpen,
+  onClose,
+  presetToEdit,
+}: CreatePresetSheetProps) {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
 
   useBackHandler(isOpen, onClose);
   const [category, setCategory] = useState("");
-  const [accountType, setAccountType] = useState<"spending" | "savings">("spending");
+  const [accountType, setAccountType] = useState<"spending" | "savings">(
+    "spending",
+  );
   const [saving, setSaving] = useState(false);
 
   const spendingAcc = useAccount("spending");
@@ -73,7 +85,9 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
       if (presetToEdit.id !== undefined) {
         db.presets.get(presetToEdit.id).then((p) => {
           if (p) {
-            setAccountType(p.accountId === savingsAcc?.id ? "savings" : "spending");
+            setAccountType(
+              p.accountId === savingsAcc?.id ? "savings" : "spending",
+            );
           }
         });
       }
@@ -89,7 +103,8 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
     e.preventDefault();
     if (!name.trim() || !amount.trim()) return;
 
-    const accountId = accountType === "spending" ? spendingAcc?.id : savingsAcc?.id;
+    const accountId =
+      accountType === "spending" ? spendingAcc?.id : savingsAcc?.id;
     if (!accountId) {
       toast.error("Account not initialized yet");
       return;
@@ -151,7 +166,9 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Name */}
           <div className="form-group m-0">
-            <label className="label" htmlFor="preset-name">Name</label>
+            <label className="label" htmlFor="preset-name">
+              Name
+            </label>
             <input
               id="preset-name"
               type="text"
@@ -165,7 +182,9 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
 
           {/* Amount */}
           <div className="form-group m-0">
-            <label className="label" htmlFor="preset-amount">Amount</label>
+            <label className="label" htmlFor="preset-amount">
+              Amount
+            </label>
             <input
               id="preset-amount"
               type="number"
@@ -193,7 +212,9 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
                     className={`chip py-2 px-4 text-[0.8125rem] ${
                       category === c.name ? "chip-active" : ""
                     }`}
-                    onClick={() => setCategory(category === c.name ? "" : c.name)}
+                    onClick={() =>
+                      setCategory(category === c.name ? "" : c.name)
+                    }
                   >
                     {c.name}
                   </button>
@@ -271,11 +292,15 @@ export function CreatePresetSheet({ isOpen, onClose, presetToEdit }: CreatePrese
             className="btn-primary w-full py-3.5 mt-2"
             disabled={saving || !name.trim() || !amount.trim()}
           >
-            {saving ? "Saving…" : presetToEdit ? "Save Changes" : "Create Preset"}
+            {saving
+              ? "Saving…"
+              : presetToEdit
+                ? "Save Changes"
+                : "Create Preset"}
           </button>
         </form>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
