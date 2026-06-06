@@ -25,6 +25,7 @@ export function useMonthlyTransactions() {
   const [txTypeFilter, setTxTypeFilter] = useState<
     "all" | "expense" | "income" | "transfer"
   >("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const initialTab =
     (searchParams.get("tab") as "all" | "spending" | "savings") || "all";
@@ -161,6 +162,14 @@ export function useMonthlyTransactions() {
       });
     }
 
+    // 0.5 Category Filter
+    if (categoryFilter !== "all") {
+      items = items.filter((item) => {
+        const cat = item.tx.category || "Uncategorized";
+        return cat.toLowerCase() === categoryFilter.toLowerCase();
+      });
+    }
+
     // 1. Search Query filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -204,7 +213,7 @@ export function useMonthlyTransactions() {
       }
       return (b.tx.id || 0) - (a.tx.id || 0);
     });
-  }, [tabFilteredItems, searchQuery, minAmount, maxAmount, sortBy, txTypeFilter]);
+  }, [tabFilteredItems, searchQuery, minAmount, maxAmount, sortBy, txTypeFilter, categoryFilter]);
 
   const hasMoreItems = filteredItems.length > pageSize;
   const displayedItems = filteredItems.slice(0, pageSize);
@@ -226,6 +235,8 @@ export function useMonthlyTransactions() {
     setSortBy,
     txTypeFilter,
     setTxTypeFilter,
+    categoryFilter,
+    setCategoryFilter,
     activeTab,
     setPageSize,
     spendingAcc,

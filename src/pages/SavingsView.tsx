@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { PiggyBank, Plus, Target, ChevronRight, ArrowLeft } from "lucide-react";
+import { PiggyBank, Plus, Target, ChevronRight } from "lucide-react";
 import { type SavingGoal } from "../db/database";
 import {
   useAccount,
@@ -68,21 +68,6 @@ export function SavingsView() {
 
   return (
     <>
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="sub-header fade-in-up flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <button
-            className="p-0 min-h-0 h-auto flex text-(--text-muted) cursor-pointer"
-            onClick={() => navigate(-1)}
-            title="Back"
-            id="btn-back"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h2 className="sub-header-title m-0">Savings</h2>
-        </div>
-      </div>
-
       {/* ── Compact Month Filter ────────────────────────────────────────── */}
       <div className="fade-in-up flex justify-center mb-4">
         <MonthPicker

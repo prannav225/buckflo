@@ -1,10 +1,8 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Sparkles, Database } from "lucide-react";
+import { ShieldCheck, Sparkles, Database } from "lucide-react";
 import packageJson from "../../package.json";
 
 export function AboutPage() {
-  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -12,20 +10,7 @@ export function AboutPage() {
 
   return (
     <>
-      {/* Header */}
-      <div className="sub-header p-0! fade-in-up flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <button
-            className="p-0 min-h-0 h-auto flex text-(--text-muted) hover:text-(--text) cursor-pointer bg-transparent border-0 outline-none"
-            onClick={() => navigate("/profile")}
-            title="Back to profile"
-            id="about-btn-back"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h2 className="sub-header-title m-0">About buckflo</h2>
-        </div>
-      </div>
+
 
       <div className="flex flex-col gap-6 fade-in-up delay-1">
         {/* Big Branded Hero Card */}

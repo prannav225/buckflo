@@ -27,11 +27,12 @@ export function BottomNav() {
             key={id}
             to={to}
             end={end}
+            replace
             viewTransition
             onClick={() => hapticFeedback.light()}
             className={({ isActive }) =>
               isFab
-                ? `flex items-center justify-center text-white w-10 h-10 rounded-full shadow-[0_4px_14px_rgba(217,119,87,0.35)] transition-[transform,background] duration-200 active:scale-90 cursor-pointer mx-1.5 shrink-0 nav-item-fab ${
+                ? `flex items-center justify-center text-white w-[46px] h-[46px] rounded-full shadow-[0_4px_14px_rgba(217,119,87,0.35)] transition-[transform,background] duration-200 active:scale-90 cursor-pointer mx-1.5 shrink-0 nav-item-fab ${
                     isActive ? "active bg-(--accent-dark)" : "bg-(--accent)"
                   }`
                 : `flex flex-col items-center gap-0.5 no-underline font-sans text-[10px] font-medium tracking-wider border-0 bg-transparent cursor-pointer p-[9px_16px] rounded-(--r-pill) transition-all duration-220 ease-[cubic-bezier(0.34,1.56,0.64,1)] nav-item ${
@@ -41,7 +42,7 @@ export function BottomNav() {
             aria-label={label}
             id={id}
           >
-            {Icon && <Icon size={20} strokeWidth={1.8} />}
+            {Icon && <Icon size={isFab ? 24 : 20} strokeWidth={isFab ? 2 : 1.8} />}
           </NavLink>
         ))}
       </nav>

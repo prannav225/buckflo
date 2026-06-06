@@ -1,17 +1,12 @@
-import { useState } from "react";
-import { Calendar, Upload, Download } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { TransactionFilters } from "../components/transactions/TransactionFilters";
 import { TransactionCard } from "../components/transactions/TransactionRow";
 import { MonthPicker } from "../components/MonthPicker";
-import { SegmentedControl } from "../components/ui/SegmentedControl";
-import { ImportModal } from "../components/transactions/ImportModal";
-import { ExportSheet } from "../components/transactions/ExportSheet";
+
 import { formatINR } from "../utils/currency";
 import { useMonthlyTransactions } from "../hooks/useMonthlyTransactions";
 
 export function MonthlyTransactionsView() {
-  const [isImportOpen, setIsImportOpen] = useState(false);
-  const [isExportOpen, setIsExportOpen] = useState(false);
   const {
     monthYear,
     searchQuery,
@@ -24,10 +19,10 @@ export function MonthlyTransactionsView() {
     setSortBy,
     txTypeFilter,
     setTxTypeFilter,
-    activeTab,
+    categoryFilter,
+    setCategoryFilter,
     setPageSize,
     handleMonthChange,
-    handleTabChange,
     tabFilteredItems,
     filteredItems,
     displayedItems,
@@ -46,133 +41,53 @@ export function MonthlyTransactionsView() {
     )
     .reduce((sum, item) => sum + item.tx.amount, 0);
 
-  const income = filteredItems
-    .filter(
-      (item) =>
-        !item.tx.isCommitted &&
-        item.tx.type === "credit" &&
-        item.tx.category !== "transfer" &&
-        item.tx.category !== "Transfer" &&
-        item.tx.category !== "starting-transfer" &&
-        item.tx.category !== "adjustment",
-    )
-    .reduce((sum, item) => sum + item.tx.amount, 0);
-
-  const transfersCredit = filteredItems
-    .filter(
-      (item) =>
-        item.tx.type === "credit" &&
-        (item.tx.category === "transfer" ||
-          item.tx.category === "Transfer" ||
-          item.tx.category === "starting-transfer"),
-    )
-    .reduce((sum, item) => sum + item.tx.amount, 0);
-
-  const transfersDebit = filteredItems
-    .filter(
-      (item) =>
-        item.tx.type === "debit" &&
-        (item.tx.category === "transfer" ||
-          item.tx.category === "Transfer" ||
-          item.tx.category === "starting-transfer"),
-    )
-    .reduce((sum, item) => sum + item.tx.amount, 0);
-
-  const netTransfers = transfersCredit - transfersDebit;
-
   return (
     <>
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="sub-header p-0! fade-in-up flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <h2 className="sub-header-title m-0">All Transactions</h2>
+      <div className="sticky top-[calc(60px+env(safe-area-inset-top,0))] z-[90] bg-(--bg) pb-2 -mx-4 px-4">
+        {/* ── Header ───────────────────────────────────────────────────────── */}
+        <div className="fade-in-up flex items-center justify-center mb-4">
+          <MonthPicker
+            monthYear={monthYear}
+            onChange={handleMonthChange}
+            compact={true}
+          />
         </div>
-        <div className="flex gap-1.5 shrink-0">
-          <button
-            className="btn-ghost min-h-0 h-auto flex items-center justify-center rounded-lg"
-            onClick={() => setIsImportOpen(true)}
-            id="import-csv"
-            title="Import from CSV"
-          >
-            <Upload size={16} />
-          </button>
-          <button
-            className="btn-ghost min-h-0 h-auto flex items-center justify-center rounded-lg"
-            onClick={() => setIsExportOpen(true)}
-            id="export-csv"
-            title="Export to CSV"
-          >
-            <Download size={16} />
-          </button>
+
+        {/* ── Transaction Activity Indicators ────────────────────────────── */}
+        <div className="glass-card mb-4 fade-in-up delay-1 relative overflow-hidden bg-(--bg-glass-strong) border border-black/5 dark:border-white/5 shadow-sm">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-(--accent)/10 blur-2xl pointer-events-none" />
+          <div className="px-5 py-4 flex flex-col gap-1 relative z-10">
+            <div className="flex items-center gap-2 mb-0.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-(--accent) shadow-[0_0_8px_var(--accent)] animate-pulse"></div>
+              <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-widest">
+                Total Spent
+              </span>
+            </div>
+            <span className="text-[28px] font-display font-semibold text-(--text) tracking-tight leading-none">
+              {formatINR(expenses, expenses % 1 === 0 ? 0 : 2, 100000)}
+            </span>
+          </div>
         </div>
+
+        {/* ── Search & Filter Controls ────────────────────────────────────────── */}
+        {tabFilteredItems.length > 0 && (
+          <TransactionFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            minAmount={minAmount}
+            setMinAmount={setMinAmount}
+            maxAmount={maxAmount}
+            setMaxAmount={setMaxAmount}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            txTypeFilter={txTypeFilter}
+            setTxTypeFilter={setTxTypeFilter}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            onResetPage={() => setPageSize(20)}
+          />
+        )}
       </div>
-
-      {/* ── Compact Month Filter ────────────────────────────────────────── */}
-      <div className="fade-in-up flex justify-center mb-4">
-        <MonthPicker
-          monthYear={monthYear}
-          onChange={handleMonthChange}
-          compact={true}
-        />
-      </div>
-
-      {/* ── Transaction Activity Indicators ────────────────────────────── */}
-      <div className="glass-card fade-in-up delay-1 grid grid-cols-3 gap-2 p-3.5 mb-4 text-[0.8125rem] text-center">
-        <div className="flex flex-col justify-center gap-0.5 border-r border-black/5 dark:border-white/5">
-          <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
-            Debits
-          </span>
-          <span className="text-sm font-bold text-(--debit) whitespace-nowrap">
-            -{formatINR(expenses, expenses % 1 === 0 ? 0 : 2, 100000)}
-          </span>
-        </div>
-        <div className="flex flex-col justify-center gap-0.5 border-r border-black/5 dark:border-white/5">
-          <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
-            Credits
-          </span>
-          <span className="text-sm font-bold text-(--credit) whitespace-nowrap">
-            +{formatINR(income, income % 1 === 0 ? 0 : 2, 100000)}
-          </span>
-        </div>
-        <div className="flex flex-col justify-center gap-0.5">
-          <span className="font-sans text-[10px] font-semibold text-(--text-muted) uppercase tracking-wider">
-            Transfers
-          </span>
-          <span
-            className={`text-sm font-bold whitespace-nowrap ${
-              netTransfers >= 0 ? "text-(--credit)" : "text-(--debit)"
-            }`}
-          >
-            {netTransfers >= 0 ? "+" : ""}
-            {formatINR(netTransfers, netTransfers % 1 === 0 ? 0 : 2, 100000)}
-          </span>
-        </div>
-      </div>
-
-      <SegmentedControl
-        options={["all", "spending", "savings"] as const}
-        value={activeTab}
-        onChange={handleTabChange}
-        idPrefix="tab"
-        className="fade-in-up delay-1 max-w-[320px] mx-auto mb-4"
-      />
-
-      {/* ── Search & Filter Controls ────────────────────────────────────────── */}
-      {tabFilteredItems.length > 0 && (
-        <TransactionFilters
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          minAmount={minAmount}
-          setMinAmount={setMinAmount}
-          maxAmount={maxAmount}
-          setMaxAmount={setMaxAmount}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          txTypeFilter={txTypeFilter}
-          setTxTypeFilter={setTxTypeFilter}
-          onResetPage={() => setPageSize(20)}
-        />
-      )}
 
       {/* ── Transaction List ──────────────────────────────────────────────── */}
       <div className="fade-in-up delay-2 mb-10">
@@ -196,15 +111,7 @@ export function MonthlyTransactionsView() {
         ) : (
           <>
             <div className="flex items-center gap-2 mb-3 pl-1">
-              <div
-                className={`w-[3px] h-[13px] rounded-full shrink-0 ${
-                  activeTab === "savings"
-                    ? "bg-(--credit)"
-                    : activeTab === "spending"
-                      ? "bg-(--accent)"
-                      : "bg-(--text-muted)"
-                }`}
-              />
+              <div className="w-[3px] h-[13px] rounded-full shrink-0 bg-(--accent)" />
               <span className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em]">
                 Showing {displayedItems.length} of {filteredItems.length}{" "}
                 Transactions
@@ -216,10 +123,8 @@ export function MonthlyTransactionsView() {
                   key={item.tx.id}
                   transaction={item.tx}
                   runningBalance={item.runningBalance}
-                  showRunningBalance={
-                    activeTab !== "all" && sortBy === "date_desc"
-                  }
-                  showAccount={activeTab === "all"}
+                  showRunningBalance={sortBy === "date_desc"}
+                  showAccount={false}
                 />
               ))}
             </div>
@@ -234,19 +139,6 @@ export function MonthlyTransactionsView() {
           </>
         )}
       </div>
-      <ImportModal
-        isOpen={isImportOpen}
-        onClose={() => setIsImportOpen(false)}
-        onSuccess={() => {
-          // Reactively updated via Dexie hook listeners automatically
-        }}
-        activeTab={activeTab}
-      />
-      <ExportSheet
-        isOpen={isExportOpen}
-        onClose={() => setIsExportOpen(false)}
-        defaultAccount={activeTab}
-      />
     </>
   );
 }

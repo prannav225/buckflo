@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, CreditCard, PiggyBank } from "lucide-react";
+import { Check } from "lucide-react";
 import { CustomDatePicker } from "../../CustomDatePicker";
 import { hapticFeedback } from "../../../utils/haptics";
 
@@ -8,17 +8,10 @@ interface Category {
   name: string;
 }
 
-interface Account {
-  id?: number;
-}
 
 interface TransactionDetailsCardProps {
   description: string;
   setDescription: (val: string) => void;
-  accountId: number | "";
-  setAccountId: (val: number | "") => void;
-  spendingAcc?: Account;
-  savingsAcc?: Account;
   category: string;
   setCategory: (val: string) => void;
   categories: Category[];
@@ -35,10 +28,6 @@ interface TransactionDetailsCardProps {
 export function TransactionDetailsCard({
   description,
   setDescription,
-  accountId,
-  setAccountId,
-  spendingAcc,
-  savingsAcc,
   category,
   setCategory,
   categories,
@@ -68,41 +57,7 @@ export function TransactionDetailsCard({
         />
       </div>
 
-      <div className="form-group m-0">
-        <span className="label">Account</span>
-        <div className="flex gap-2.5">
-          {spendingAcc && (
-            <button
-              type="button"
-              className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                accountId === spendingAcc.id ? "chip-active" : ""
-              }`}
-              onClick={() => {
-                hapticFeedback.light();
-                setAccountId(spendingAcc.id!);
-              }}
-              id="page-acc-spending"
-            >
-              <CreditCard size={16} /> <span>Spending</span>
-            </button>
-          )}
-          {savingsAcc && (
-            <button
-              type="button"
-              className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                accountId === savingsAcc.id ? "chip-active-green" : ""
-              }`}
-              onClick={() => {
-                hapticFeedback.light();
-                setAccountId(savingsAcc.id!);
-              }}
-              id="page-acc-savings"
-            >
-              <PiggyBank size={16} /> <span>Savings</span>
-            </button>
-          )}
-        </div>
-      </div>
+
 
       <div className="form-group m-0">
         <span className="label">

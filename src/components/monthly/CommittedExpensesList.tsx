@@ -17,22 +17,15 @@ export function CommittedExpensesList({
   committedPaid,
   handleUndoPaid,
   handleMarkAsPaid,
-  setShowEditModal,
 }: Props) {
   const expenses = monthSetup.committedExpenses || [];
 
   if (expenses.length === 0) {
     return (
       <div className="glass-card text-center py-8 px-4 rounded-xl">
-        <p className="text-(--text-secondary) dark:text-white/60 mb-4 text-sm">
+        <p className="text-(--text-secondary) dark:text-white/60 mb-0 text-sm">
           No committed expenses set for this month.
         </p>
-        <button
-          className="btn-primary py-2 px-5 text-sm"
-          onClick={() => setShowEditModal(true)}
-        >
-          Edit Setup
-        </button>
       </div>
     );
   }

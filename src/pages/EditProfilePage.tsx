@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 import toast from "react-hot-toast";
 import { BrandedAvatar } from "../components/layout/BrandedAvatar";
@@ -66,20 +66,7 @@ export function EditProfilePage() {
 
   return (
     <>
-      {/* Header */}
-      <div className="sub-header p-0! fade-in-up flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <button
-            className="p-0 min-h-0 h-auto flex text-(--text-muted) hover:text-(--text) cursor-pointer bg-transparent border-0 outline-none"
-            onClick={() => navigate("/profile")}
-            title="Back to profile"
-            id="edit-profile-btn-back"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h2 className="sub-header-title m-0">Edit Profile</h2>
-        </div>
-      </div>
+
 
       <div className="flex flex-col gap-6 fade-in-up delay-1">
         {/* Avatar Live Preview */}

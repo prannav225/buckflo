@@ -5,6 +5,7 @@ import { ChevronRight, Wallet } from "lucide-react";
 import { db, deletePreset, incrementPresetUsage } from "../db/database";
 import { ImportModal } from "../components/transactions/ImportModal";
 import { hapticFeedback } from "../utils/haptics";
+import { format } from "date-fns";
 import {
   useAccount,
   useMonthSetup,
@@ -25,7 +26,11 @@ import {
   getCurrentMonthYear,
   getDaysRemainingInMonth,
 } from "../utils/dateUtils";
-import { useFrequentPresets, type FrequentPreset, useSmartAllocationPrompt } from "../hooks/useAnalytics";
+import {
+  useFrequentPresets,
+  type FrequentPreset,
+  useSmartAllocationPrompt,
+} from "../hooks/useAnalytics";
 import { useMonthComparison } from "../hooks/useMonthComparison";
 import { CreatePresetSheet } from "../components/transactions/CreatePresetSheet";
 import toast from "react-hot-toast";
@@ -214,18 +219,29 @@ export function Dashboard() {
   return (
     <>
       {monthSetup === undefined ? (
-        <div className="py-2.5 px-0">
+        <div className="px-0">
           <div className="skeleton h-[220px] mb-3" />
           <div className="skeleton h-[72px] mb-3" />
           <div className="skeleton h-[300px]" />
         </div>
       ) : (
         <>
-          {profile?.displayName && (
-            <p className="font-display text-3xl italic font-normal text-(--text) tracking-wide pb-2 px-0.5 fade-in-up">
-              Hey {profile.displayName}
+          <div className="pb-4 px-1 fade-in-up flex items-center justify-between">
+            <h2 className="font-display text-2xl font-normal! text-(--text) italic tracking-wide m-0 leading-none">
+              <span className="italic text-(--text-secondary)">
+                {new Date().getHours() < 12
+                  ? "Good morning,"
+                  : new Date().getHours() < 17
+                    ? "Good afternoon,"
+                    : "Good evening,"}
+              </span>{" "}
+              {profile?.displayName || "Sir"} !
+            </h2>
+            <p className="font-sans text-[10px] font-normal! text-(--accent) uppercase tracking-widest mb-1.5 flex items-center justify-start gap-1.5 whitespace-nowrap">
+              {format(new Date(), "EEE, MMM do")}
+              <span className="w-1.5 h-1.5 rounded-full bg-(--accent)" />
             </p>
-          )}
+          </div>
           <DashboardHeroCard
             balance={summary.closingBalance}
             monthSetup={monthSetup}

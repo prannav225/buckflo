@@ -34,13 +34,11 @@ export function AddEditTransaction() {
     type,
     setType,
     accountId,
-    setAccountId,
     category,
     setCategory,
     loading,
     fetching,
     isEdit,
-    spendingAcc,
     savingsAcc,
     handleSubmit,
     handleDelete,
@@ -192,10 +190,6 @@ export function AddEditTransaction() {
           <TransactionDetailsCard
             description={description}
             setDescription={setDescription}
-            accountId={accountId}
-            setAccountId={setAccountId}
-            spendingAcc={spendingAcc}
-            savingsAcc={savingsAcc}
             category={category}
             setCategory={setCategory}
             categories={categories}

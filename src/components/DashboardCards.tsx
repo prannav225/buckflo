@@ -48,18 +48,9 @@ export function DashboardHeroCard({
         <span className="font-sans text-[0.6875rem] font-semibold text-white/65 tracking-widest uppercase">
           Spending Balance
         </span>
-        {monthSetup && budget > 0 ? (
-          <button 
-            onClick={onSetup}
-            className="font-sans text-xs text-white/60 hover:text-white/90 transition-colors bg-transparent border-none p-0 cursor-pointer underline decoration-white/20 underline-offset-2 text-right leading-tight"
-          >
-            {formatMonthYear(monthYear)} setup:<br />{formatINR(budget)}
-          </button>
-        ) : (
-          <span className="font-sans text-xs text-white/60">
-            {formatMonthYear(monthYear)}
-          </span>
-        )}
+        <span className="font-sans text-[10px] font-bold text-white/60 tracking-wider uppercase">
+          {formatMonthYear(monthYear)}
+        </span>
       </div>
 
       {/* Balance amount */}
@@ -85,14 +76,14 @@ export function DashboardHeroCard({
           <div className="flex justify-between items-baseline font-sans text-xs text-white/80 font-medium">
             <span>
               <span className="text-[0.9375rem] font-bold text-white tracking-tight">
-                {formatINR(spent)} spent
+                {formatINR(spent)}
               </span>{" "}
-              of {formatINR(budget)}
+              spent
             </span>
             <span>
               {overBudget ? (
                 <span className="text-[#ffc2c2] flex items-center gap-0.75 font-semibold">
-                  <TrendingDown size={12} /> Over your target
+                  <TrendingDown size={12} /> Exceeded
                 </span>
               ) : (
                 <span className="text-white/90 font-semibold">

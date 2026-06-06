@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Bell, Download, X } from "lucide-react";
+import { Bell, Download, X, ChevronLeft } from "lucide-react";
 import { BottomNav } from "./BottomNav";
 import { useNotificationHub } from "../../hooks/useNotificationHub";
 import { NotificationSheet } from "./NotificationSheet";
@@ -34,6 +34,38 @@ export function AppLayout({ children }: AppLayoutProps) {
     pathname === "/profile/edit" ||
     pathname === "/profile/categories" ||
     pathname === "/profile/notifications";
+
+  const getPageTitle = () => {
+    switch (pathname) {
+      case "/monthly":
+        return "Monthly";
+      case "/monthly/transactions":
+        return "All Transactions";
+      case "/insights":
+        return "Insights";
+      case "/savings":
+        return "Savings";
+      case "/profile":
+        return "Profile";
+      case "/profile/categories":
+        return "Categories";
+      case "/profile/about":
+        return "About buckflo";
+      case "/profile/edit":
+        return "Edit Profile";
+      case "/profile/notifications":
+        return "Notifications";
+      default:
+        return "";
+    }
+  };
+  const pageTitle = getPageTitle();
+  const isSubPage =
+    pathname !== "/home" &&
+    pathname !== "/monthly" &&
+    pathname !== "/insights" &&
+    pathname !== "/profile" &&
+    pathname !== "/monthly/transactions";
 
   const [isOnboarded, setIsOnboarded] = useState(
     () =>
@@ -94,10 +126,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         <>
           {isMainPage && (
             <div
-              className="fixed top-0 left-0 right-0 h-[calc(84px+env(safe-area-inset-top,0))] z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="fixed top-0 left-0 right-0 h-[calc(90px+env(safe-area-inset-top,0))] z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
                 background:
-                  "linear-gradient(to bottom, var(--bg) 0%, var(--bg) 40%, color-mix(in srgb, var(--bg) 30%, transparent) 70%, transparent 100%)",
+                  "linear-gradient(to bottom, var(--bg) 0%, var(--bg) 66%, color-mix(in srgb, var(--bg) 30%, transparent) 85%, transparent 100%)",
               }}
             />
           )}
@@ -110,22 +142,39 @@ export function AppLayout({ children }: AppLayoutProps) {
           >
             {/* ── Persistent Global Header ────────────────────────────────────────── */}
             {isMainPage && (
-              <header className="sticky top-[calc(12px+env(safe-area-inset-top,0))] z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                <div
-                  className={`pointer-events-auto transition-all duration-300 ease-out flex items-center justify-center rounded-full hover:-translate-y-0.5 active:translate-y-0 border p-0.5 ${
-                    scrolled
-                      ? "bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border-black/8 dark:border-white/6 shadow-(--glass-shadow)"
-                      : "bg-transparent border-transparent shadow-none"
-                  }`}
-                >
-                  <img
-                    src="/buckflo_favicon.svg"
-                    alt="buckflo"
-                    className={`object-contain rounded-full transition-all duration-300 ${
-                      scrolled ? "w-10 h-10" : "w-12 h-12"
+              <header className="h-11 sticky top-[calc(12px+env(safe-area-inset-top,0))] z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]">
+                {pathname === "/home" ? (
+                  <button
+                    onClick={() => window.location.reload()}
+                    className={`pointer-events-auto transition-all duration-300 ease-out flex items-center justify-center rounded-full hover:-translate-y-0.5 active:translate-y-0 border p-0.5 cursor-pointer outline-none ${
+                      scrolled
+                        ? "bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border-black/8 dark:border-white/6 shadow-(--glass-shadow)"
+                        : "bg-transparent border-transparent shadow-none"
                     }`}
-                  />
-                </div>
+                  >
+                    <img
+                      src="/buckflo_favicon.svg"
+                      alt="buckflo"
+                      className={`object-contain rounded-full transition-all duration-300 ${
+                        scrolled ? "w-8 h-8" : "w-10 h-10"
+                      }`}
+                    />
+                  </button>
+                ) : (
+                  <div className="pointer-events-auto flex items-start">
+                    {isSubPage && (
+                      <ChevronLeft
+                        size={24}
+                        onClick={() => navigate(-1)}
+                        className="-pl-5 m-0 min-h-0 h-auto flex items-center justify-center text-(--text-muted) hover:text-(--text) cursor-pointer bg-transparent border-0 outline-none rounded-full"
+                        aria-label="Go back"
+                      />
+                    )}
+                    <h1 className="text-[22px] font-bold text-(--text) tracking-tight m-0 leading-none">
+                      {pageTitle}
+                    </h1>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 pointer-events-auto">
                   <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
                     <button

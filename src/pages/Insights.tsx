@@ -18,9 +18,10 @@ import {
   useBurnRate,
 } from "../hooks/useAnalytics";
 import { MonthPicker } from "../components/MonthPicker";
-import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
 import { BurnVelocityCard } from "../components/insights/BurnVelocityCard";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
+import { CollapsibleInsightCard } from "../components/insights/CollapsibleInsightCard";
+import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
 
 const SMART_SUMMARY_STORAGE_KEY = "buckflo_smart_summary_state";
 
@@ -195,11 +196,6 @@ export function Insights() {
 
   return (
     <>
-      {/* ── Page Title ──────────────────────────────────────────────────── */}
-      <div className="sub-header fade-in-up flex items-center justify-between mb-2">
-        <h2 className="sub-header-title m-0">Insights</h2>
-      </div>
-
       {/* ── Compact Month Filter ────────────────────────────────────────── */}
       <div className="fade-in-up flex justify-center mb-5">
         <MonthPicker
@@ -221,50 +217,57 @@ export function Insights() {
       ) : null}
 
       {/* ── Narrative Insights Card ─────────────────────────────────────── */}
-      <div className="glass-card fade-in-up delay-1 mb-4 overflow-hidden border border-black/5 dark:border-white/5 bg-(--bg-glass-strong)">
-        {!shouldShowSummary && !isGenerating ? (
-          <div
-            onClick={handleGenerateSummary}
-            className="p-6 flex flex-col items-center justify-center cursor-pointer bg-linear-to-b from-transparent to-black/5 dark:to-white/5 hover:to-black/10 dark:hover:to-white/10 transition-colors group"
-          >
-            <div className="relative mb-3.5">
-              <div className="absolute inset-0 bg-(--accent) blur-[10px] opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-full" />
-              <div className="relative w-12 h-12 rounded-full bg-linear-to-br from-(--accent)/20 to-(--accent)/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-(--accent)/20 shadow-sm">
-                <Sparkles size={20} className="text-(--accent)" />
-              </div>
+      <CollapsibleInsightCard
+        isOpen={shouldShowSummary || isGenerating}
+        onOpen={handleGenerateSummary}
+        title="Smart Summary"
+        tooltipText="Tap to analyze your recent spending patterns."
+        tooltipId="smart-summary-info"
+        actionText="Generate"
+        icon={<Sparkles size={16} />}
+        colorScheme="accent"
+        delayClass="delay-1"
+      >
+        <div className="p-5 relative">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 rounded-full bg-linear-to-br from-(--accent)/20 to-transparent flex items-center justify-center">
+              <BrainCircuit size={14} className="text-(--accent)" />
             </div>
-            <h3 className="text-[15px] font-bold m-0 mb-1.5 tracking-wide bg-linear-to-r from-(--text) to-(--text-muted) bg-clip-text text-transparent">
-              Smart Summary
+            <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider opacity-80">
+              Smart Analysis
             </h3>
-            <p className="text-[12px] font-medium text-(--text-muted) text-center max-w-[200px]">
-              Tap to analyze your recent spending patterns
-            </p>
           </div>
-        ) : (
-          <div className="p-5 relative">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded-full bg-linear-to-br from-(--accent)/20 to-transparent flex items-center justify-center">
-                <BrainCircuit size={14} className="text-(--accent)" />
-              </div>
-              <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider opacity-80">
-                Smart Analysis
-              </h3>
-            </div>
 
-            {isGenerating ? (
-              <div className="flex flex-col gap-2.5 animate-pulse">
-                <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-full"></div>
-                <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-[85%]"></div>
-                <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-[60%]"></div>
-              </div>
-            ) : (
-              <div className="text-[14px] leading-[1.6] text-(--text-secondary) font-medium">
-                <RichWordFadeIn segments={summarySegments} delay={0.1} />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+          {isGenerating ? (
+            <div className="flex flex-col gap-2.5 animate-pulse">
+              <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-full"></div>
+              <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-[85%]"></div>
+              <div className="h-3.5 bg-black/5 dark:bg-white/5 rounded-full w-[60%]"></div>
+            </div>
+          ) : (
+            <div className="text-[14px] leading-[1.6] text-(--text-secondary) font-medium">
+              <RichWordFadeIn segments={summarySegments} delay={0.1} />
+            </div>
+          )}
+        </div>
+      </CollapsibleInsightCard>
+
+      {/* ── Category Spend breakdown ────────────────────────────────────── */}
+      {sortedCategories.length > 0 ? (
+        <BudgetOverviewCard
+          sortedCategories={sortedCategories}
+          monthSetup={monthSetup || undefined}
+          totalExpense={totalExpense}
+        />
+      ) : (
+        <div className="glass-card empty-state px-5 py-10 mt-3 fade-in-up delay-3">
+          <Calendar size={32} className="empty-state-icon" />
+          <p className="empty-state-title">No category spend recorded</p>
+          <p className="empty-state-desc">
+            No spending entries logged for {formatMonthYear(monthYear)}.
+          </p>
+        </div>
+      )}
 
       {/* ── Spending Trend Chart Card ───────────────────────────────────── */}
       <div className="glass-card fade-in-up delay-2 mb-4 p-5">
@@ -370,23 +373,6 @@ export function Insights() {
           </div>
         )}
       </div>
-
-      {/* ── Category Spend breakdown ────────────────────────────────────── */}
-      {sortedCategories.length > 0 ? (
-        <BudgetOverviewCard
-          sortedCategories={sortedCategories}
-          monthSetup={monthSetup || undefined}
-          totalExpense={totalExpense}
-        />
-      ) : (
-        <div className="glass-card empty-state px-5 py-10 mt-3 fade-in-up delay-3">
-          <Calendar size={32} className="empty-state-icon" />
-          <p className="empty-state-title">No category spend recorded</p>
-          <p className="empty-state-desc">
-            No spending entries logged for {formatMonthYear(monthYear)}.
-          </p>
-        </div>
-      )}
     </>
   );
 }

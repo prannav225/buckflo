@@ -254,6 +254,13 @@ export async function addCategory(
   }) as Promise<number>;
 }
 
+export async function updateCategory(
+  id: number,
+  cat: Partial<Category>,
+): Promise<void> {
+  await db.categories.update(id, cat);
+}
+
 export async function deleteCategory(id: number): Promise<void> {
   await db.categories.delete(id);
 }

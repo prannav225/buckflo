@@ -17,7 +17,8 @@ import type { Subscription } from "../db/database";
 
 import { useCommittedExpenses } from "../hooks/useCommittedExpenses";
 import { MonthlySetupPlaceholder } from "../components/monthly/MonthlySetupPlaceholder";
-import { MonthlySummaryCard } from "../components/monthly/MonthlySummaryCard";
+import { MonthPlannerDashboard } from "../components/monthly/MonthPlannerDashboard";
+import { useSubscriptionLogic } from "../hooks/useSubscriptionLogic";
 import { CommittedExpensesList } from "../components/monthly/CommittedExpensesList";
 
 export function MonthlyView() {
@@ -55,8 +56,6 @@ export function MonthlyView() {
   const remaining = budget - spent;
   const actualBalance = summary.closingBalance;
   const spendableLeft = Math.max(0, Math.min(remaining, actualBalance));
-  const spentPct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
-  const overBudget = spent > budget && budget > 0;
 
   const [showInitModal, setShowInitModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(
@@ -89,12 +88,14 @@ export function MonthlyView() {
     committedPaid,
   } = useCommittedExpenses(monthSetup, spendingAcc);
 
+  const { totalCommitted: subscriptionsTotal } = useSubscriptionLogic(monthYear);
+
+  const fixedAllocation = committedTotal + subscriptionsTotal;
+  const netCashFlow = summary.totalCredited - summary.totalDebited;
+
   return (
     <>
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="sub-header fade-in-up flex items-center justify-between mb-2">
-        <h2 className="sub-header-title m-0">Monthly</h2>
-      </div>
+
 
       {/* ── Compact Month Filter ────────────────────────────────────────── */}
       <div className="fade-in-up flex justify-center mb-4">
@@ -116,15 +117,13 @@ export function MonthlyView() {
 
       {/* ── Summary Cards ────────────────────────────────────────────────── */}
       {monthSetup && (
-        <MonthlySummaryCard
+        <MonthPlannerDashboard
           monthYear={monthYear}
-          summary={summary}
-          openingBalance={openingBalance}
-          spent={spent}
           budget={budget}
+          spent={spent}
           spendableLeft={spendableLeft}
-          spentPct={spentPct}
-          overBudget={overBudget}
+          netCashFlow={netCashFlow}
+          fixedAllocation={fixedAllocation}
           setShowEditModal={setShowEditModal}
         />
       )}
