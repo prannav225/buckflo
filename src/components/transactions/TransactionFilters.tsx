@@ -108,7 +108,7 @@ export function TransactionFilters({
           isActive={txTypeFilter !== "all"}
           value={txTypeFilter}
           onChange={(val) => {
-            setTxTypeFilter(val as any);
+            setTxTypeFilter(val);
             onResetPage();
           }}
           options={[
@@ -137,7 +137,7 @@ export function TransactionFilters({
           align="right"
           value={sortBy}
           onChange={(val) => {
-            setSortBy(val as any);
+            setSortBy(val);
             onResetPage();
           }}
           options={[

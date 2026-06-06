@@ -14,7 +14,9 @@ import { useBackHandler } from "../../hooks/useBackHandler";
 import { CustomDropdown, type DropdownOption } from "../layout/CustomDropdown";
 import { CustomDatePicker } from "../CustomDatePicker";
 
-const frequencyOptions: DropdownOption<"weekly" | "monthly" | "3_months" | "6_months" | "yearly">[] = [
+const frequencyOptions: DropdownOption<
+  "weekly" | "monthly" | "3_months" | "6_months" | "yearly"
+>[] = [
   { value: "weekly", label: "Weekly" },
   { value: "monthly", label: "Monthly" },
   { value: "3_months", label: "3 Months" },
@@ -34,7 +36,7 @@ export function SubscriptionFormSheet({
   editingSub,
 }: Props) {
   const categories = useCategories();
-  
+
   useBackHandler(showFormModal, () => setShowFormModal(false));
 
   // Form states
@@ -191,7 +193,7 @@ export function SubscriptionFormSheet({
               <CustomDropdown
                 options={frequencyOptions}
                 value={formFrequency}
-                onChange={setFormFrequency}
+                onChange={(e) => setFormFrequency(e)}
                 id="subscription-frequency"
                 variant="form"
               />
@@ -199,7 +201,7 @@ export function SubscriptionFormSheet({
           </div>
 
           {/* Next Due Date */}
-          <div className="form-group !m-0">
+          <div className="form-group m-0!">
             <span className="label">Next Due Date</span>
             <CustomDatePicker
               id="subscription-due-date"

@@ -4,10 +4,21 @@ import { hapticFeedback } from "../../utils/haptics";
 
 const navItems = [
   { to: "/home", end: false, label: "Home", id: "nav-home", Icon: Home },
-  { to: "/monthly", end: true, label: "Monthly", id: "nav-monthly", Icon: Calendar },
+  {
+    to: "/monthly",
+    end: true,
+    label: "Monthly",
+    id: "nav-monthly",
+    Icon: Calendar,
+  },
   { to: "/add", label: "Create entry", id: "nav-add", Icon: Plus, isFab: true },
   { to: "/insights", label: "Insights", id: "nav-insights", Icon: BarChart2 },
-  { to: "/monthly/transactions", label: "History", id: "nav-history", Icon: History },
+  {
+    to: "/monthly/transactions",
+    label: "History",
+    id: "nav-history",
+    Icon: History,
+  },
 ];
 
 export function BottomNav() {
@@ -42,11 +53,12 @@ export function BottomNav() {
             aria-label={label}
             id={id}
           >
-            {Icon && <Icon size={isFab ? 24 : 20} strokeWidth={isFab ? 2 : 1.8} />}
+            {Icon && (
+              <Icon size={isFab ? 28 : 20} strokeWidth={isFab ? 2 : 1.8} />
+            )}
           </NavLink>
         ))}
       </nav>
     </div>
   );
 }
-

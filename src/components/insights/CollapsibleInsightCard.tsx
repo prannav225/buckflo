@@ -31,7 +31,8 @@ export function CollapsibleInsightCard({
   const styles = {
     accent: {
       blur: "bg-(--accent)",
-      iconBg: "bg-linear-to-br from-(--accent)/20 to-(--accent)/5 border-(--accent)/20",
+      iconBg:
+        "bg-linear-to-br from-(--accent)/20 to-(--accent)/5 border-(--accent)/20",
       iconText: "text-(--accent)",
       actionText: "text-(--accent)",
     },
@@ -50,7 +51,9 @@ export function CollapsibleInsightCard({
   }[colorScheme];
 
   return (
-    <div className={`glass-card fade-in-up ${delayClass} mb-4 overflow-hidden border border-black/5 dark:border-white/5 bg-(--bg-glass-strong)`}>
+    <div
+      className={`glass-card fade-in-up ${delayClass} mb-4 overflow-hidden border border-black/5 dark:border-white/5 bg-(--bg-glass-strong)`}
+    >
       {!isOpen ? (
         <div
           onClick={onOpen}
@@ -59,7 +62,7 @@ export function CollapsibleInsightCard({
           <div className="flex items-center gap-3">
             <div className="relative">
               <div
-                className={`absolute inset-0 blur-[8px] opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-full ${styles.blur}`}
+                className={`absolute inset-0 blur-sm opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-full ${styles.blur}`}
               />
               <div
                 className={`relative w-9 h-9 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border shadow-sm ${styles.iconBg} ${styles.iconText}`}
