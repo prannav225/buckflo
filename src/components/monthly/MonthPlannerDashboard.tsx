@@ -1,6 +1,6 @@
 import { Edit3, CheckCircle2, AlertCircle } from "lucide-react";
 import { Tooltip } from "../ui/Tooltip";
-import { formatINR } from "../../utils/currency";
+import { formatINR, formatCurrency } from "../../utils/currency";
 import { formatMonthYear } from "../../utils/dateUtils";
 
 interface Props {
@@ -20,12 +20,13 @@ export function MonthPlannerDashboard({
 }: Props) {
   const isAllPaid = unpaidBills <= 0;
   const paidBills = Math.max(0, totalFixedCosts - unpaidBills);
-  
+
   // Calculate percentages
   const paidPct = totalFixedCosts > 0 ? (paidBills / totalFixedCosts) * 100 : 0;
-  
+
   // 50/30/20 Rule: Fixed Costs Ratio
-  const fixedRatio = totalIncome > 0 ? (totalFixedCosts / totalIncome) * 100 : 0;
+  const fixedRatio =
+    totalIncome > 0 ? (totalFixedCosts / totalIncome) * 100 : 0;
   let ratioColor = "text-(--credit)";
   if (fixedRatio > 50) ratioColor = "text-(--accent)"; // Warning: > 50%
   if (fixedRatio > 70) ratioColor = "text-(--debit)"; // Danger: > 70%
@@ -59,10 +60,69 @@ export function MonthPlannerDashboard({
         </button>
       </div>
 
-      <div className="flex items-center gap-6 relative z-10">
-        {/* Left Side: Circular Progress Ring */}
-        <div className="relative w-24 h-24 shrink-0 flex items-center justify-center">
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 80 80">
+      <div className="flex items-center gap-4 sm:gap-6 relative z-10">
+        {/* Left Side: Key Metrics */}
+        <div className="flex flex-col gap-4 flex-1 min-w-0">
+          {/* Unpaid Bills */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-widest">
+                Left To Pay
+              </span>
+              <Tooltip
+                id="tt-unpaid"
+                text="The total amount of committed expenses and subscriptions that haven't been paid yet."
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <span
+                className={`text-2xl sm:text-3xl font-display font-semibold tracking-tight leading-none ${isAllPaid ? "text-(--credit)" : "text-(--text)"}`}
+              >
+                {formatINR(unpaidBills)}
+              </span>
+              {!isAllPaid && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-(--debit)/10 text-(--debit) text-[9px] font-bold uppercase tracking-wider">
+                  <AlertCircle size={10} strokeWidth={2.5} /> Action Needed
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Fixed Cost Metrics */}
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            <div className="bg-black/3 dark:bg-white/4 p-2.5 sm:p-3 rounded-xl border border-black/5 dark:border-white/5">
+              <span className="text-[9px] font-semibold text-(--text-muted) uppercase tracking-widest block mb-1">
+                Total Bills
+              </span>
+              <span className="text-sm sm:text-base font-semibold text-(--text)">
+                {formatCurrency(totalFixedCosts, 0, 1000)}
+              </span>
+            </div>
+            <div className="bg-black/3 dark:bg-white/4 p-2.5 sm:p-3 rounded-xl border border-black/5 dark:border-white/5">
+              <div className="flex items-center gap-1 mb-1">
+                <span className="text-[9px] font-semibold text-(--text-muted) uppercase tracking-widest">
+                  Ratio
+                </span>
+                <Tooltip
+                  id="tt-ratio"
+                  text="Percentage of your income taken up by fixed costs. Try to keep this under 50%."
+                />
+              </div>
+              <span
+                className={`text-sm sm:text-base font-semibold ${ratioColor}`}
+              >
+                {totalIncome > 0 ? `${Math.round(fixedRatio)}%` : "--"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Circular Progress Ring */}
+        <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center">
+          <svg
+            className="w-full h-full transform -rotate-90"
+            viewBox="0 0 80 80"
+          >
             {/* Background ring */}
             <circle
               cx="40"
@@ -91,63 +151,20 @@ export function MonthPlannerDashboard({
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             {isAllPaid && totalFixedCosts > 0 ? (
-              <CheckCircle2 size={24} className="text-(--credit) animate-fade-in" />
+              <CheckCircle2
+                size={24}
+                className="text-(--credit) animate-fade-in"
+              />
             ) : (
               <>
-                <span className="text-[10px] font-bold text-(--text-muted) uppercase tracking-wider">
+                <span className="text-[9px] sm:text-[10px] font-bold text-(--text-muted) uppercase tracking-wider">
                   Paid
                 </span>
-                <span className="text-lg font-display font-semibold text-(--text) leading-none mt-0.5">
+                <span className="text-base sm:text-lg font-display font-semibold text-(--text) leading-none mt-0.5">
                   {Math.round(paidPct)}%
                 </span>
               </>
             )}
-          </div>
-        </div>
-
-        {/* Right Side: Key Metrics */}
-        <div className="flex flex-col gap-4 flex-1">
-          {/* Unpaid Bills */}
-          <div>
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="text-[10px] font-semibold text-(--text-muted) uppercase tracking-widest">
-                Left To Pay
-              </span>
-              <Tooltip id="tt-unpaid" text="The total amount of committed expenses and subscriptions that haven't been paid yet." />
-            </div>
-            <div className="flex items-end gap-2">
-              <span className={`text-2xl font-display font-medium tracking-tight leading-none ${isAllPaid ? 'text-(--credit)' : 'text-(--text)'}`}>
-                {formatINR(unpaidBills)}
-              </span>
-              {!isAllPaid && (
-                <span className="text-xs text-(--debit) font-medium mb-0.5 flex items-center gap-1 animate-pulse">
-                  <AlertCircle size={12} /> Action needed
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Fixed Cost Ratio */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-black/3 dark:bg-white/4 p-2.5 rounded-xl border border-black/5 dark:border-white/5">
-              <span className="text-[9px] font-semibold text-(--text-muted) uppercase tracking-widest block mb-0.5">
-                Total Bills
-              </span>
-              <span className="text-sm font-semibold text-(--text)">
-                {formatINR(totalFixedCosts)}
-              </span>
-            </div>
-            <div className="bg-black/3 dark:bg-white/4 p-2.5 rounded-xl border border-black/5 dark:border-white/5">
-              <div className="flex items-center gap-1 mb-0.5">
-                <span className="text-[9px] font-semibold text-(--text-muted) uppercase tracking-widest">
-                  Ratio
-                </span>
-                <Tooltip id="tt-ratio" text="Percentage of your income taken up by fixed costs. Try to keep this under 50%." />
-              </div>
-              <span className={`text-sm font-semibold ${ratioColor}`}>
-                {totalIncome > 0 ? `${Math.round(fixedRatio)}%` : '--'}
-              </span>
-            </div>
           </div>
         </div>
       </div>
