@@ -23,35 +23,30 @@ export function UpdatePrompt() {
   if (!needRefresh) return null;
 
   return (
-    <div className="fixed bottom-[calc(120px+env(safe-area-inset-bottom,0))] left-4 right-4 z-[90] animate-fade-in-up">
-      <div className="bg-(--bg-glass-strong) [-webkit-backdrop-filter:blur(32px)_saturate(200%)] [backdrop-filter:blur(32px)_saturate(200%)] border border-(--accent)/30 p-4 rounded-2xl shadow-[0_8px_30px_rgba(217,119,87,0.2)] flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-(--accent)/10 text-(--accent) shrink-0">
-            <DownloadCloud size={20} strokeWidth={2.5} />
+    <div className="fixed bottom-[calc(90px+env(safe-area-inset-bottom,0))] left-4 right-4 z-[90] animate-fade-in-up flex justify-center pointer-events-none">
+      <div className="bg-[#1C1C1E]/90 dark:bg-white/10 [-webkit-backdrop-filter:blur(32px)_saturate(200%)] [backdrop-filter:blur(32px)_saturate(200%)] border border-white/10 p-1.5 pr-2 rounded-full shadow-2xl flex items-center justify-between gap-3 pointer-events-auto max-w-sm w-full mx-auto">
+        <div className="flex items-center gap-3 pl-1">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-(--accent) text-white shrink-0 shadow-inner">
+            <DownloadCloud size={16} strokeWidth={2.5} />
           </div>
-          <div>
-            <h4 className="text-sm font-bold text-(--text) m-0 mb-0.5 tracking-tight">
-              Update Available
-            </h4>
-            <p className="text-xs text-(--text-muted) m-0 leading-snug">
-              A new version is ready.
-            </p>
-          </div>
+          <span className="text-[13px] font-semibold text-white dark:text-(--text) tracking-wide">
+            Update Available
+          </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-0.5">
           <button
             type="button"
-            className="btn-primary px-4 py-2 text-xs font-bold shadow-sm rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-transform"
+            className="px-4 py-2 text-[11px] font-bold text-white bg-white/10 hover:bg-white/20 rounded-full cursor-pointer transition-colors uppercase tracking-wider"
             onClick={() => {
               hapticFeedback.success();
               updateServiceWorker(true);
             }}
           >
-            Update Now
+            Update
           </button>
           <button
             type="button"
-            className="p-2 rounded-full text-(--text-muted) hover:text-(--text) hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-white/50 hover:text-white transition-colors cursor-pointer"
             onClick={close}
             aria-label="Dismiss update"
           >
