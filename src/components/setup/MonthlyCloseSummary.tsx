@@ -3,7 +3,6 @@ import { createPortal } from "react-dom";
 import { format } from "date-fns";
 import {
   ChevronRight,
-  Award,
   TrendingUp,
   PieChart,
   CalendarCheck,

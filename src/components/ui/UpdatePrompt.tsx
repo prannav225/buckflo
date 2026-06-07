@@ -1,3 +1,4 @@
+// @ts-expect-error PWA virtual module types
 import { useRegisterSW } from "virtual:pwa-register/react";
 import { DownloadCloud, X } from "lucide-react";
 import { hapticFeedback } from "../../utils/haptics";
@@ -7,10 +8,10 @@ export function UpdatePrompt() {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
-    onRegistered(r) {
+    onRegistered(r: any) {
       console.log("SW Registered:", r);
     },
-    onRegisterError(error) {
+    onRegisterError(error: any) {
       console.log("SW registration error", error);
     },
   });
