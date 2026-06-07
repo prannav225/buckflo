@@ -94,6 +94,9 @@ export interface Profile {
   notificationsEnabled?: boolean;
   notificationTime?: string;
   notificationPermissionAsked?: boolean;
+  notifyAutopay?: boolean;
+  notifyBills?: boolean;
+  notifyBudget?: boolean;
 }
 
 export interface AppNotification {

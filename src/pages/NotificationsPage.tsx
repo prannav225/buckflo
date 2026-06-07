@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Bell } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 import toast from "react-hot-toast";
@@ -7,15 +7,23 @@ import { CustomTimePicker } from "../components/ui/CustomTimePicker";
 
 export function NotificationsPage() {
   const { profile, updateProfile } = useProfile();
+  const initialized = useRef(false);
 
   const [enabled, setEnabled] = useState(false);
   const [time, setTime] = useState("20:00");
+  const [notifyAutopay, setNotifyAutopay] = useState(true);
+  const [notifyBills, setNotifyBills] = useState(true);
+  const [notifyBudget, setNotifyBudget] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (profile) {
+    if (profile && !initialized.current) {
       setEnabled(profile.notificationsEnabled ?? false);
       setTime(profile.notificationTime ?? "20:00");
+      setNotifyAutopay(profile.notifyAutopay ?? true);
+      setNotifyBills(profile.notifyBills ?? true);
+      setNotifyBudget(profile.notifyBudget ?? true);
+      initialized.current = true;
     }
   }, [profile]);
 
@@ -99,8 +107,6 @@ export function NotificationsPage() {
 
   return (
     <>
-
-
       <div className="flex flex-col gap-6 fade-in-up delay-1">
         {/* Banner Card */}
         <div className="glass-card p-5 flex flex-col gap-4">
@@ -143,7 +149,7 @@ export function NotificationsPage() {
                 htmlFor="notifications-time-picker"
                 className="label m-0 text-xs text-(--text-secondary) font-medium"
               >
-                Reminder Time
+                Delivery Time
               </label>
               <CustomTimePicker
                 id="notifications-time-picker"
@@ -154,16 +160,139 @@ export function NotificationsPage() {
                     await updateProfile({
                       notificationTime: newTime,
                     });
-                    toast.success(`Reminder time set to ${newTime}`);
+                    toast.success(`Delivery time set to ${newTime}`);
                   } catch (err) {
                     console.error("Failed to save time:", err);
-                    toast.error("Failed to update reminder time.");
+                    toast.error("Failed to update delivery time.");
                   }
                 }}
               />
             </div>
           )}
         </div>
+
+        {enabled && (
+          <div className="glass-card p-5 flex flex-col gap-4 animate-fade-in">
+            <h3 className="font-sans text-sm font-semibold text-(--text) m-0 border-b border-black/5 dark:border-white/5 pb-2">
+              Smart Alerts
+            </h3>
+
+            {/* Autopay Toggle */}
+            <div className="flex items-center justify-between mt-2">
+              <div>
+                <div className="font-sans text-[0.875rem] font-medium text-(--text)">
+                  Autopay Subscriptions
+                </div>
+                <div className="font-sans text-[11px] text-(--text-muted) mt-0.5">
+                  Warns you 1 day before auto-deduction
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={async () => {
+                  try {
+                    setSubmitting(true);
+                    const nextVal = !notifyAutopay;
+                    await updateProfile({ notifyAutopay: nextVal });
+                    setNotifyAutopay(nextVal);
+                  } catch {
+                    toast.error("Failed to update setting");
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+                className={`relative inline-flex h-6.5 w-11.5 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  notifyAutopay
+                    ? "bg-(--accent)"
+                    : "bg-black/10 dark:bg-white/10"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5.5 w-5.5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                    notifyAutopay ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Bills Toggle */}
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-sans text-[0.875rem] font-medium text-(--text)">
+                  Committed Expenses
+                </div>
+                <div className="font-sans text-[11px] text-(--text-muted) mt-0.5">
+                  Reminds you on the due date to pay
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={async () => {
+                  try {
+                    setSubmitting(true);
+                    const nextVal = !notifyBills;
+                    await updateProfile({ notifyBills: nextVal });
+                    setNotifyBills(nextVal);
+                  } catch {
+                    toast.error("Failed to update setting");
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+                className={`relative inline-flex h-6.5 w-11.5 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  notifyBills ? "bg-(--accent)" : "bg-black/10 dark:bg-white/10"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5.5 w-5.5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                    notifyBills ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Budget Toggle */}
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-sans text-[0.875rem] font-medium text-(--text)">
+                  Budget Limits
+                </div>
+                <div className="font-sans text-[11px] text-(--text-muted) mt-0.5">
+                  Alerts if budget crosses 90% or 100%
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={async () => {
+                  try {
+                    setSubmitting(true);
+                    const nextVal = !notifyBudget;
+                    await updateProfile({ notifyBudget: nextVal });
+                    setNotifyBudget(nextVal);
+                  } catch {
+                    toast.error("Failed to update setting");
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+                className={`relative inline-flex h-6.5 w-11.5 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  notifyBudget
+                    ? "bg-(--accent)"
+                    : "bg-black/10 dark:bg-white/10"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5.5 w-5.5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                    notifyBudget ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

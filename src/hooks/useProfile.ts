@@ -30,11 +30,14 @@ export function useProfile() {
     partial: Partial<Omit<Profile, "id" | "createdAt">>,
   ) => {
     const now = new Date();
+    
+    // Always fetch latest from DB to prevent React closure staleness bugs
+    const existing = await db.profile.get(1);
     let updated: Profile;
 
-    if (profile) {
+    if (existing) {
       updated = {
-        ...profile,
+        ...existing,
         ...partial,
         updatedAt: now,
       } as Profile;
@@ -48,6 +51,11 @@ export function useProfile() {
         createdAt: now,
         updatedAt: now,
         wizardCompleted: false,
+        notificationsEnabled: true,
+        notificationTime: "20:00",
+        notifyAutopay: true,
+        notifyBills: true,
+        notifyBudget: true,
         ...partial,
       } as Profile;
     }

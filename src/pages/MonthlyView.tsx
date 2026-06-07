@@ -7,6 +7,7 @@ import {
   useMonthSummary,
   useOpeningBalanceReconstructor,
 } from "../db/hooks";
+import { useProfile } from "../hooks/useProfile";
 import { MonthPicker } from "../components/MonthPicker";
 import { MonthInitModal } from "../components/MonthInitModal";
 import { getCurrentMonthYear } from "../utils/dateUtils";
@@ -24,6 +25,7 @@ import { CommittedExpensesList } from "../components/monthly/CommittedExpensesLi
 export function MonthlyView() {
   const [searchParams, setSearchParams] = useSearchParams();
   const monthYear = searchParams.get("month") || getCurrentMonthYear();
+  const { profile } = useProfile();
 
   const spendingAcc = useAccount("spending");
   const monthSetup = useMonthSetup(monthYear);
@@ -52,10 +54,6 @@ export function MonthlyView() {
   const summary = useMonthSummary(transactions, openingBalance);
 
   const spent = summary.totalExpense;
-  const budget = monthSetup?.monthlyBudget ?? 0;
-  const remaining = budget - spent;
-  const actualBalance = summary.closingBalance;
-  const spendableLeft = Math.max(0, Math.min(remaining, actualBalance));
 
   const [showInitModal, setShowInitModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(
@@ -81,22 +79,16 @@ export function MonthlyView() {
   };
 
   // ── Custom Hook for Committed Expenses ────────────────────────────────
-  const {
-    handleMarkAsPaid,
-    handleUndoPaid,
-    committedTotal,
-    committedPaid,
-  } = useCommittedExpenses(monthSetup, spendingAcc);
+  const { handleMarkAsPaid, handleUndoPaid, committedTotal, committedPaid } =
+    useCommittedExpenses(monthSetup, spendingAcc);
 
-  const { totalCommitted: subscriptionsTotal } = useSubscriptionLogic(monthYear);
+  const { totalCommitted: subscriptionsTotal } =
+    useSubscriptionLogic(monthYear);
 
   const fixedAllocation = committedTotal + subscriptionsTotal;
-  const netCashFlow = summary.totalCredited - summary.totalDebited;
 
   return (
     <>
-
-
       {/* ── Compact Month Filter ────────────────────────────────────────── */}
       <div className="fade-in-up flex justify-center mb-4">
         <MonthPicker
@@ -115,15 +107,13 @@ export function MonthlyView() {
         />
       )}
 
-      {/* ── Summary Cards ────────────────────────────────────────────────── */}
+      {/* ── Fixed Obligations Dashboard ────────────────────────────────────────────────── */}
       {monthSetup && (
         <MonthPlannerDashboard
           monthYear={monthYear}
-          budget={budget}
-          spent={spent}
-          spendableLeft={spendableLeft}
-          netCashFlow={netCashFlow}
-          fixedAllocation={fixedAllocation}
+          totalIncome={profile?.monthlyIncome ?? 0}
+          totalFixedCosts={fixedAllocation}
+          unpaidBills={committedTotal - committedPaid + subscriptionsTotal}
           setShowEditModal={setShowEditModal}
         />
       )}

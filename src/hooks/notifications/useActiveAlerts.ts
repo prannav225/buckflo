@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { NotificationItem } from "./types";
 import { formatINR } from "../../utils/currency";
-import { startOfDay, parseISO, differenceInDays } from "date-fns";
+import { startOfDay, parseISO, differenceInDays, getISOWeek } from "date-fns";
 import { updateSubscription } from "../../db/database";
 import { advanceDueDate } from "../../utils/autopay";
 import toast from "react-hot-toast";
@@ -12,7 +12,6 @@ export function useActiveAlerts({
   spentPct,
   monthYear,
   monthSetup,
-  subAlerts,
   catAlerts,
   advisor,
   wow,
@@ -109,7 +108,6 @@ export function useActiveAlerts({
       }
     }
 
-
     if (advisor?.shouldShow) {
       alerts.push({
         id: `smart-advisor-surplus-${advisor.suggestedAmount}`,
@@ -133,9 +131,10 @@ export function useActiveAlerts({
     }
 
     if (wow.lastWeekTotal > 0) {
+      const currentWeek = getISOWeek(new Date());
       if (wow.percentChange >= 15) {
         alerts.push({
-          id: `wow-high-${wow.percentChange}`,
+          id: `wow-high-${currentWeek}`,
           type: "warning",
           category: "insights",
           title: "High Spend Velocity",
@@ -148,7 +147,7 @@ export function useActiveAlerts({
         });
       } else if (wow.percentChange <= -15) {
         alerts.push({
-          id: `wow-low-${wow.percentChange}`,
+          id: `wow-low-${currentWeek}`,
           type: "success",
           category: "insights",
           title: "Efficient Spend Velocity",
@@ -278,7 +277,6 @@ export function useActiveAlerts({
     spentPct,
     monthYear,
     monthSetup,
-    subAlerts,
     catAlerts,
     advisor,
     wow,
