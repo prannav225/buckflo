@@ -38,7 +38,7 @@ export function BottomNav() {
             key={id}
             to={to}
             end={end}
-            replace
+            replace={!isFab}
             viewTransition
             onClick={() => hapticFeedback.light()}
             className={({ isActive }) =>

@@ -8,10 +8,12 @@ import {
   PieChart,
   CalendarCheck,
   Wallet,
+  Sparkles,
 } from "lucide-react";
 import { updateSheetOpenState } from "../../utils/modalHelper";
 import { db } from "../../db/database";
 import { formatINR } from "../../utils/currency";
+import { PixelArtBackground } from "../ui/PixelArtBackground";
 
 interface MonthlyCloseSummaryProps {
   isOpen: boolean;
@@ -115,90 +117,94 @@ export function MonthlyCloseSummary({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] bg-(--bg)"
+      className="fixed inset-0 z-[100] bg-[#0d0c0b] text-white"
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full h-full max-w-md mx-auto flex flex-col p-6 relative overflow-y-auto pt-16">
+      <PixelArtBackground pattern="portal" opacity={1.0} baseColor="#d97757" />
+      
+      <div className="w-full h-full max-w-md mx-auto flex flex-col p-6 relative z-10 overflow-y-auto pt-12 pb-24">
         {stats.txCount === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center fade-in-up">
-            <div className="w-20 h-20 rounded-full bg-(--accent)/10 flex items-center justify-center mb-6">
-              <CalendarCheck size={40} className="text-(--accent)" />
+          <div className="flex-1 flex flex-col items-center justify-center fade-in-up delay-1">
+            <div className="w-24 h-24 rounded-full bg-(--accent)/20 flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(217,119,87,0.3)]">
+              <CalendarCheck size={48} className="text-(--accent)" />
             </div>
 
-            <h2 className="text-3xl font-display italic font-light text-(--text) text-center mb-2">
-              Welcome to {format(new Date(), "MMMM")}!
+            <h2 className="text-5xl font-display italic font-normal text-white text-center mb-4 tracking-tight drop-shadow-md">
+              Welcome to <span className="text-(--accent)">{format(new Date(), "MMMM")}</span>!
             </h2>
-            <p className="text-sm text-(--text-muted) text-center mb-10 max-w-[280px]">
+            <p className="text-base text-white/70 text-center mb-10 max-w-[280px]">
               Let's get your budget set up for this month so you can start
               tracking your journey.
             </p>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center fade-in-up">
-            <div className="w-20 h-20 rounded-full bg-(--accent)/10 flex items-center justify-center mb-6">
-              <Award size={40} className="text-(--accent)" />
+          <div className="flex-1 flex flex-col items-center justify-start mt-8">
+            <div className="fade-in-up delay-1 flex flex-col items-center w-full">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-(--accent) to-[#9a4726] flex items-center justify-center mb-6 shadow-[0_8px_32px_rgba(217,119,87,0.4)]">
+                <Sparkles size={36} className="text-white" />
+              </div>
+
+              <h2 className="text-5xl font-display italic font-normal text-white text-center mb-2 tracking-tight drop-shadow-lg">
+                <span className="text-(--accent)">{monthName}</span> is wrapped!
+              </h2>
+              <p className="text-sm text-white/60 text-center mb-10 max-w-[280px] uppercase tracking-widest font-semibold">
+                Your Monthly Ledger
+              </p>
             </div>
 
-            <h2 className="text-3xl font-display italic font-light text-(--text) text-center mb-2">
-              {monthName} is wrapped!
-            </h2>
-            <p className="text-sm text-(--text-muted) text-center mb-6 max-w-[280px]">
-              Here is a quick look at your ledger from last month.
-            </p>
-
-            <div className="w-full flex flex-col gap-3">
-              <div className="glass-card p-4 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-[rgba(64,160,192,0.15)] flex items-center justify-center shrink-0">
-                  <TrendingUp size={20} className="text-[#40a0c0]" />
-                </div>
-                <div>
-                  <p className="text-xs text-(--text-muted) font-semibold uppercase tracking-wider m-0 mb-1">
+            {/* Bento Box Grid */}
+            <div className="w-full grid grid-cols-2 gap-3 mt-2">
+              {/* Hero Item - Full Width */}
+              <div className="col-span-2 glass-card-strong bg-black/40 backdrop-blur-xl border-white/10 p-5 rounded-3xl flex flex-col items-center justify-center fade-in-up delay-2 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-(--accent)/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                <div className="flex items-center gap-2 mb-2 z-10">
+                  <TrendingUp size={16} className="text-(--accent)" />
+                  <p className="text-[11px] text-white/60 font-bold uppercase tracking-widest m-0">
                     Total Spent
                   </p>
-                  <p className="text-xl font-display font-semibold text-(--text) m-0">
-                    {formatINR(stats.totalSpent)}
-                  </p>
                 </div>
+                <p className="text-4xl font-display font-semibold text-white m-0 z-10 drop-shadow-sm">
+                  {formatINR(stats.totalSpent)}
+                </p>
               </div>
 
-              <div className="glass-card p-4 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-[rgba(90,158,111,0.15)] flex items-center justify-center shrink-0">
-                  <Wallet size={20} className="text-(--credit)" />
+              {/* Left Item - Half Width */}
+              <div className="col-span-1 glass-card bg-black/40 backdrop-blur-xl border-white/10 p-5 rounded-3xl flex flex-col fade-in-up delay-3 shadow-xl">
+                <div className="w-10 h-10 rounded-2xl bg-[rgba(90,158,111,0.2)] border border-[rgba(90,158,111,0.3)] flex items-center justify-center shrink-0 mb-4 shadow-[0_4px_16px_rgba(90,158,111,0.2)]">
+                  <Wallet size={20} className="text-[#6bb582]" />
                 </div>
-                <div>
-                  <p className="text-xs text-(--text-muted) font-semibold uppercase tracking-wider m-0 mb-1">
-                    Wallet Left Over
-                  </p>
-                  <p className="text-xl font-display font-semibold text-(--text) m-0">
-                    {formatINR(stats.leftover)}
-                  </p>
-                </div>
+                <p className="text-[10px] text-white/60 font-bold uppercase tracking-widest m-0 mb-1">
+                  Left Over
+                </p>
+                <p className="text-xl font-display font-semibold text-white m-0">
+                  {formatINR(stats.leftover)}
+                </p>
               </div>
 
-              <div className="glass-card p-4 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-[rgba(144,96,176,0.15)] flex items-center justify-center shrink-0">
-                  <PieChart size={20} className="text-[#9060b0]" />
+              {/* Right Item - Half Width */}
+              <div className="col-span-1 glass-card bg-black/40 backdrop-blur-xl border-white/10 p-5 rounded-3xl flex flex-col fade-in-up delay-3 shadow-xl">
+                <div className="w-10 h-10 rounded-2xl bg-[rgba(144,96,176,0.2)] border border-[rgba(144,96,176,0.3)] flex items-center justify-center shrink-0 mb-4 shadow-[0_4px_16px_rgba(144,96,176,0.2)]">
+                  <PieChart size={20} className="text-[#b582d9]" />
                 </div>
-                <div>
-                  <p className="text-xs text-(--text-muted) font-semibold uppercase tracking-wider m-0 mb-1">
-                    Top Category
-                  </p>
-                  <p className="text-lg font-sans font-semibold text-(--text) m-0">
-                    {stats.biggestCategory}
-                  </p>
-                </div>
+                <p className="text-[10px] text-white/60 font-bold uppercase tracking-widest m-0 mb-1">
+                  Top Category
+                </p>
+                <p className="text-lg font-sans font-semibold text-white m-0 line-clamp-1 leading-tight mt-1">
+                  {stats.biggestCategory}
+                </p>
               </div>
 
-              <div className="glass-card p-4 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0">
-                  <CalendarCheck size={20} className="text-(--text)" />
+              {/* Footer Item - Full Width */}
+              <div className="col-span-2 glass-card bg-black/40 backdrop-blur-xl border-white/10 p-4 rounded-3xl flex items-center gap-4 fade-in-up delay-4 shadow-xl mt-1">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/5">
+                  <CalendarCheck size={22} className="text-white/80" />
                 </div>
                 <div>
-                  <p className="text-xs text-(--text-muted) font-semibold uppercase tracking-wider m-0 mb-1">
-                    Activity
+                  <p className="text-[10px] text-white/60 font-bold uppercase tracking-widest m-0 mb-1">
+                    Activity Record
                   </p>
-                  <p className="text-lg font-sans font-semibold text-(--text) m-0">
+                  <p className="text-sm font-sans font-medium text-white/90 m-0 leading-snug">
                     {stats.txCount} transactions across {stats.daysActive} days
                   </p>
                 </div>
@@ -207,12 +213,14 @@ export function MonthlyCloseSummary({
           </div>
         )}
 
-        <button
-          className="btn-primary w-full py-4 mt-8 flex items-center justify-center gap-2"
-          onClick={onNext}
-        >
-          Set up {format(new Date(), "MMMM")} <ChevronRight size={18} />
-        </button>
+        <div className="mt-auto pt-8 fade-in-up delay-4 w-full">
+          <button
+            className="w-full py-4 rounded-full bg-white text-black font-bold text-base flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-transform active:scale-95"
+            onClick={onNext}
+          >
+            Start {format(new Date(), "MMMM")} <ChevronRight size={18} />
+          </button>
+        </div>
       </div>
     </div>,
     document.body,

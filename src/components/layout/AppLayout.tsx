@@ -13,6 +13,8 @@ import { useProfile } from "../../hooks/useProfile";
 import { useDatabaseSync } from "../../hooks/useDatabaseSync";
 import { BrandedAvatar } from "./BrandedAvatar";
 import { usePWAInstall } from "../../hooks/usePWAInstall";
+import { ChangelogModal } from "../ui/ChangelogModal";
+import { UpdatePrompt } from "../ui/UpdatePrompt";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -261,6 +263,9 @@ export function AppLayout({ children }: AppLayoutProps) {
             defaultAmount={transferConfig.amount}
             defaultNote={transferConfig.note}
           />
+          
+          <ChangelogModal />
+          <UpdatePrompt />
         </>
       ) : isLegalPage ? (
         <main className="pt-[calc(16px+env(safe-area-inset-top,0))] pl-4 pr-4 pb-[calc(24px+env(safe-area-inset-bottom,0))] max-w-[720px] mx-auto w-full">

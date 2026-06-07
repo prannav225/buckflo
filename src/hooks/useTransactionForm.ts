@@ -146,7 +146,11 @@ export function useTransactionForm(): TransactionFormState {
         toast.success("Entry logged ✓");
       }
       hapticFeedback.success();
-      navigate(-1);
+      if (window.history.state && window.history.state.idx > 0) {
+        navigate(-1);
+      } else {
+        navigate("/home", { replace: true });
+      }
     } catch (err) {
       toast.error("Failed to save. Please try again.");
       console.error(err);
@@ -167,7 +171,11 @@ export function useTransactionForm(): TransactionFormState {
       await deleteTransaction(Number(id));
       toast.success("Entry deleted ✓");
       hapticFeedback.heavy();
-      navigate(-1);
+      if (window.history.state && window.history.state.idx > 0) {
+        navigate(-1);
+      } else {
+        navigate("/home", { replace: true });
+      }
     } catch (err) {
       toast.error("Failed to delete. Please try again.");
       console.error(err);

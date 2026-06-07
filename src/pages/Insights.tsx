@@ -260,7 +260,7 @@ export function Insights() {
           totalExpense={totalExpense}
         />
       ) : (
-        <div className="glass-card empty-state px-5 py-10 mt-3 fade-in-up delay-3">
+        <div className="glass-card empty-state px-5 py-10 mt-3 mb-4 fade-in-up delay-3">
           <Calendar size={32} className="empty-state-icon" />
           <p className="empty-state-title">No category spend recorded</p>
           <p className="empty-state-desc">

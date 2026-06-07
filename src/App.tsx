@@ -3,7 +3,7 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./context/ThemeContext";
 import { TooltipProvider } from "./context/TooltipContext";
 import { AppRoutes } from "./routes/AppRoutes";
-import { ChangelogModal } from "./components/layout/ChangelogModal";
+
 import { Analytics } from "@vercel/analytics/react";
 
 export function App() {
@@ -11,7 +11,7 @@ export function App() {
     <ThemeProvider>
       <BrowserRouter>
         <TooltipProvider>
-          <ChangelogModal />
+
           <AppRoutes />
           <Toaster
             position="top-center"

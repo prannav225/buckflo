@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       includeAssets: ["buckflo_favicon.svg", "buckflo_appicon.svg"],
       manifest: {
         name: "Buckflo",
