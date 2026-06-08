@@ -16,23 +16,33 @@ interface IncomeWizardProps {
   onClose?: () => void;
 }
 
-export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps) {
+export function IncomeWizard({
+  isOpen,
+  onComplete,
+  onClose,
+}: IncomeWizardProps) {
   const { profile, updateProfile } = useProfile();
   const categoriesDb = useCategories();
 
   useBackHandler(isOpen && !!onClose, () => {
     if (onClose) onClose();
   });
-  
+
   const [step, setStep] = useState(1);
   const [income, setIncome] = useState("");
   // Replaces fixed commitments with a full category map
   const [catBudgets, setCatBudgets] = useState<Record<string, string>>({});
-  const [catDueDays, setCatDueDays] = useState<Record<string, number | undefined>>({});
+  const [catDueDays, setCatDueDays] = useState<
+    Record<string, number | undefined>
+  >({});
   const [newCatName, setNewCatName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [existingOpeningBal, setExistingOpeningBal] = useState<number | null>(null);
-  const [allocationType, setAllocationType] = useState<"savings" | "spending" | "split">("savings");
+  const [existingOpeningBal, setExistingOpeningBal] = useState<number | null>(
+    null,
+  );
+  const [allocationType, setAllocationType] = useState<
+    "savings" | "spending" | "split"
+  >("savings");
   const [savingsSplitAmount, setSavingsSplitAmount] = useState("");
   const [skippedIncome, setSkippedIncome] = useState(false);
   const [manualSpendingBal, setManualSpendingBal] = useState("");
@@ -47,7 +57,6 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
       setTimeout(updateSheetOpenState, 0);
     };
   }, [isOpen]);
-
 
   const handleNext = () => {
     setStep((s) => {
@@ -107,16 +116,18 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
           .where("[accountId+monthYear]")
           .equals([spendingAcc.id, monthYear])
           .first();
-        
+
         if (existingSetup) {
           setExistingOpeningBal(existingSetup.openingBalance);
-          
+
           const loadedBudgets: Record<string, string> = {};
           const loadedDueDays: Record<string, number | undefined> = {};
           if (existingSetup.categoryBudgets) {
-            Object.entries(existingSetup.categoryBudgets).forEach(([cat, val]) => {
-              loadedBudgets[cat] = val.toString();
-            });
+            Object.entries(existingSetup.categoryBudgets).forEach(
+              ([cat, val]) => {
+                loadedBudgets[cat] = val.toString();
+              },
+            );
           }
           // Load due days from committedExpenses if they exist
           if (existingSetup.committedExpenses) {
@@ -124,17 +135,21 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
               loadedDueDays[ce.name] = ce.dueDay;
             }
           }
-          
+
           const budgetableCategories = categoriesDb
             .map((c) => c.name)
-            .filter((name) => name.toLowerCase() !== "transfer" && name.toLowerCase() !== "other");
-            
-          budgetableCategories.forEach(cat => {
+            .filter(
+              (name) =>
+                name.toLowerCase() !== "transfer" &&
+                name.toLowerCase() !== "other",
+            );
+
+          budgetableCategories.forEach((cat) => {
             if (loadedBudgets[cat] === undefined) {
               loadedBudgets[cat] = "";
             }
           });
-          
+
           setCatBudgets(loadedBudgets);
           setCatDueDays(loadedDueDays);
           hasInitialized.current = true;
@@ -145,10 +160,13 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
       // 3. Fallback to empty initialization if no existing setup
       const budgetableCategories = categoriesDb
         .map((c) => c.name)
-        .filter((name) => name.toLowerCase() !== "transfer" && name.toLowerCase() !== "other");
-      
+        .filter(
+          (name) =>
+            name.toLowerCase() !== "transfer" && name.toLowerCase() !== "other",
+        );
+
       const initial: Record<string, string> = {};
-      budgetableCategories.forEach(cat => initial[cat] = "");
+      budgetableCategories.forEach((cat) => (initial[cat] = ""));
       setCatBudgets(initial);
       hasInitialized.current = true;
     };
@@ -161,16 +179,16 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
   const handleAddCustomCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName.trim()) return;
-    
+
     // Auto-save to categories table so it persists
     await db.categories.add({
       name: newCatName.trim(),
       color: "#9d9d99", // Default color
       isCustom: true,
-      createdAt: Date.now()
+      createdAt: Date.now(),
     });
 
-    setCatBudgets(prev => ({ ...prev, [newCatName.trim()]: "" }));
+    setCatBudgets((prev) => ({ ...prev, [newCatName.trim()]: "" }));
     setNewCatName("");
   };
 
@@ -179,23 +197,29 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
     if (!cleanValue) return "";
     const num = parseInt(cleanValue, 10);
     if (isNaN(num)) return "";
-    return new Intl.NumberFormat('en-IN').format(num);
+    return new Intl.NumberFormat("en-IN").format(num);
   };
 
-  const handleMoneyInputChange = (value: string, setter: (v: string) => void) => {
+  const handleMoneyInputChange = (
+    value: string,
+    setter: (v: string) => void,
+  ) => {
     const formatted = formatInputText(value);
     setter(formatted);
   };
 
   const calculateTotalBudget = () => {
-    return Object.values(catBudgets).reduce((sum, val) => sum + (parseFloat(val.replace(/,/g, "")) || 0), 0);
+    return Object.values(catBudgets).reduce(
+      (sum, val) => sum + (parseFloat(val.replace(/,/g, "")) || 0),
+      0,
+    );
   };
 
   const handleFinish = async () => {
     setLoading(true);
     try {
       const monthYear = getCurrentMonthYear();
-      
+
       const parsedCatBudgets: Record<string, number> = {};
       let totalBudget = 0;
       let spendingAllocation = 0;
@@ -212,18 +236,22 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
       }
 
       if (skippedIncome) {
-        spendingAllocation = parseFloat(manualSpendingBal.replace(/,/g, "")) || 0;
+        spendingAllocation =
+          parseFloat(manualSpendingBal.replace(/,/g, "")) || 0;
         savingsAllocation = parseFloat(manualSavingsBal.replace(/,/g, "")) || 0;
       } else {
         const inc = parseFloat(income.replace(/,/g, "")) || 0;
         updateProfileIncome = inc;
-        
+
         const leftover = Math.max(0, inc - totalBudget);
-        
+
         if (allocationType === "savings") {
           savingsAllocation = leftover;
         } else if (allocationType === "split") {
-          savingsAllocation = Math.min(leftover, parseFloat(savingsSplitAmount.replace(/,/g, "")) || 0);
+          savingsAllocation = Math.min(
+            leftover,
+            parseFloat(savingsSplitAmount.replace(/,/g, "")) || 0,
+          );
         }
 
         spendingAllocation = leftover - savingsAllocation;
@@ -251,18 +279,27 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
 
       let currentExpendBalance = spendingAllocation;
       for (const tx of txsSinceStart) {
-        currentExpendBalance = tx.type === "credit" ? currentExpendBalance + tx.amount : currentExpendBalance - tx.amount;
+        currentExpendBalance =
+          tx.type === "credit"
+            ? currentExpendBalance + tx.amount
+            : currentExpendBalance - tx.amount;
       }
-      await db.accounts.update(spendingAcc.id, { currentBalance: +currentExpendBalance.toFixed(2) });
+      await db.accounts.update(spendingAcc.id, {
+        currentBalance: +currentExpendBalance.toFixed(2),
+      });
 
       // Build committedExpenses array from catBudgets with amounts > 0
-      const committedExpensesList = Object.entries(parsedCatBudgets).map(([cat, amount]) => ({
-        name: cat,
-        category: cat,
-        amount,
-        dueDay: catDueDays[cat],
-        isPaid: false,
-      }));
+      const committedExpensesList = Object.entries(parsedCatBudgets).map(
+        ([cat, amount]) => ({
+          name: cat,
+          category: cat,
+          amount,
+          dueDay: catDueDays[cat],
+          isPaid: false,
+          paidDate: undefined as string | undefined,
+          transactionId: undefined as number | undefined,
+        }),
+      );
 
       // Preserve paid status from existing setup if editing
       const existingSetupForMerge = await db.monthSetups
@@ -271,11 +308,13 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
         .first();
       if (existingSetupForMerge?.committedExpenses) {
         for (const ce of committedExpensesList) {
-          const existing = existingSetupForMerge.committedExpenses.find(e => e.name === ce.name && e.amount === ce.amount);
+          const existing = existingSetupForMerge.committedExpenses.find(
+            (e) => e.name === ce.name && e.amount === ce.amount,
+          );
           if (existing?.isPaid) {
             ce.isPaid = true;
-            (ce as any).paidDate = existing.paidDate;
-            (ce as any).transactionId = existing.transactionId;
+            ce.paidDate = existing.paidDate;
+            ce.transactionId = existing.transactionId;
           }
         }
       }
@@ -292,12 +331,16 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
 
       // 3. Handle Savings Wallet
       if (savingsAllocation > 0) {
-        const savingsAcc = await db.accounts.where("type").equals("savings").first();
+        const savingsAcc = await db.accounts
+          .where("type")
+          .equals("savings")
+          .first();
         if (savingsAcc?.id) {
           await db.accounts.update(savingsAcc.id, {
-            currentBalance: (savingsAcc.currentBalance || 0) + savingsAllocation
+            currentBalance:
+              (savingsAcc.currentBalance || 0) + savingsAllocation,
           });
-          
+
           // Log an initial starting transfer for this month
           await db.transactions.add({
             amount: savingsAllocation,
@@ -306,12 +349,14 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
             date: `${monthYear}-01`,
             description: "Monthly Savings Allocation",
             accountId: savingsAcc.id,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           });
         }
       }
 
-      toast.success(existingOpeningBal === null ? "Welcome to buckflo!" : "Setup updated!");
+      toast.success(
+        existingOpeningBal === null ? "Welcome to buckflo!" : "Setup updated!",
+      );
       onComplete();
     } catch (err) {
       console.error(err);
@@ -327,18 +372,25 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
         return (
           <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
             <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <h2 className="text-2xl font-bold text-(--text) mb-2">What's your monthly income?</h2>
+              <h2 className="text-2xl font-bold text-(--text) mb-2">
+                What's your monthly income?
+              </h2>
               <p className="text-sm text-(--text-muted) mb-8 leading-relaxed">
-                We use this to figure out how much you can comfortably spend and save each month.
+                We use this to figure out how much you can comfortably spend and
+                save each month.
               </p>
               <div className="form-group relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-(--text-muted) font-medium">₹</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-(--text-muted) font-medium">
+                  ₹
+                </span>
                 <input
                   type="text"
                   inputMode="decimal"
                   placeholder="e.g. 80,000"
                   value={income}
-                  onChange={(e) => handleMoneyInputChange(e.target.value, setIncome)}
+                  onChange={(e) =>
+                    handleMoneyInputChange(e.target.value, setIncome)
+                  }
                   className="input-field pl-8 text-xl font-semibold"
                   autoFocus
                 />
@@ -354,7 +406,10 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
               </button>
               <button
                 className="btn-secondary w-full h-[52px] text-sm font-semibold"
-                onClick={() => { setSkippedIncome(true); setStep(2); }}
+                onClick={() => {
+                  setSkippedIncome(true);
+                  setStep(2);
+                }}
               >
                 Skip / I'd rather not share
               </button>
@@ -365,35 +420,58 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
         return (
           <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
             <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <h2 className="text-2xl font-bold text-(--text) mb-2">Committed Expenses</h2>
+              <h2 className="text-2xl font-bold text-(--text) mb-2">
+                Committed Expenses
+              </h2>
               <p className="text-sm text-(--text-muted) mb-4 leading-relaxed">
-                Enter your fixed, inevitable spends (Rent, Loans, Bills, etc.). These will be deducted from your income — the leftover becomes your flexible spending wallet.
+                Enter your fixed, inevitable spends (Rent, Loans, Bills, etc.).
+                These will be deducted from your income — the leftover becomes
+                your flexible spending wallet.
               </p>
               <div className="bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs p-3 rounded-lg mb-6">
-                <strong>Tip:</strong> Set a due day to get notified when it's time to pay. You can mark them as paid later from the Monthly tab.
+                <strong>Tip:</strong> Set a due day to get notified when it's
+                time to pay. You can mark them as paid later from the Monthly
+                tab.
               </div>
-              
+
               <div className="flex flex-col gap-3 mb-6">
-                {activeCategories.map((cat) => (
-                  <div key={cat} className="glass-card p-3 flex flex-col gap-2">
+                {activeCategories.map((cat, index) => (
+                  <div
+                    key={cat}
+                    className="glass-card p-3 flex flex-col gap-2 relative"
+                    style={{ zIndex: activeCategories.length - index }}
+                  >
                     <span className="font-sans text-sm font-medium text-(--text)">
                       {cat}
                     </span>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 flex items-center gap-1 bg-black/5 dark:bg-white/5 rounded-(--r-md) px-3 border border-black/8 dark:border-white/6">
-                        <span className="text-sm text-(--text-muted) font-medium">₹</span>
+                        <span className="text-sm text-(--text-muted) font-medium">
+                          ₹
+                        </span>
                         <input
                           type="text"
                           inputMode="decimal"
                           placeholder="0"
                           value={catBudgets[cat] || ""}
-                          onChange={(e) => handleMoneyInputChange(e.target.value, (formatted) => setCatBudgets(prev => ({ ...prev, [cat]: formatted })))}
+                          onChange={(e) =>
+                            handleMoneyInputChange(
+                              e.target.value,
+                              (formatted) =>
+                                setCatBudgets((prev) => ({
+                                  ...prev,
+                                  [cat]: formatted,
+                                })),
+                            )
+                          }
                           className="border-none bg-transparent outline-none font-sans text-sm font-semibold text-(--text) py-2.5 w-full"
                         />
                       </div>
                       <DueDatePicker
                         value={catDueDays[cat]}
-                        onChange={(val) => setCatDueDays(prev => ({ ...prev, [cat]: val }))}
+                        onChange={(val) =>
+                          setCatDueDays((prev) => ({ ...prev, [cat]: val }))
+                        }
                       />
                     </div>
                   </div>
@@ -402,8 +480,13 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
 
               {/* Custom Category Creator */}
               <div className="glass-card p-4 bg-(--accent)/5 border-(--accent)/20">
-                <p className="text-xs text-(--text-muted) font-semibold uppercase tracking-wider mb-2">Add Custom Category</p>
-                <form onSubmit={handleAddCustomCategory} className="flex gap-2 items-stretch h-11">
+                <p className="text-xs text-(--text-muted) font-semibold uppercase tracking-wider mb-2">
+                  Add Custom Category
+                </p>
+                <form
+                  onSubmit={handleAddCustomCategory}
+                  className="flex gap-2 items-stretch h-11"
+                >
                   <input
                     type="text"
                     placeholder="e.g. Mom, Pet, Gym"
@@ -411,36 +494,51 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
                     onChange={(e) => setNewCatName(e.target.value)}
                     className="input-field mb-0 flex-1 py-0 h-full text-sm"
                   />
-                  <button type="submit" className="btn-secondary px-5 h-full text-sm whitespace-nowrap font-semibold" disabled={!newCatName.trim()}>
+                  <button
+                    type="submit"
+                    className="btn-secondary px-5 h-full text-sm whitespace-nowrap font-semibold"
+                    disabled={!newCatName.trim()}
+                  >
                     Add
                   </button>
                 </form>
               </div>
             </div>
-            
+
             <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0 flex gap-3">
-              <button className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0" onClick={handlePrev} aria-label="Go back">
+              <button
+                className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0"
+                onClick={handlePrev}
+                aria-label="Go back"
+              >
                 <ArrowLeft size={18} />
               </button>
-              <button className="btn-primary flex-1 h-[52px]" onClick={handleNext}>
+              <button
+                className="btn-primary flex-1 h-[52px]"
+                onClick={handleNext}
+              >
                 Continue <ChevronRight size={18} />
               </button>
             </div>
           </div>
         );
-      case 3:
+      case 3: {
         const incForLeftover = parseFloat(income.replace(/,/g, "")) || 0;
         const budgetForLeftover = calculateTotalBudget();
         const leftoverAmount = Math.max(0, incForLeftover - budgetForLeftover);
-        
+
         return (
           <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
             <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <h2 className="text-2xl font-bold text-(--text) mb-1">What about the rest?</h2>
+              <h2 className="text-2xl font-bold text-(--text) mb-1">
+                What about the rest?
+              </h2>
               <div className="my-4 p-4 rounded-xl bg-(--accent)/10 border border-(--accent)/20 text-center">
-                <span className="font-sans text-[10px] font-semibold text-(--accent) uppercase tracking-wider block mb-1">Unassigned Leftover</span>
+                <span className="font-sans text-[10px] font-semibold text-(--accent) uppercase tracking-wider block mb-1">
+                  Unassigned Leftover
+                </span>
                 <span className="font-display text-3xl font-bold text-(--text) block">
-                  ₹{new Intl.NumberFormat('en-IN').format(leftoverAmount)}
+                  ₹{new Intl.NumberFormat("en-IN").format(leftoverAmount)}
                 </span>
               </div>
               <p className="text-sm text-(--text-muted) mb-6 leading-relaxed text-center">
@@ -457,10 +555,14 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
                       : "border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5"
                   }`}
                 >
-                  <p className="text-sm font-semibold text-(--text) mb-1">Move to Savings</p>
-                  <p className="text-xs text-(--text-muted)">Set it all aside for your goals</p>
+                  <p className="text-sm font-semibold text-(--text) mb-1">
+                    Move to Savings
+                  </p>
+                  <p className="text-xs text-(--text-muted)">
+                    Set it all aside for your goals
+                  </p>
                 </div>
-                
+
                 <div
                   role="button"
                   onClick={() => setAllocationType("spending")}
@@ -470,8 +572,12 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
                       : "border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5"
                   }`}
                 >
-                  <p className="text-sm font-semibold text-(--text) mb-1">Keep it flexible</p>
-                  <p className="text-xs text-(--text-muted)">Leave it in your spending wallet</p>
+                  <p className="text-sm font-semibold text-(--text) mb-1">
+                    Keep it flexible
+                  </p>
+                  <p className="text-xs text-(--text-muted)">
+                    Leave it in your spending wallet
+                  </p>
                 </div>
 
                 <div
@@ -483,18 +589,34 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
                       : "border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5"
                   }`}
                 >
-                  <p className={`text-sm font-semibold text-(--text) ${allocationType === "split" ? "mb-3" : "mb-0"}`}>Split it</p>
+                  <p
+                    className={`text-sm font-semibold text-(--text) ${allocationType === "split" ? "mb-3" : "mb-0"}`}
+                  >
+                    Split it
+                  </p>
                   {allocationType === "split" && (
-                    <div className="flex items-center gap-2 bg-black/5 dark:bg-white/5 rounded-(--r-md) px-3 py-2.5 border border-black/8 dark:border-white/8" onClick={(e) => e.stopPropagation()}>
-                      <span className="text-xs font-medium text-(--text-muted) whitespace-nowrap">To Savings:</span>
+                    <div
+                      className="flex items-center gap-2 bg-black/5 dark:bg-white/5 rounded-(--r-md) px-3 py-2.5 border border-black/8 dark:border-white/8"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span className="text-xs font-medium text-(--text-muted) whitespace-nowrap">
+                        To Savings:
+                      </span>
                       <div className="flex items-center text-sm font-semibold text-(--text) w-full">
                         <span>₹</span>
                         <input
                           type="text"
                           inputMode="decimal"
-                          placeholder={new Intl.NumberFormat('en-IN').format(leftoverAmount)}
+                          placeholder={new Intl.NumberFormat("en-IN").format(
+                            leftoverAmount,
+                          )}
                           value={savingsSplitAmount}
-                          onChange={(e) => handleMoneyInputChange(e.target.value, setSavingsSplitAmount)}
+                          onChange={(e) =>
+                            handleMoneyInputChange(
+                              e.target.value,
+                              setSavingsSplitAmount,
+                            )
+                          }
                           className="bg-transparent border-none outline-none w-full ml-1 font-semibold text-sm"
                           autoFocus
                         />
@@ -504,24 +626,36 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
                 </div>
               </div>
             </div>
-            
+
             <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0 flex gap-3">
-              <button className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0" onClick={handlePrev} aria-label="Go back">
+              <button
+                className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0"
+                onClick={handlePrev}
+                aria-label="Go back"
+              >
                 <ArrowLeft size={18} />
               </button>
-              <button className="btn-primary flex-1 h-[52px]" onClick={handleNext}>
+              <button
+                className="btn-primary flex-1 h-[52px]"
+                onClick={handleNext}
+              >
                 Continue <ChevronRight size={18} />
               </button>
             </div>
           </div>
         );
-      case 4:
+      }
+      case 4: {
         const incAmt = parseFloat(income.replace(/,/g, "")) || 0;
         const totalBudget = calculateTotalBudget();
         const leftoverForSummary = Math.max(0, incAmt - totalBudget);
         let finalSavings = 0;
         if (allocationType === "savings") finalSavings = leftoverForSummary;
-        else if (allocationType === "split") finalSavings = Math.min(leftoverForSummary, parseFloat(savingsSplitAmount.replace(/,/g, "")) || 0);
+        else if (allocationType === "split")
+          finalSavings = Math.min(
+            leftoverForSummary,
+            parseFloat(savingsSplitAmount.replace(/,/g, "")) || 0,
+          );
 
         const spendingBudget = leftoverForSummary - finalSavings;
 
@@ -535,43 +669,67 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
                 You're all set!
               </h2>
               <p className="text-base text-(--text-muted) mb-6 leading-relaxed">
-                Your total monthly budget is <strong>₹{spendingBudget.toLocaleString()}</strong>.
+                Your total monthly budget is{" "}
+                <strong>₹{spendingBudget.toLocaleString()}</strong>.
               </p>
-              
+
               <div className="glass-card p-4 w-full max-w-[280px]">
                 <p className="text-sm text-(--text-muted) mb-1">To Savings</p>
-                <p className="text-2xl font-semibold text-(--credit)">₹{finalSavings.toLocaleString()}</p>
+                <p className="text-2xl font-semibold text-(--credit)">
+                  ₹{finalSavings.toLocaleString()}
+                </p>
               </div>
             </div>
             <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0 flex gap-3">
-              <button className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0" onClick={handlePrev} aria-label="Go back">
+              <button
+                className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0"
+                onClick={handlePrev}
+                aria-label="Go back"
+              >
                 <ArrowLeft size={18} />
               </button>
-              <button className="btn-primary flex-1 h-[52px]" onClick={handleFinish} disabled={loading}>
+              <button
+                className="btn-primary flex-1 h-[52px]"
+                onClick={handleFinish}
+                disabled={loading}
+              >
                 {loading ? "Saving..." : "Start Journey"}
               </button>
             </div>
           </div>
         );
+      }
       case 5:
         return (
           <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
             <div className="flex-1 overflow-y-auto px-6 pb-6 mt-4">
-              <h2 className="text-2xl font-bold text-(--text) mb-2">Initial Balances</h2>
+              <h2 className="text-2xl font-bold text-(--text) mb-2">
+                Initial Balances
+              </h2>
               <p className="text-sm text-(--text-muted) mb-8 leading-relaxed">
-                Since you skipped the income step, please provide the opening balances for your wallets directly.
+                Since you skipped the income step, please provide the opening
+                balances for your wallets directly.
               </p>
-              
+
               <div className="mb-6">
-                <label className="text-sm font-semibold text-(--text) mb-2 block">Spending Wallet Balance</label>
+                <label className="text-sm font-semibold text-(--text) mb-2 block">
+                  Spending Wallet Balance
+                </label>
                 <div className="form-group relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-(--text-muted) font-medium">₹</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-(--text-muted) font-medium">
+                    ₹
+                  </span>
                   <input
                     type="text"
                     inputMode="decimal"
                     placeholder="e.g. 50,000"
                     value={manualSpendingBal}
-                    onChange={(e) => handleMoneyInputChange(e.target.value, setManualSpendingBal)}
+                    onChange={(e) =>
+                      handleMoneyInputChange(
+                        e.target.value,
+                        setManualSpendingBal,
+                      )
+                    }
                     className="input-field pl-8 text-xl font-semibold"
                     autoFocus
                   />
@@ -579,25 +737,45 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-(--text) mb-2 block">Savings Wallet Balance <span className="text-xs text-(--text-muted) font-normal">(Optional)</span></label>
+                <label className="text-sm font-semibold text-(--text) mb-2 block">
+                  Savings Wallet Balance{" "}
+                  <span className="text-xs text-(--text-muted) font-normal">
+                    (Optional)
+                  </span>
+                </label>
                 <div className="form-group relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-(--text-muted) font-medium">₹</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-(--text-muted) font-medium">
+                    ₹
+                  </span>
                   <input
                     type="text"
                     inputMode="decimal"
                     placeholder="e.g. 10,000"
                     value={manualSavingsBal}
-                    onChange={(e) => handleMoneyInputChange(e.target.value, setManualSavingsBal)}
+                    onChange={(e) =>
+                      handleMoneyInputChange(
+                        e.target.value,
+                        setManualSavingsBal,
+                      )
+                    }
                     className="input-field pl-8 text-xl font-semibold"
                   />
                 </div>
               </div>
             </div>
             <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0 flex gap-3">
-              <button className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0" onClick={handlePrev} aria-label="Go back">
+              <button
+                className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0"
+                onClick={handlePrev}
+                aria-label="Go back"
+              >
                 <ArrowLeft size={18} />
               </button>
-              <button className="btn-primary flex-1 h-[52px]" onClick={handleFinish} disabled={loading || !manualSpendingBal}>
+              <button
+                className="btn-primary flex-1 h-[52px]"
+                onClick={handleFinish}
+                disabled={loading || !manualSpendingBal}
+              >
                 {loading ? "Saving..." : "Start Journey"}
               </button>
             </div>
@@ -610,37 +788,41 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
 
   return createPortal(
     <div className="sheet-overlay" role="dialog" aria-modal="true">
-      <div 
-        className="sheet-panel" 
-        style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          height: '85dvh', 
-          maxHeight: '85dvh',
-          padding: 0, 
-          overflow: 'hidden' 
+      <div
+        className="sheet-panel"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "85dvh",
+          maxHeight: "85dvh",
+          padding: 0,
+          overflow: "hidden",
         }}
       >
         <div className="sheet-handle shrink-0 mt-4" />
-        
+
         {/* Header with Close Button */}
         <div className="flex justify-between items-center mb-6 mt-1 px-6 shrink-0">
           <div className="flex gap-1.5 flex-1 mr-4">
-            {skippedIncome ? [1, 2].map((i) => (
-              <div
-                key={i}
-                className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-                  i === 1 ? "bg-black/10 dark:bg-white/10" : "bg-(--accent)"
-                }`}
-              />
-            )) : [1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-                  i <= step ? "bg-(--accent)" : "bg-black/10 dark:bg-white/10"
-                }`}
-              />
-            ))}
+            {skippedIncome
+              ? [1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+                      i === 1 ? "bg-black/10 dark:bg-white/10" : "bg-(--accent)"
+                    }`}
+                  />
+                ))
+              : [1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+                      i <= step
+                        ? "bg-(--accent)"
+                        : "bg-black/10 dark:bg-white/10"
+                    }`}
+                  />
+                ))}
           </div>
           {onClose && (
             <button
@@ -648,7 +830,16 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
               className="btn-ghost p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer text-(--text-muted) hover:text-(--text) transition-colors"
               aria-label="Close"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
@@ -659,6 +850,6 @@ export function IncomeWizard({ isOpen, onComplete, onClose }: IncomeWizardProps)
         {renderStep()}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
