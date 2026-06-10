@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface CustomTimePickerProps {
   value: string; // "HH:mm" 24h format
@@ -14,13 +14,28 @@ export function CustomTimePicker({
 }: CustomTimePickerProps) {
   const [localValue, setLocalValue] = useState(value || "20:00");
 
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Keep local state in sync with external value if it changes
   useEffect(() => {
     setLocalValue(value || "20:00");
   }, [value]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLocalValue(val);
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      if (val && val !== value) {
+        onChange(val);
+      }
+    }, 500); // Debounce to avoid spamming saves while typing
+  };
+
   const handleBlur = () => {
-    if (localValue !== value) {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (localValue && localValue !== value) {
       onChange(localValue);
     }
   };
@@ -31,7 +46,7 @@ export function CustomTimePicker({
         <input
           type="time"
           value={localValue}
-          onChange={(e) => setLocalValue(e.target.value)}
+          onChange={handleChange}
           onBlur={handleBlur}
           className="bg-transparent border-none text-sm font-semibold text-(--accent) cursor-pointer outline-none w-full"
           style={{
