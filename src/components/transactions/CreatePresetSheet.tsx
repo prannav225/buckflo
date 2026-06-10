@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { X, CreditCard, PiggyBank, Check } from "lucide-react";
+import { X, Check } from "lucide-react";
 import { db, addPreset, updatePreset, addCategory } from "../../db/database";
 import { useAccount } from "../../db/hooks";
 import { useCategories } from "../../hooks/useCategories";
@@ -260,7 +260,6 @@ export function CreatePresetSheet({
               )}
             </div>
           </div>
-
 
           {/* Submit */}
           <button
