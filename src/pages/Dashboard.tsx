@@ -2,9 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, Wallet } from "lucide-react";
-import { db, deletePreset, incrementPresetUsage } from "../db/database";
+import { db, deletePreset } from "../db/database";
 import { ImportModal } from "../components/transactions/ImportModal";
-import { hapticFeedback } from "../utils/haptics";
 import { format } from "date-fns";
 import {
   useAccount,
@@ -45,6 +44,7 @@ import {
   TotalSpentNoBudgetCard,
   SmartAllocationAdvisorCard,
 } from "../components/dashboard/DashboardWidgets";
+import { useQuickPresetLog } from "../hooks/useQuickPresetLog";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -197,14 +197,10 @@ export function Dashboard() {
     setAdvisorDismissed(true);
   };
 
+  const { logQuickPreset } = useQuickPresetLog();
+
   const handlePresetClick = (preset: FrequentPreset) => {
-    hapticFeedback.medium();
-    if (preset.id) {
-      incrementPresetUsage(preset.id);
-    }
-    navigate(
-      `/add?desc=${encodeURIComponent(preset.description)}&cat=${encodeURIComponent(preset.category)}&amt=${preset.amount}`,
-    );
+    logQuickPreset(preset);
   };
 
   const handleDeletePreset = async (presetId: number) => {
