@@ -15,6 +15,10 @@ import { BrandedAvatar } from "./BrandedAvatar";
 import { usePWAInstall } from "../../hooks/usePWAInstall";
 import { ChangelogModal } from "../ui/ChangelogModal";
 import { UpdatePrompt } from "../ui/UpdatePrompt";
+import { useNotificationPermission } from "../../hooks/useNotificationPermission";
+import { NotificationPermissionDialog } from "../NotificationPermissionDialog";
+import { toast } from "react-hot-toast";
+import { db } from "../../db/database";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -24,6 +28,38 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { profile } = useProfile();
+  const { requestPermission, isDefault } = useNotificationPermission();
+  const [permissionPromptDismissed, setPermissionPromptDismissed] =
+    useState(false);
+
+  // Derive whether to show the prompt to avoid cascading renders in useEffect
+  const showPermissionPrompt = Boolean(
+    !permissionPromptDismissed &&
+    profile?.notificationsEnabled &&
+    !profile?.notificationPermissionAsked &&
+    isDefault,
+  );
+
+  const handleEnableNotifications = async () => {
+    setPermissionPromptDismissed(true);
+    const result = await requestPermission();
+
+    if (result === "granted") {
+      toast.success("Notifications enabled! 🔔");
+    } else if (result === "denied") {
+      toast.error("Notifications were denied. You can re-enable in Settings.");
+    }
+  };
+
+  const handleDisableNotifications = async () => {
+    setPermissionPromptDismissed(true);
+    if (profile?.id) {
+      await db.profile.update(profile.id, {
+        notificationsEnabled: false,
+        notificationPermissionAsked: true,
+      });
+    }
+  };
   const isLegalPage = pathname === "/privacy" || pathname === "/terms";
   const isMainPage =
     pathname === "/home" ||
@@ -263,9 +299,16 @@ export function AppLayout({ children }: AppLayoutProps) {
             defaultAmount={transferConfig.amount}
             defaultNote={transferConfig.note}
           />
-          
+
           <ChangelogModal />
           <UpdatePrompt />
+
+          {showPermissionPrompt && (
+            <NotificationPermissionDialog
+              onEnable={handleEnableNotifications}
+              onDisable={handleDisableNotifications}
+            />
+          )}
         </>
       ) : isLegalPage ? (
         <main className="pt-[calc(16px+env(safe-area-inset-top,0))] pl-4 pr-4 pb-[calc(24px+env(safe-area-inset-bottom,0))] max-w-[720px] mx-auto w-full">

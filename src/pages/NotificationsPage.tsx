@@ -4,9 +4,11 @@ import { Bell } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 import toast from "react-hot-toast";
 import { CustomTimePicker } from "../components/ui/CustomTimePicker";
+import { useNotificationPermission } from "../hooks/useNotificationPermission";
 
 export function NotificationsPage() {
   const { profile, updateProfile } = useProfile();
+  const { permission, requestPermission, isGranted } = useNotificationPermission();
   const initialized = useRef(false);
 
   const [enabled, setEnabled] = useState(false);
@@ -28,78 +30,40 @@ export function NotificationsPage() {
   }, [profile]);
 
   const handleToggle = async () => {
-    const nextVal = !enabled;
     setSubmitting(true);
     try {
-      if (nextVal) {
-        if (!("Notification" in window) || !Notification.requestPermission) {
-          toast.error("This browser does not support notifications.");
+      if (!isGranted && !enabled) {
+        // User is trying to enable but permission not granted
+        const result = await requestPermission();
+        if (result !== "granted") {
+          toast.error("Notification permission was denied");
           setSubmitting(false);
           return;
         }
+      }
 
-        if (Notification.permission === "denied") {
-          toast.error(
-            "Notifications are blocked. Please reset site permissions in your browser's address bar settings.",
-          );
-          setSubmitting(false);
-          return;
-        }
-
-        let permission: NotificationPermission;
+      const nextVal = !enabled;
+      await updateProfile({
+        notificationsEnabled: nextVal,
+      });
+      setEnabled(nextVal);
+      
+      toast.success(nextVal ? "Daily reminders enabled!" : "Daily reminders disabled.");
+      
+      if (nextVal && "serviceWorker" in navigator) {
         try {
-          permission = await Notification.requestPermission();
-        } catch {
-          permission = await new Promise<NotificationPermission>((resolve) => {
-            Notification.requestPermission(resolve);
-          });
-        }
-
-        if (permission === "granted") {
-          await updateProfile({
-            notificationsEnabled: true,
-            notificationPermissionAsked: true,
-          });
-          setEnabled(true);
-          toast.success("Daily reminders enabled!");
-
-          // Attempt client-side push subscription registration for future backend integration
-          if ("serviceWorker" in navigator) {
-            try {
-              const reg = await navigator.serviceWorker.ready;
-              if (reg.pushManager) {
-                const sub = await reg.pushManager.getSubscription();
-                console.log("Existing Web Push subscription:", sub);
-              }
-            } catch (err) {
-              console.warn(
-                "Service worker push registration check skipped:",
-                err,
-              );
-            }
+          const reg = await navigator.serviceWorker.ready;
+          if (reg.pushManager) {
+            const sub = await reg.pushManager.getSubscription();
+            console.log("Existing Web Push subscription:", sub);
           }
-        } else {
-          await updateProfile({
-            notificationsEnabled: false,
-            notificationPermissionAsked: true,
-          });
-          setEnabled(false);
-          toast.error(
-            "Notification permission denied. Please enable them in browser settings.",
-          );
+        } catch (err) {
+          console.warn("Service worker push registration check skipped:", err);
         }
-      } else {
-        await updateProfile({
-          notificationsEnabled: false,
-        });
-        setEnabled(false);
-        toast.success("Daily reminders disabled.");
       }
     } catch (err) {
       console.error("Failed to update notification settings:", err);
-      toast.error(
-        "Notification request blocked. If you are in a preview iframe, please open the app in a new tab.",
-      );
+      toast.error("Failed to update settings.");
     } finally {
       setSubmitting(false);
     }
@@ -141,6 +105,17 @@ export function NotificationsPage() {
                 }`}
               />
             </button>
+          </div>
+
+          <div className="flex flex-col gap-1 -mt-2">
+            {isGranted && (
+              <p className="text-xs text-green-600 dark:text-green-400 m-0">✓ Permission granted</p>
+            )}
+            {permission === "denied" && (
+              <p className="text-xs text-red-600 dark:text-red-400 m-0 leading-snug">
+                Permission denied. Enable in your device settings to use notifications.
+              </p>
+            )}
           </div>
 
           {enabled && (

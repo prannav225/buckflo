@@ -261,30 +261,6 @@ export function CreatePresetSheet({
             </div>
           </div>
 
-          {/* Account */}
-          <div className="form-group m-0">
-            <span className="label">Account</span>
-            <div className="flex gap-2.5">
-              <button
-                type="button"
-                className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                  accountType === "spending" ? "chip-active" : ""
-                }`}
-                onClick={() => setAccountType("spending")}
-              >
-                <CreditCard size={16} /> Spending
-              </button>
-              <button
-                type="button"
-                className={`chip flex-1 py-3 px-4 rounded-(--r-md) text-sm flex items-center justify-center gap-2 ${
-                  accountType === "savings" ? "chip-active-green" : ""
-                }`}
-                onClick={() => setAccountType("savings")}
-              >
-                <PiggyBank size={16} /> Savings
-              </button>
-            </div>
-          </div>
 
           {/* Submit */}
           <button

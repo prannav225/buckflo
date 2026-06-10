@@ -69,8 +69,13 @@ export function SavingsGoalCard({ goal, etaMonths, onClick }: Props) {
       </div>
       
       {isCompleted ? (
-        <div className="font-sans text-[11px] font-bold text-(--credit) mt-2 px-2.5 py-0.5 bg-(--credit)/10 rounded-full border border-(--credit)/20 uppercase tracking-wider">
-          Goal reached
+        <div className="flex flex-col items-center mt-2">
+          <div className="font-sans text-[11px] font-bold text-(--credit) px-2.5 py-0.5 bg-(--credit)/10 rounded-full border border-(--credit)/20 uppercase tracking-wider mb-1">
+            Goal reached
+          </div>
+          <div className="font-sans text-xs font-semibold text-(--text)">
+            {formatINR(goal.currentAllocated)} / {formatINR(goal.targetAmount)}
+          </div>
         </div>
       ) : (
         <>

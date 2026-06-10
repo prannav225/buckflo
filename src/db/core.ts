@@ -155,6 +155,33 @@ export class FloDB extends Dexie {
           });
       });
 
+    this.version(10)
+      .stores({
+        accounts: "++id, type",
+        monthSetups: "++id, monthYear, accountId, [accountId+monthYear]",
+        transactions: "++id, date, accountId, type, [accountId+date]",
+        savingGoals: "++id, name, targetAmount, currentAllocated, deadline",
+        subscriptions:
+          "++id, name, frequency, status, nextDueDate, [name+amount]",
+        categories: "++id, name, isCustom",
+        presets: "++id, name, category, accountId, isCustom, usageCount",
+        profile: "id",
+        notifications: "++id, type, date, read, referenceId",
+      })
+      .upgrade(async (trans) => {
+        await trans
+          .table("profile")
+          .toCollection()
+          .modify((profile) => {
+            if (!("notificationsEnabled" in profile) || profile.notificationsEnabled === undefined) {
+              profile.notificationsEnabled = true;
+            }
+            if (!("notificationPermissionAsked" in profile) || profile.notificationPermissionAsked === undefined) {
+              profile.notificationPermissionAsked = false;
+            }
+          });
+      });
+
     this.on("populate", async () => {
       await this.accounts.bulkAdd([
         { name: "Spending Wallet", type: "spending", currentBalance: 0 },

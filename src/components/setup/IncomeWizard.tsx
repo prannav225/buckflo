@@ -365,47 +365,44 @@ export function IncomeWizard({
       setLoading(false);
     }
   };
-
   const renderStep = () => {
     switch (step) {
       case 1:
         return (
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
-            <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <h2 className="text-2xl font-bold text-(--text) mb-2">
-                What's your monthly income?
-              </h2>
-              <p className="text-sm text-(--text-muted) mb-8 leading-relaxed">
-                We use this to figure out how much you can comfortably spend and
-                save each month.
-              </p>
-              <div className="form-group relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-(--text-muted) font-medium">
-                  ₹
-                </span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="e.g. 80,000"
-                  value={income}
-                  onChange={(e) =>
-                    handleMoneyInputChange(e.target.value, setIncome)
-                  }
-                  className="input-field pl-8 text-xl font-semibold"
-                  autoFocus
-                />
-              </div>
+          <div className="flex-1 flex flex-col justify-center items-center px-6 max-w-2xl mx-auto w-full fade-in h-full">
+            <h2 className="font-display text-4xl sm:text-5xl font-light! text-center text-(--text) mb-4">
+              What's your monthly income?
+            </h2>
+            <p className="text-base sm:text-lg text-(--text-muted) text-center mb-12 max-w-md leading-relaxed">
+              We use this to figure out how much you can comfortably spend and
+              save each month.
+            </p>
+            <div className="relative w-full max-w-xs mb-16">
+              <span className="absolute left-0 bottom-4 text-2xl sm:text-3xl text-(--text-muted) font-light">
+                ₹
+              </span>
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="0"
+                value={income}
+                onChange={(e) =>
+                  handleMoneyInputChange(e.target.value, setIncome)
+                }
+                className="w-full bg-transparent border-b-2 border-black/10 dark:border-white/10 text-5xl! font-display font-medium pl-4 pb-3 focus:border-(--accent) outline-none transition-colors text-(--text)"
+                autoFocus
+              />
             </div>
-            <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 flex flex-col gap-3 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0">
+            <div className="flex flex-col gap-4 w-full max-w-xs">
               <button
-                className="btn-primary w-full h-[52px]"
+                className="btn-primary w-full h-[56px] text-lg rounded-full shadow-lg hover:shadow-xl transition-all"
                 onClick={handleNext}
                 disabled={!income}
               >
-                Continue <ChevronRight size={18} />
+                Continue
               </button>
               <button
-                className="btn-secondary w-full h-[52px] text-sm font-semibold"
+                className="text-sm font-semibold text-(--text-muted) hover:text-(--text) transition-colors py-2"
                 onClick={() => {
                   setSkippedIncome(true);
                   setStep(2);
@@ -418,107 +415,98 @@ export function IncomeWizard({
         );
       case 2:
         return (
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
-            <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <h2 className="text-2xl font-bold text-(--text) mb-2">
-                Committed Expenses
-              </h2>
-              <p className="text-sm text-(--text-muted) mb-4 leading-relaxed">
-                Enter your fixed, inevitable spends (Rent, Loans, Bills, etc.).
-                These will be deducted from your income — the leftover becomes
-                your flexible spending wallet.
-              </p>
-              <div className="bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs p-3 rounded-lg mb-6">
-                <strong>Tip:</strong> Set a due day to get notified when it's
-                time to pay. You can mark them as paid later from the Monthly
-                tab.
-              </div>
+          <div className="flex-1 flex flex-col px-6 max-w-2xl mx-auto w-full fade-in pt-8 sm:pt-16 pb-32 overflow-y-auto">
+            <h2 className="font-display text-3xl sm:text-4xl font-light! text-(--text) mb-3">
+              Committed Expenses
+            </h2>
+            <p className="text-base text-(--text-muted) mb-8 leading-relaxed">
+              Enter your fixed, inevitable spends. These are deducted
+              automatically from your income so you know your true leftover
+              spending wallet.
+            </p>
 
-              <div className="flex flex-col gap-3 mb-6">
-                {activeCategories.map((cat, index) => (
-                  <div
-                    key={cat}
-                    className="glass-card p-3 flex flex-col gap-2 relative"
-                    style={{ zIndex: activeCategories.length - index }}
-                  >
-                    <span className="font-sans text-sm font-medium text-(--text)">
-                      {cat}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center gap-1 bg-black/5 dark:bg-white/5 rounded-(--r-md) px-3 border border-black/8 dark:border-white/6">
-                        <span className="text-sm text-(--text-muted) font-medium">
-                          ₹
-                        </span>
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          placeholder="0"
-                          value={catBudgets[cat] || ""}
-                          onChange={(e) =>
-                            handleMoneyInputChange(
-                              e.target.value,
-                              (formatted) =>
-                                setCatBudgets((prev) => ({
-                                  ...prev,
-                                  [cat]: formatted,
-                                })),
-                            )
-                          }
-                          className="border-none bg-transparent outline-none font-sans text-sm font-semibold text-(--text) py-2.5 w-full"
-                        />
-                      </div>
-                      <DueDatePicker
-                        value={catDueDays[cat]}
-                        onChange={(val) =>
-                          setCatDueDays((prev) => ({ ...prev, [cat]: val }))
+            <div className="flex flex-col gap-6">
+              {activeCategories.map((cat, index) => (
+                <div
+                  key={cat}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-black/5 dark:border-white/5 pb-4 gap-4 relative group"
+                  style={{ zIndex: activeCategories.length - index }}
+                >
+                  <span className="font-sans text-lg font-medium text-(--text)">
+                    {cat}
+                  </span>
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="relative flex-1 sm:w-36 flex items-center justify-end">
+                      <span className="text-lg text-(--text-muted) mr-1">
+                        ₹
+                      </span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        placeholder="0"
+                        value={catBudgets[cat] || ""}
+                        onChange={(e) =>
+                          handleMoneyInputChange(e.target.value, (formatted) =>
+                            setCatBudgets((prev) => ({
+                              ...prev,
+                              [cat]: formatted,
+                            })),
+                          )
                         }
+                        className="w-full sm:w-24 bg-transparent border-none text-xl font-semibold text-right outline-none placeholder:text-black/20 dark:placeholder:text-white/20 text-(--text)"
                       />
                     </div>
+                    <DueDatePicker
+                      value={catDueDays[cat]}
+                      onChange={(val) =>
+                        setCatDueDays((prev) => ({ ...prev, [cat]: val }))
+                      }
+                    />
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
 
               {/* Custom Category Creator */}
-              <div className="glass-card p-4 bg-(--accent)/5 border-(--accent)/20">
-                <p className="text-xs text-(--text-muted) font-semibold uppercase tracking-wider mb-2">
-                  Add Custom Category
-                </p>
+              <div className="flex items-center gap-4 mt-2 border-b border-dashed border-black/10 dark:border-white/10 pb-4">
                 <form
                   onSubmit={handleAddCustomCategory}
-                  className="flex gap-2 items-stretch h-11"
+                  className="flex gap-3 w-full items-center"
                 >
                   <input
                     type="text"
-                    placeholder="e.g. Mom, Pet, Gym"
+                    placeholder="Add custom category..."
                     value={newCatName}
                     onChange={(e) => setNewCatName(e.target.value)}
-                    className="input-field mb-0 flex-1 py-0 h-full text-sm"
+                    className="flex-1 bg-transparent border-none outline-none text-lg placeholder:text-(--text-muted) font-medium text-(--text)"
                   />
-                  <button
-                    type="submit"
-                    className="btn-secondary px-5 h-full text-sm whitespace-nowrap font-semibold"
-                    disabled={!newCatName.trim()}
-                  >
-                    Add
-                  </button>
+                  {newCatName.trim() && (
+                    <button
+                      type="submit"
+                      className="text-sm font-bold text-(--accent) uppercase tracking-wider px-4 py-1.5 bg-(--accent)/10 rounded-full hover:bg-(--accent)/20 transition-colors"
+                    >
+                      Add
+                    </button>
+                  )}
                 </form>
               </div>
             </div>
 
-            <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0 flex gap-3">
-              <button
-                className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0"
-                onClick={handlePrev}
-                aria-label="Go back"
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <button
-                className="btn-primary flex-1 h-[52px]"
-                onClick={handleNext}
-              >
-                Continue <ChevronRight size={18} />
-              </button>
+            <div className="fixed bottom-0 left-0 w-full p-6 bg-linear-to-t from-white via-white dark:from-[#151515] dark:via-[#151515] to-transparent z-50 pointer-events-none">
+              <div className="max-w-2xl mx-auto flex gap-4 pointer-events-auto">
+                <button
+                  className="w-14 h-14 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0 hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-(--text) backdrop-blur-md"
+                  onClick={handlePrev}
+                  aria-label="Go back"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <button
+                  className="flex-1 h-14 rounded-full bg-(--text) dark:bg-white text-white dark:text-black font-semibold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg"
+                  onClick={handleNext}
+                >
+                  Continue <ChevronRight size={20} />
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -528,82 +516,84 @@ export function IncomeWizard({
         const leftoverAmount = Math.max(0, incForLeftover - budgetForLeftover);
 
         return (
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
-            <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <h2 className="text-2xl font-bold text-(--text) mb-1">
-                What about the rest?
-              </h2>
-              <div className="my-4 p-4 rounded-xl bg-(--accent)/10 border border-(--accent)/20 text-center">
-                <span className="font-sans text-[10px] font-semibold text-(--accent) uppercase tracking-wider block mb-1">
-                  Unassigned Leftover
-                </span>
-                <span className="font-display text-3xl font-bold text-(--text) block">
-                  ₹{new Intl.NumberFormat("en-IN").format(leftoverAmount)}
-                </span>
-              </div>
-              <p className="text-sm text-(--text-muted) mb-6 leading-relaxed text-center">
-                How do you want to handle this unassigned money?
-              </p>
+          <div className="flex-1 flex flex-col px-6 max-w-2xl mx-auto w-full fade-in pt-8 sm:pt-16 pb-32 overflow-y-auto">
+            <h2 className="font-display text-4xl sm:text-5xl font-light! text-center text-(--text) mb-10">
+              What about the rest?
+            </h2>
 
-              <div className="flex flex-col gap-3">
-                <div
-                  role="button"
-                  onClick={() => setAllocationType("savings")}
-                  className={`p-4 text-left border rounded-(--r-xl) transition-all cursor-pointer ${
-                    allocationType === "savings"
-                      ? "border-(--accent) bg-(--accent)/5 shadow-sm"
-                      : "border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5"
-                  }`}
-                >
-                  <p className="text-sm font-semibold text-(--text) mb-1">
+            <div className="flex flex-col items-center mb-12">
+              <span className="text-[10px] font-bold text-(--accent) uppercase tracking-widest mb-3 px-3 py-1 rounded-full bg-(--accent)/10 border border-(--accent)/20">
+                Unassigned Leftover
+              </span>
+              <span className="font-display text-5xl font-semibold text-(--text)">
+                ₹{new Intl.NumberFormat("en-IN").format(leftoverAmount)}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div
+                role="button"
+                onClick={() => setAllocationType("savings")}
+                className={`p-5 text-left border rounded-2xl transition-all cursor-pointer relative overflow-hidden ${
+                  allocationType === "savings"
+                    ? "border-(--accent) bg-(--accent)/5 shadow-sm"
+                    : "border-black/5 dark:border-white/5 bg-black/2 dark:bg-white/2 hover:bg-black/5 dark:hover:bg-white/5"
+                }`}
+              >
+                <div className="relative z-10">
+                  <p className="text-lg font-semibold text-(--text) mb-1">
                     Move to Savings
                   </p>
-                  <p className="text-xs text-(--text-muted)">
-                    Set it all aside for your goals
+                  <p className="text-sm text-(--text-muted)">
+                    Set it all aside for your future goals
                   </p>
                 </div>
+              </div>
 
-                <div
-                  role="button"
-                  onClick={() => setAllocationType("spending")}
-                  className={`p-4 text-left border rounded-(--r-xl) transition-all cursor-pointer ${
-                    allocationType === "spending"
-                      ? "border-(--accent) bg-(--accent)/5 shadow-sm"
-                      : "border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5"
-                  }`}
-                >
-                  <p className="text-sm font-semibold text-(--text) mb-1">
+              <div
+                role="button"
+                onClick={() => setAllocationType("spending")}
+                className={`p-5 text-left border rounded-2xl transition-all cursor-pointer relative overflow-hidden ${
+                  allocationType === "spending"
+                    ? "border-(--text) bg-black/5 dark:bg-white/5 shadow-sm"
+                    : "border-black/5 dark:border-white/5 bg-black/2 dark:bg-white/2 hover:bg-black/5 dark:hover:bg-white/5"
+                }`}
+              >
+                <div className="relative z-10">
+                  <p className="text-lg font-semibold text-(--text) mb-1">
                     Keep it flexible
                   </p>
-                  <p className="text-xs text-(--text-muted)">
+                  <p className="text-sm text-(--text-muted)">
                     Leave it in your spending wallet
                   </p>
                 </div>
+              </div>
 
-                <div
-                  role="button"
-                  onClick={() => setAllocationType("split")}
-                  className={`p-4 text-left border rounded-(--r-xl) transition-all cursor-pointer ${
-                    allocationType === "split"
-                      ? "border-(--accent) bg-(--accent)/5 shadow-sm"
-                      : "border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5"
-                  }`}
-                >
+              <div
+                role="button"
+                onClick={() => setAllocationType("split")}
+                className={`p-5 text-left border rounded-2xl transition-all cursor-pointer relative overflow-hidden ${
+                  allocationType === "split"
+                    ? "border-(--accent) bg-(--accent)/5 shadow-sm"
+                    : "border-black/5 dark:border-white/5 bg-black/2 dark:bg-white/2 hover:bg-black/5 dark:hover:bg-white/5"
+                }`}
+              >
+                <div className="relative z-10">
                   <p
-                    className={`text-sm font-semibold text-(--text) ${allocationType === "split" ? "mb-3" : "mb-0"}`}
+                    className={`text-lg font-semibold text-(--text) ${allocationType === "split" ? "mb-4" : "mb-0"}`}
                   >
                     Split it
                   </p>
                   {allocationType === "split" && (
                     <div
-                      className="flex items-center gap-2 bg-black/5 dark:bg-white/5 rounded-(--r-md) px-3 py-2.5 border border-black/8 dark:border-white/8"
+                      className="flex items-center gap-3 bg-white dark:bg-[#1f1f1e] rounded-xl px-4 py-3 border border-black/5 dark:border-white/5 shadow-sm"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <span className="text-xs font-medium text-(--text-muted) whitespace-nowrap">
+                      <span className="text-sm font-semibold text-(--text-muted) whitespace-nowrap uppercase tracking-wider">
                         To Savings:
                       </span>
-                      <div className="flex items-center text-sm font-semibold text-(--text) w-full">
-                        <span>₹</span>
+                      <div className="flex items-center text-xl font-semibold text-(--text) w-full justify-end">
+                        <span className="text-(--text-muted) mr-1">₹</span>
                         <input
                           type="text"
                           inputMode="decimal"
@@ -617,7 +607,7 @@ export function IncomeWizard({
                               setSavingsSplitAmount,
                             )
                           }
-                          className="bg-transparent border-none outline-none w-full ml-1 font-semibold text-sm"
+                          className="bg-transparent border-none outline-none w-full sm:w-32 text-right font-semibold text-xl text-(--text)"
                           autoFocus
                         />
                       </div>
@@ -627,20 +617,22 @@ export function IncomeWizard({
               </div>
             </div>
 
-            <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0 flex gap-3">
-              <button
-                className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0"
-                onClick={handlePrev}
-                aria-label="Go back"
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <button
-                className="btn-primary flex-1 h-[52px]"
-                onClick={handleNext}
-              >
-                Continue <ChevronRight size={18} />
-              </button>
+            <div className="fixed bottom-0 left-0 w-full p-6 bg-linear-to-t from-white via-white dark:from-[#151515] dark:via-[#151515] to-transparent z-50 pointer-events-none">
+              <div className="max-w-2xl mx-auto flex gap-4 pointer-events-auto">
+                <button
+                  className="w-14 h-14 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0 hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-(--text) backdrop-blur-md"
+                  onClick={handlePrev}
+                  aria-label="Go back"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <button
+                  className="flex-1 h-14 rounded-full bg-(--text) dark:bg-white text-white dark:text-black font-semibold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg"
+                  onClick={handleNext}
+                >
+                  Continue <ChevronRight size={20} />
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -660,124 +652,127 @@ export function IncomeWizard({
         const spendingBudget = leftoverForSummary - finalSavings;
 
         return (
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
-            <div className="flex-1 overflow-y-auto px-6 pb-6 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 rounded-full bg-[rgba(90,158,111,0.15)] flex items-center justify-center mb-6">
-                <Target size={32} className="text-(--credit)" />
-              </div>
-              <h2 className="text-3xl font-display italic font-light text-(--text) mb-4">
-                You're all set!
-              </h2>
-              <p className="text-base text-(--text-muted) mb-6 leading-relaxed">
-                Your total monthly budget is{" "}
-                <strong>₹{spendingBudget.toLocaleString()}</strong>.
-              </p>
+          <div className="flex-1 flex flex-col justify-center items-center px-6 max-w-2xl mx-auto w-full fade-in h-full">
+            <div className="w-20 h-20 rounded-full bg-(--credit)/10 flex items-center justify-center mb-8 animate-in zoom-in duration-500 delay-100">
+              <Target size={40} className="text-(--credit)" />
+            </div>
+            <h2 className="text-5xl font-display italic font-light! text-(--text) mb-4 text-center">
+              You're all set!
+            </h2>
+            <p className="text-lg text-(--text-muted) mb-12 text-center max-w-sm">
+              Your flexible spending budget is{" "}
+              <strong className="text-(--text)">
+                ₹{spendingBudget.toLocaleString()}
+              </strong>{" "}
+              for this month.
+            </p>
 
-              <div className="glass-card p-4 w-full max-w-[280px]">
-                <p className="text-sm text-(--text-muted) mb-1">To Savings</p>
-                <p className="text-2xl font-semibold text-(--credit)">
+            {finalSavings > 0 && (
+              <div className="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 p-6 rounded-3xl w-full max-w-sm text-center mb-16 animate-in slide-in-from-bottom-4 fade-in duration-500 delay-200">
+                <p className="text-sm font-semibold text-(--text-muted) uppercase tracking-wider mb-2">
+                  Moved to Savings
+                </p>
+                <p className="text-3xl font-semibold text-(--credit)">
                   ₹{finalSavings.toLocaleString()}
                 </p>
               </div>
-            </div>
-            <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0 flex gap-3">
-              <button
-                className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0"
-                onClick={handlePrev}
-                aria-label="Go back"
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <button
-                className="btn-primary flex-1 h-[52px]"
-                onClick={handleFinish}
-                disabled={loading}
-              >
-                {loading ? "Saving..." : "Start Journey"}
-              </button>
+            )}
+
+            <div className="fixed bottom-0 left-0 w-full p-6 z-50 pointer-events-none">
+              <div className="max-w-2xl mx-auto flex gap-4 pointer-events-auto">
+                <button
+                  className="w-14 h-14 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0 hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-(--text) backdrop-blur-md"
+                  onClick={handlePrev}
+                  aria-label="Go back"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <button
+                  className="flex-1 h-14 rounded-full bg-(--accent) text-white font-semibold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg"
+                  onClick={handleFinish}
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Start Journey"}
+                </button>
+              </div>
             </div>
           </div>
         );
       }
       case 5:
         return (
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden fade-in">
-            <div className="flex-1 overflow-y-auto px-6 pb-6 mt-4">
-              <h2 className="text-2xl font-bold text-(--text) mb-2">
-                Initial Balances
-              </h2>
-              <p className="text-sm text-(--text-muted) mb-8 leading-relaxed">
-                Since you skipped the income step, please provide the opening
-                balances for your wallets directly.
-              </p>
+          <div className="flex-1 flex flex-col px-6 max-w-2xl mx-auto w-full fade-in pt-8 sm:pt-16 pb-32 overflow-y-auto">
+            <h2 className="font-display text-4xl sm:text-5xl font-light! text-(--text) mb-4 text-center">
+              Initial Balances
+            </h2>
+            <p className="text-base sm:text-lg text-(--text-muted) mb-12 text-center max-w-md mx-auto leading-relaxed">
+              Since you skipped the income step, please provide the opening
+              balances for your wallets directly.
+            </p>
 
-              <div className="mb-6">
-                <label className="text-sm font-semibold text-(--text) mb-2 block">
-                  Spending Wallet Balance
-                </label>
-                <div className="form-group relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-(--text-muted) font-medium">
-                    ₹
-                  </span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="e.g. 50,000"
-                    value={manualSpendingBal}
-                    onChange={(e) =>
-                      handleMoneyInputChange(
-                        e.target.value,
-                        setManualSpendingBal,
-                      )
-                    }
-                    className="input-field pl-8 text-xl font-semibold"
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-(--text) mb-2 block">
-                  Savings Wallet Balance{" "}
-                  <span className="text-xs text-(--text-muted) font-normal">
-                    (Optional)
-                  </span>
-                </label>
-                <div className="form-group relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-(--text-muted) font-medium">
-                    ₹
-                  </span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="e.g. 10,000"
-                    value={manualSavingsBal}
-                    onChange={(e) =>
-                      handleMoneyInputChange(
-                        e.target.value,
-                        setManualSavingsBal,
-                      )
-                    }
-                    className="input-field pl-8 text-xl font-semibold"
-                  />
-                </div>
+            <div className="mb-10 w-full max-w-sm mx-auto">
+              <label className="text-sm font-semibold text-(--text-muted) uppercase tracking-wider mb-3 block text-center">
+                Spending Wallet Balance
+              </label>
+              <div className="relative w-full">
+                <span className="absolute left-0 bottom-3 text-2xl text-(--text-muted) font-light">
+                  ₹
+                </span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={manualSpendingBal}
+                  onChange={(e) =>
+                    handleMoneyInputChange(e.target.value, setManualSpendingBal)
+                  }
+                  className="w-full bg-transparent border-b-2 border-black/10 dark:border-white/10 text-3xl! font-display font-light! text-left pl-4 pb-3 focus:border-(--accent) outline-none transition-colors text-(--text)"
+                  autoFocus
+                />
               </div>
             </div>
-            <div className="px-6 py-4 pb-[calc(16px+env(safe-area-inset-bottom,16px))] border-t border-black/5 dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-md shrink-0 flex gap-3">
-              <button
-                className="btn-secondary w-[52px] h-[52px] p-0 flex items-center justify-center shrink-0"
-                onClick={handlePrev}
-                aria-label="Go back"
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <button
-                className="btn-primary flex-1 h-[52px]"
-                onClick={handleFinish}
-                disabled={loading || !manualSpendingBal}
-              >
-                {loading ? "Saving..." : "Start Journey"}
-              </button>
+
+            <div className="w-full max-w-sm mx-auto">
+              <label className="text-sm font-semibold text-(--text-muted) uppercase tracking-wider mb-3 block text-center">
+                Savings Wallet Balance{" "}
+                <span className="text-xs font-normal opacity-70">
+                  (Optional)
+                </span>
+              </label>
+              <div className="relative w-full">
+                <span className="absolute left-0 bottom-3 text-2xl text-(--text-muted) font-light">
+                  ₹
+                </span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={manualSavingsBal}
+                  onChange={(e) =>
+                    handleMoneyInputChange(e.target.value, setManualSavingsBal)
+                  }
+                  className="w-full bg-transparent border-b-2 border-black/10 dark:border-white/10 text-3xl! font-display font-light! text-left pl-4 pb-3 focus:border-(--accent) outline-none transition-colors text-(--text)"
+                />
+              </div>
+            </div>
+
+            <div className="fixed bottom-0 left-0 w-full p-6 bg-linear-to-t from-white via-white dark:from-[#151515] dark:via-[#151515] to-transparent z-50 pointer-events-none">
+              <div className="max-w-2xl mx-auto flex gap-4 pointer-events-auto">
+                <button
+                  className="w-14 h-14 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0 hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-(--text) backdrop-blur-md"
+                  onClick={handlePrev}
+                  aria-label="Go back"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <button
+                  className="flex-1 h-14 rounded-full bg-(--text) dark:bg-white text-white dark:text-black font-semibold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg"
+                  onClick={handleFinish}
+                  disabled={loading || !manualSpendingBal}
+                >
+                  {loading ? "Saving..." : "Start Journey"}
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -787,66 +782,44 @@ export function IncomeWizard({
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="sheet-overlay" role="dialog" aria-modal="true">
-      <div
-        className="sheet-panel"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "85dvh",
-          maxHeight: "85dvh",
-          padding: 0,
-          overflow: "hidden",
-        }}
-      >
-        <div className="sheet-handle shrink-0 mt-4" />
+    <div className="fixed inset-0 z-999 bg-[#f8f8f6]/95 dark:bg-[#151515]/95 backdrop-blur-xl flex flex-col animate-in fade-in duration-300">
+      {/* Sleek top progress bar replacing the pills */}
+      <div className="w-full h-1 bg-black/5 dark:bg-white/5 fixed top-0 left-0 z-50">
+        <div
+          className="h-full bg-(--accent) transition-all duration-500 ease-out"
+          style={{ width: `${(step / (skippedIncome ? 2 : 4)) * 100}%` }}
+        />
+      </div>
 
-        {/* Header with Close Button */}
-        <div className="flex justify-between items-center mb-6 mt-1 px-6 shrink-0">
-          <div className="flex gap-1.5 flex-1 mr-4">
-            {skippedIncome
-              ? [1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-                      i === 1 ? "bg-black/10 dark:bg-white/10" : "bg-(--accent)"
-                    }`}
-                  />
-                ))
-              : [1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-                      i <= step
-                        ? "bg-(--accent)"
-                        : "bg-black/10 dark:bg-white/10"
-                    }`}
-                  />
-                ))}
-          </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="btn-ghost p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer text-(--text-muted) hover:text-(--text) transition-colors"
-              aria-label="Close"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          )}
+      {/* Header with Step indicator & Close Button */}
+      <div className="flex justify-between items-center p-6 shrink-0 w-full max-w-2xl mx-auto absolute top-0 left-0 right-0 z-40 pointer-events-none">
+        <div className="text-[10px] font-bold text-(--text-muted) uppercase tracking-widest bg-black/5 dark:bg-white/5 px-3 py-1 rounded-full backdrop-blur-md">
+          Step {step} of {skippedIncome ? 2 : 4}
         </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-(--text) hover:bg-black/10 dark:hover:bg-white/10 transition-colors cursor-pointer pointer-events-auto backdrop-blur-md"
+            aria-label="Close"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        )}
+      </div>
 
+      <div className="flex-1 overflow-hidden flex flex-col relative w-full h-full pt-16">
         {renderStep()}
       </div>
     </div>,

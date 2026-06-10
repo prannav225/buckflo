@@ -9,6 +9,22 @@ export interface ChangelogEntry {
 // Ensure the latest version is always the first item in the array.
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "2.2.2",
+    date: "2026-06-10",
+    title: "Cinematic Onboarding & Notification Flow",
+    features: [
+      "Completely overhauled the Onboarding Setup Wizard into a cinematic, full-screen experience",
+      "Replaced clunky setup progress pills with an ultra-thin continuous progress bar",
+      "Added full fraction details to Savings Goal cards upon completion",
+      "Introduced a reliable Notification Permission flow with an automated first-launch prompt",
+      "Updated the Profile settings to natively display current browser notification permission status",
+    ],
+    fixes: [
+      "Fixed notification permission synchronization with browser states",
+      "Resolved typing issues with dynamic expense tracking fields",
+    ],
+  },
+  {
     version: "2.2.1",
     date: "2026-06-08",
     title: "Cinematic Wrapped & Smart Notifications",
