@@ -80,10 +80,16 @@ export function NotificationsPage() {
                 <Bell size={20} className="text-(--accent)" />
               </div>
               <div>
-                <div className="font-sans text-[0.9375rem] font-semibold text-(--text)">
+                <div className="font-sans text-[0.9375rem] font-semibold text-(--text) flex items-center gap-2">
                   Daily Reminder
+                  {isGranted && (
+                    <span className="text-[10px] font-medium bg-black/5 dark:bg-white/5 text-(--text-muted) px-2 py-0.5 rounded-full border border-black/5 dark:border-white/10 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500/80"></span>
+                      Granted
+                    </span>
+                  )}
                 </div>
-                <div className="font-sans text-xs text-(--text-muted) mt-0.5">
+                <div className="font-sans text-xs text-(--text-muted) mt-0.5 pr-2">
                   Receive a prompt if no transactions are logged for the day
                 </div>
               </div>
@@ -107,16 +113,14 @@ export function NotificationsPage() {
             </button>
           </div>
 
-          <div className="flex flex-col gap-1 -mt-2">
-            {isGranted && (
-              <p className="text-xs text-green-600 dark:text-green-400 m-0">✓ Permission granted</p>
-            )}
-            {permission === "denied" && (
-              <p className="text-xs text-red-600 dark:text-red-400 m-0 leading-snug">
-                Permission denied. Enable in your device settings to use notifications.
+          {permission === "denied" && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start gap-2.5 mt-1">
+              <span className="text-[14px] mt-0.5">⚠️</span>
+              <p className="text-[11px] text-red-600 dark:text-red-400 m-0 leading-relaxed font-medium">
+                Notifications are blocked. Please enable them in your device or browser settings to receive alerts.
               </p>
-            )}
-          </div>
+            </div>
+          )}
 
           {enabled && (
             <div className="form-group border-t border-black/5 dark:border-white/5 pt-4 flex items-center justify-between gap-4 animate-fade-in">

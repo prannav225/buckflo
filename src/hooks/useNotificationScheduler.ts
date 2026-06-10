@@ -137,8 +137,7 @@ export function useNotificationScheduler() {
                 .then((reg) => {
                   reg.showNotification(title, {
                     body,
-                    icon: "/buckflo_appicon.svg",
-                    badge: "/buckflo_favicon.svg",
+                    badge: "/buckflo_favicon.png",
                     tag,
                     data: { url },
                   } as NotificationOptions);
@@ -157,7 +156,6 @@ export function useNotificationScheduler() {
           ) => {
             const n = new Notification(title, {
               body,
-              icon: "/buckflo_appicon.svg",
               tag,
             });
             n.onclick = () => {
@@ -193,7 +191,7 @@ export function useNotificationScheduler() {
             );
             if (!hasRealTxs) {
               showPush(
-                "buckflo",
+                "Daily Reminder",
                 `Hey ${profile.displayName || "there"}, anything to log today?`,
                 "/home",
                 "daily-reminder",
