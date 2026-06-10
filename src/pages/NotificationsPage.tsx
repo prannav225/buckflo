@@ -8,7 +8,8 @@ import { useNotificationPermission } from "../hooks/useNotificationPermission";
 
 export function NotificationsPage() {
   const { profile, updateProfile } = useProfile();
-  const { permission, requestPermission, isGranted } = useNotificationPermission();
+  const { permission, requestPermission, isGranted } =
+    useNotificationPermission();
   const initialized = useRef(false);
 
   const [enabled, setEnabled] = useState(false);
@@ -47,9 +48,11 @@ export function NotificationsPage() {
         notificationsEnabled: nextVal,
       });
       setEnabled(nextVal);
-      
-      toast.success(nextVal ? "Daily reminders enabled!" : "Daily reminders disabled.");
-      
+
+      toast.success(
+        nextVal ? "Daily reminders enabled!" : "Daily reminders disabled.",
+      );
+
       if (nextVal && "serviceWorker" in navigator) {
         try {
           const reg = await navigator.serviceWorker.ready;
@@ -117,7 +120,8 @@ export function NotificationsPage() {
             <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start gap-2.5 mt-1">
               <span className="text-[14px] mt-0.5">⚠️</span>
               <p className="text-[11px] text-red-600 dark:text-red-400 m-0 leading-relaxed font-medium">
-                Notifications are blocked. Please enable them in your device or browser settings to receive alerts.
+                Notifications are blocked. Please enable them in your device or
+                browser settings to receive alerts.
               </p>
             </div>
           )}
