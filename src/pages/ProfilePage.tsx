@@ -188,6 +188,7 @@ export function ProfilePage() {
           type="file"
           ref={fileInputRef}
           className="hidden"
+          accept="*/*, .json, application/json, text/plain"
           onChange={handleFileChange}
         />
 

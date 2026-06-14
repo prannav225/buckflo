@@ -16,40 +16,42 @@ export const vibrate = (pattern: number | number[]) => {
   }
 };
 
+const isIosNative = Capacitor.getPlatform() === "ios";
+
 export const hapticFeedback = {
   light: async () => {
-    if (Capacitor.isNativePlatform()) {
+    if (isIosNative) {
       await Haptics.impact({ style: ImpactStyle.Light });
     } else {
-      vibrate(10);
+      vibrate(5); // Ultra-short 5ms vibration feels like a subtle Taptic "tick"
     }
   },
   medium: async () => {
-    if (Capacitor.isNativePlatform()) {
+    if (isIosNative) {
       await Haptics.impact({ style: ImpactStyle.Medium });
     } else {
-      vibrate(30);
+      vibrate(12); 
     }
   },
   heavy: async () => {
-    if (Capacitor.isNativePlatform()) {
+    if (isIosNative) {
       await Haptics.impact({ style: ImpactStyle.Heavy });
     } else {
-      vibrate([40, 60, 40]);
+      vibrate(25);
     }
   },
   success: async () => {
-    if (Capacitor.isNativePlatform()) {
+    if (isIosNative) {
       await Haptics.notification({ type: NotificationType.Success });
     } else {
-      vibrate([20, 50, 40]);
+      vibrate([15, 40, 20]); // Fast double tick
     }
   },
   error: async () => {
-    if (Capacitor.isNativePlatform()) {
+    if (isIosNative) {
       await Haptics.notification({ type: NotificationType.Error });
     } else {
-      vibrate([50, 50, 50, 50, 50]);
+      vibrate([20, 30, 20, 30, 30]); // Shuttering buzz
     }
   },
 };
