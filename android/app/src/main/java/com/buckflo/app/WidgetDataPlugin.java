@@ -1,0 +1,53 @@
+package com.buckflo.app;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.Intent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+
+@CapacitorPlugin(name = "WidgetData")
+public class WidgetDataPlugin extends Plugin {
+
+    @PluginMethod
+    public void setWidgetData(PluginCall call) {
+        String data = call.getString("data", "{}");
+
+        SharedPreferences sharedPref = getContext().getSharedPreferences("BuckfloWidgetPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("widget_data", data);
+        editor.apply();
+
+        // Broadcast an update to all active widgets
+        Intent intent = new Intent(getContext(), BuckfloWidgetProvider.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(getContext())
+                .getAppWidgetIds(new ComponentName(getContext(), BuckfloWidgetProvider.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        getContext().sendBroadcast(intent);
+
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void checkIntent(PluginCall call) {
+        Intent intent = getActivity().getIntent();
+        String action = intent.getStringExtra("widget_action");
+        if (action != null) {
+            // Clear it so it doesn't trigger again on rotation
+            intent.removeExtra("widget_action");
+            
+            JSObject ret = new JSObject();
+            ret.put("action", action);
+            call.resolve(ret);
+        } else {
+            call.resolve(new JSObject());
+        }
+    }
+}
