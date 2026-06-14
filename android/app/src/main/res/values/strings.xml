@@ -4,4 +4,5 @@
     <string name="title_activity_main">buckflo</string>
     <string name="package_name">com.buckflo.app</string>
     <string name="custom_url_scheme">com.buckflo.app</string>
+    <string name="streak_widget_description">A glowing flame that tracks your daily expense logging habit.</string>
 </resources>

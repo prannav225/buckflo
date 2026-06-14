@@ -15,4 +15,10 @@ public class MainActivity extends BridgeActivity {
         this.bridge.getWebView().setVerticalScrollBarEnabled(false);
         this.bridge.getWebView().setHorizontalScrollBarEnabled(false);
     }
+
+    @Override
+    public void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
 }

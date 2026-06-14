@@ -12,9 +12,12 @@ export function App() {
   useEffect(() => {
     // Check if launched from Widget
     const handleWidgetIntent = async () => {
-      const action = await checkWidgetIntent();
-      if (action === 'add_transaction') {
-        window.location.href = '/add-transaction';
+      const res = await checkWidgetIntent();
+      if (res?.action === 'add_transaction') {
+        // Soft navigate using History API so React Router picks it up without a hard reload
+        const url = res.category ? `/add?cat=${encodeURIComponent(res.category)}` : '/add';
+        window.history.pushState({}, '', url);
+        window.dispatchEvent(new Event('popstate'));
       }
     };
     handleWidgetIntent();

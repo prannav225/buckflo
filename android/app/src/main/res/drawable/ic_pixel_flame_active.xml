@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+
+    <!-- Outer Dark Red/Orange Outline -->
+    <path
+        android:fillColor="#D84315"
+        android:pathData="
+            M 8,1 h1 v1 h-1 Z
+            M 7,2 h2 v1 h-2 Z
+            M 6,3 h1 v1 h-1 Z M 8,3 h2 v1 h-2 Z
+            M 6,4 h1 v1 h-1 Z M 9,4 h1 v1 h-1 Z M 11,4 h1 v1 h-1 Z
+            M 5,5 h2 v1 h-2 Z M 9,5 h3 v1 h-3 Z
+            M 4,6 h1 v1 h-1 Z M 6,6 h1 v1 h-1 Z M 11,6 h1 v1 h-1 Z
+            M 3,7 h1 v1 h-1 Z M 6,7 h1 v1 h-1 Z M 11,7 h1 v1 h-1 Z
+            M 3,8 h1 v1 h-1 Z M 11,8 h1 v1 h-1 Z
+            M 2,9 h1 v1 h-1 Z M 11,9 h1 v1 h-1 Z
+            M 2,10 h1 v1 h-1 Z M 11,10 h1 v1 h-1 Z
+            M 2,11 h1 v1 h-1 Z M 11,11 h1 v1 h-1 Z
+            M 3,12 h1 v1 h-1 Z M 10,12 h1 v1 h-1 Z
+            M 4,13 h1 v1 h-1 Z M 9,13 h1 v1 h-1 Z
+            M 5,14 h4 v1 h-4 Z
+        " />
+
+    <!-- Mid Vibrant Orange -->
+    <path
+        android:fillColor="#FF9800"
+        android:pathData="
+            M 7,3 h1 v1 h-1 Z
+            M 7,4 h2 v1 h-2 Z
+            M 7,5 h2 v1 h-2 Z
+            M 5,6 h1 v1 h-1 Z M 7,6 h4 v1 h-4 Z
+            M 4,7 h2 v1 h-2 Z M 7,7 h1 v1 h-1 Z M 9,7 h2 v1 h-2 Z
+            M 4,8 h3 v1 h-3 Z M 9,8 h2 v1 h-2 Z
+            M 3,9 h3 v1 h-3 Z M 10,9 h1 v1 h-1 Z
+            M 3,10 h2 v1 h-2 Z M 10,10 h1 v1 h-1 Z
+            M 3,11 h2 v1 h-2 Z M 9,11 h2 v1 h-2 Z
+            M 4,12 h3 v1 h-3 Z M 8,12 h2 v1 h-2 Z
+            M 5,13 h4 v1 h-4 Z
+        " />
+
+    <!-- Inner Bright Yellow Core -->
+    <path
+        android:fillColor="#FFEB3B"
+        android:pathData="
+            M 8,7 h1 v1 h-1 Z
+            M 7,8 h2 v1 h-2 Z
+            M 6,9 h4 v1 h-4 Z
+            M 5,10 h5 v1 h-5 Z
+            M 5,11 h4 v1 h-4 Z
+            M 7,12 h1 v1 h-1 Z
+        " />
+</vector>

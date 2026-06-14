@@ -1,106 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/widget_background"
-    android:padding="16dp"
+    android:paddingLeft="24dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
     android:id="@+id/widget_root">
 
-    <!-- Header: Total Spent & Add Button -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TOTAL SPENT"
-                android:textColor="#a0a09d"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.06"/>
-            <TextView
-                android:id="@+id/widget_total_spent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="₹0"
-                android:textColor="#e2e2df"
-                android:textSize="24sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
+    <!-- Top Right: Add Button (Primary Action) -->
+    <ImageView
+        android:id="@+id/widget_add_btn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/widget_btn_bg"
+        android:src="@drawable/ic_add_white"
+        android:padding="10dp"/>
 
-        <ImageView
-            android:id="@+id/widget_add_btn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/widget_btn_bg"
-            android:src="@android:drawable/ic_input_add"
-            android:tint="#ffffff"
-            android:padding="8dp"/>
-    </RelativeLayout>
-
-    <!-- Top Categories Row (Hidden by default, shown when Wide) -->
+    <!-- Top Left: Header and Total Spent -->
     <LinearLayout
-        android:id="@+id/widget_categories_container"
+        android:id="@+id/widget_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp"
-        android:visibility="gone">
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/widget_add_btn"
+        android:layout_marginRight="8dp">
         <TextView
-            android:id="@+id/widget_cat_1"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="8dp"
-            android:background="#20ffffff"
-            android:padding="8dp"
-            android:textSize="12sp"
-            android:textColor="#ffffff"
-            android:gravity="center"
-            android:text="Food"/>
+            android:text="THIS MONTH"
+            android:textColor="#88ffffff"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true"
+            android:letterSpacing="0.1" />
         <TextView
-            android:id="@+id/widget_cat_2"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:id="@+id/widget_total_spent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:background="#20ffffff"
-            android:padding="8dp"
-            android:textSize="12sp"
+            android:text="₹0"
             android:textColor="#ffffff"
-            android:gravity="center"
-            android:text="Transport"/>
+            android:textSize="36sp"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true"
+            android:layout_marginTop="0dp"/>
     </LinearLayout>
 
-    <!-- Recent Transactions List (Hidden by default, shown when Tall) -->
+    <!-- Content Area spans fully below the header row -->
     <LinearLayout
-        android:id="@+id/widget_transactions_container"
+        android:id="@+id/widget_content_area"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:layout_below="@id/widget_header"
         android:layout_marginTop="16dp"
-        android:visibility="gone">
-        <TextView
-            android:layout_width="wrap_content"
+        android:clipChildren="true">
+
+        <!-- Top Categories Row -->
+        <LinearLayout
+            android:id="@+id/widget_categories_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="RECENT"
-            android:textColor="#a0a09d"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
-            
-        <TextView android:id="@+id/widget_tx_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="14sp" android:paddingBottom="4dp" android:text="---"/>
-        <TextView android:id="@+id/widget_tx_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="14sp" android:paddingBottom="4dp" android:text="---"/>
-        <TextView android:id="@+id/widget_tx_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="14sp" android:paddingBottom="4dp" android:text="---"/>
+            android:orientation="horizontal"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/widget_cat_1"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="6dp"
+                android:background="@drawable/widget_pill_bg"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:textSize="13sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:fontFamily="sans-serif-medium"
+                android:singleLine="true"
+                android:text="Food"/>
+            <TextView
+                android:id="@+id/widget_cat_2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:background="@drawable/widget_pill_bg"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:textSize="13sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:fontFamily="sans-serif-medium"
+                android:singleLine="true"
+                android:text="Transport"/>
+        </LinearLayout>
+
+        <!-- Recent Transactions List (Auto-fills available space) -->
+        <LinearLayout
+            android:id="@+id/widget_transactions_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RECENT"
+                android:textColor="#88ffffff"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="12dp"/>
+                
+            <TextView android:id="@+id/widget_tx_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
+            <TextView android:id="@+id/widget_tx_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
+            <TextView android:id="@+id/widget_tx_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
+            <TextView android:id="@+id/widget_tx_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
+            <TextView android:id="@+id/widget_tx_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
+            <TextView android:id="@+id/widget_tx_6" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>

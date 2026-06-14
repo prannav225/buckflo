@@ -29,20 +29,20 @@ public class BuckfloWidgetProvider extends AppWidgetProvider {
     }
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle options) {
+        int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 110);
+        int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110);
+        
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         
-        int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-        int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-        
-        // Default to gone
+        // Default to gone for tall widget sections
         views.setViewVisibility(R.id.widget_categories_container, View.GONE);
         views.setViewVisibility(R.id.widget_transactions_container, View.GONE);
 
         // Morph based on size
-        if (minWidth > 200) {
+        if (minWidth > 160) {
             views.setViewVisibility(R.id.widget_categories_container, View.VISIBLE);
         }
-        if (minHeight > 200) {
+        if (minHeight >= 100) {
             views.setViewVisibility(R.id.widget_transactions_container, View.VISIBLE);
         }
 
@@ -66,6 +66,9 @@ public class BuckfloWidgetProvider extends AppWidgetProvider {
                 if (txs.length() > 0) views.setTextViewText(R.id.widget_tx_1, txs.getString(0));
                 if (txs.length() > 1) views.setTextViewText(R.id.widget_tx_2, txs.getString(1));
                 if (txs.length() > 2) views.setTextViewText(R.id.widget_tx_3, txs.getString(2));
+                if (txs.length() > 3) views.setTextViewText(R.id.widget_tx_4, txs.getString(3));
+                if (txs.length() > 4) views.setTextViewText(R.id.widget_tx_5, txs.getString(4));
+                if (txs.length() > 5) views.setTextViewText(R.id.widget_tx_6, txs.getString(5));
             }
 
         } catch (Exception e) {
