@@ -95,6 +95,13 @@ export function ProfilePage() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.json')) {
+      toast.error("Invalid file format. Please select a .json database backup file (CSV exports cannot be used to restore the full database).");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     try {
       const conf = await confirm({
         title: "Restore Backup",
