@@ -1,4 +1,11 @@
-import { ArrowRight, ArrowDownToLine, CheckCircle, Smartphone, Share, PlusSquare } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowDownToLine,
+  CheckCircle,
+  Smartphone,
+  Share,
+  PlusSquare,
+} from "lucide-react";
 import { FloatingHeroCards } from "./FloatingHeroCards";
 
 interface LandingHeroProps {
@@ -35,8 +42,8 @@ export function LandingHero({
           <strong className="text-(--accent) font-display tracking-wide italic font-normal!">
             buckflo
           </strong>{" "}
-          is an offline-first personal ledger that gives you total clarity
-          over your spending. Two wallets, one view, zero cloud dependency.
+          is an offline-first personal ledger that gives you total clarity over
+          your spending. Two wallets, one view, zero cloud dependency.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-stretch sm:items-center mb-5 relative">
@@ -67,11 +74,21 @@ export function LandingHero({
                 <ArrowDownToLine size={16} /> Install PWA
               </button>
               {showIosTip && (
-                <div className="absolute top-full mt-2 bg-[var(--bg-surface)] text-[var(--text)] border border-black/9 dark:border-white/6 font-sans text-sm rounded-[var(--r-md)] shadow-[var(--glass-shadow-lg)] p-3 w-64 z-50 animate-fade-in-up">
+                <div className="absolute top-full mt-2 bg-(--bg-surface) text-(--text) border border-black/9 dark:border-white/6 font-sans text-sm rounded-[var(--r-md)] shadow-[var(--glass-shadow-lg)] p-3 w-64 z-50 animate-fade-in-up">
                   <p className="font-semibold mb-2">How to install on iOS:</p>
                   <ol className="list-decimal pl-5 space-y-1 text-xs text-(--text-muted)">
-                    <li>Tap the <Share size={12} className="inline mx-1" /> Share button in your browser menu.</li>
-                    <li>Scroll down and tap <strong className="text-(--text)"><PlusSquare size={12} className="inline mx-1" /> Add to Home Screen</strong>.</li>
+                    <li>
+                      Tap the <Share size={12} className="inline mx-1" /> Share
+                      button in your browser menu.
+                    </li>
+                    <li>
+                      Scroll down and tap{" "}
+                      <strong className="text-(--text)">
+                        <PlusSquare size={12} className="inline mx-1" /> Add to
+                        Home Screen
+                      </strong>
+                      .
+                    </li>
                   </ol>
                 </div>
               )}
