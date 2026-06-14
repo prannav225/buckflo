@@ -97,6 +97,7 @@ export interface Profile {
   notifyAutopay?: boolean;
   notifyBills?: boolean;
   notifyBudget?: boolean;
+  lastNotificationDate?: string; // ISO date "YYYY-MM-DD" — last date push was fired
 }
 
 export interface AppNotification {
