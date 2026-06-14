@@ -18,8 +18,20 @@ export function LandingPage({ onStart }: LandingPageProps) {
   const { theme, toggleTheme } = useTheme();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [deviceType, setDeviceType] = useState<"android" | "ios" | "desktop">("desktop");
+  const [showIosTip, setShowIosTip] = useState(false);
 
   useEffect(() => {
+    // Detect Device Type
+    const ua = navigator.userAgent.toLowerCase();
+    if (/android/i.test(ua)) {
+      setDeviceType("android");
+    } else if (/ipad|iphone|ipod/i.test(ua)) {
+      setDeviceType("ios");
+    } else {
+      setDeviceType("desktop");
+    }
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -101,6 +113,9 @@ export function LandingPage({ onStart }: LandingPageProps) {
         deferredPrompt={deferredPrompt}
         handleInstallClick={handleInstallClick}
         isInstalled={isInstalled}
+        deviceType={deviceType}
+        showIosTip={showIosTip}
+        setShowIosTip={setShowIosTip}
       />
 
       {/* Section 2: The Problem — "Sound Familiar?" */}

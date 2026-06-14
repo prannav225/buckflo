@@ -15,6 +15,9 @@ export function App() {
           <AppRoutes />
           <Toaster
             position="top-center"
+            containerStyle={{
+              top: "calc(16px + env(safe-area-inset-top, 0px))",
+            }}
             toastOptions={{
               duration: 3000,
               className:

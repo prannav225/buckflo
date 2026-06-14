@@ -4,27 +4,18 @@ import { db } from "../db/database";
 import { todayISO, getCurrentMonthYear } from "../utils/dateUtils";
 import { startOfDay, parseISO, differenceInDays } from "date-fns";
 import { formatINR } from "../utils/currency";
+import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 /**
- * Robust notification scheduler for offline-first PWAs.
- *
- * Strategy:
- *  1. On every `visibilitychange` → "visible", check if we're past the
- *     scheduled time and haven't fired today. If so, fire immediately.
- *     This handles the common case of the user backgrounding the app and
- *     returning later — the notification "catches up" on open.
- *
- *  2. Keep a `setTimeout` pointing at the scheduled time as a bonus.
- *     It works when the tab stays open on desktop, but is not relied upon.
- *
- *  3. Persist `lastNotificationDate` in the Profile (IndexedDB) so we:
- *     - never double-fire on the same day
- *     - can always catch up if the user opens the app after the scheduled time
+ * Robust notification scheduler using native OS alarms via Capacitor.
+ * 
+ * 1. Smart Alerts: Fired immediately on app open / visibility change (limited to once per day).
+ * 2. Daily Reminder: Handed over to the native OS to fire exactly at the scheduled time.
  */
 export function useNotificationScheduler() {
   const { profile } = useProfile();
 
-  // Stable refs to avoid stale closures in the visibility listener
   const enabledRef = useRef(false);
   const timeRef = useRef("20:00");
 
@@ -33,79 +24,65 @@ export function useNotificationScheduler() {
     timeRef.current = profile?.notificationTime || "20:00";
   }, [profile?.notificationsEnabled, profile?.notificationTime]);
 
-  // ── Core: check conditions and fire if needed ─────────────────────────────
-  const checkAndFire = useCallback(async () => {
+  // ── Smart Alerts (Immediate Catch-up) ─────────────────────────────────────
+  const checkSmartAlerts = useCallback(async () => {
     if (!enabledRef.current) return;
-    if (Notification.permission !== "granted") return;
 
-    // Always read fresh from DB to avoid stale React closure data
+    // Request permissions for native or web
+    if (Capacitor.isNativePlatform()) {
+      const permStatus = await LocalNotifications.checkPermissions();
+      if (permStatus.display !== 'granted') {
+        const req = await LocalNotifications.requestPermissions();
+        if (req.display !== 'granted') return;
+      }
+    } else {
+      if (Notification.permission !== "granted") return;
+    }
+
     const freshProfile = await db.profile.get(1);
     if (!freshProfile?.notificationsEnabled) return;
 
-    const today = todayISO(); // "YYYY-MM-DD"
+    const today = todayISO();
 
-    // ── Dedup: already fired today? ──────────────────────────────────────
+    // Dedup: only check smart alerts once per day
     if (freshProfile.lastNotificationDate === today) return;
 
-    // ── Time gate: is it past the scheduled time? ────────────────────────
-    const [hour, minute] = (freshProfile.notificationTime || "20:00")
-      .split(":")
-      .map(Number);
-    const now = new Date();
-    const scheduledToday = new Date();
-    scheduledToday.setHours(hour, minute, 0, 0);
-
-    if (now.getTime() < scheduledToday.getTime()) return; // too early
-
-    // ── Passed all gates — build and fire ────────────────────────────────
     const monthYear = getCurrentMonthYear();
     const todayDate = startOfDay(new Date());
 
-    const alerts: {
-      title: string;
-      body: string;
-      tag: string;
-      url: string;
-    }[] = [];
+    const alerts: { title: string; body: string; id: number; url: string }[] = [];
+    let alertIdCounter = 1000; // start native IDs at 1000 to avoid collision
 
     // 1. Autopay Subscriptions
     if (freshProfile.notifyAutopay !== false) {
-      const subs = await db.subscriptions
-        .where("status")
-        .equals("active")
-        .toArray();
+      const subs = await db.subscriptions.where("status").equals("active").toArray();
       for (const sub of subs) {
         try {
           const due = startOfDay(parseISO(sub.nextDueDate));
           const daysLeft = differenceInDays(due, todayDate);
           if (daysLeft === 1) {
             alerts.push({
+              id: alertIdCounter++,
               title: `Autopay Tomorrow: ${sub.name}`,
               body: `${formatINR(sub.amount)} will be auto-deducted tomorrow.`,
-              tag: `sub-${sub.id}`,
               url: "/monthly?tab=subscriptions",
             });
           }
-        } catch {
-          /* empty */
-        }
+        } catch { }
       }
     }
 
     // 2. Committed Expenses
     if (freshProfile.notifyBills !== false) {
-      const setup = await db.monthSetups
-        .where("monthYear")
-        .equals(monthYear)
-        .first();
+      const setup = await db.monthSetups.where("monthYear").equals(monthYear).first();
       if (setup?.committedExpenses) {
         const currentDay = new Date().getDate();
         for (const ce of setup.committedExpenses) {
           if (!ce.isPaid && ce.dueDay === currentDay) {
             alerts.push({
+              id: alertIdCounter++,
               title: `Bill Due Today: ${ce.name}`,
               body: `${formatINR(ce.amount)} is due today. Tap to mark as paid.`,
-              tag: `bill-${ce.name}`,
               url: "/monthly?tab=committed",
             });
           }
@@ -115,22 +92,11 @@ export function useNotificationScheduler() {
 
     // 3. Budget
     if (freshProfile.notifyBudget !== false) {
-      const setup = await db.monthSetups
-        .where("monthYear")
-        .equals(monthYear)
-        .first();
+      const setup = await db.monthSetups.where("monthYear").equals(monthYear).first();
       const budget = setup?.monthlyBudget ?? 0;
       if (budget > 0) {
         const monthTxs = await db.transactions
-          .filter(
-            (t) =>
-              t.date.startsWith(monthYear) &&
-              t.type === "debit" &&
-              t.category !== "transfer" &&
-              t.category !== "Transfer" &&
-              t.category !== "adjustment" &&
-              !t.isCommitted,
-          )
+          .filter((t) => t.date.startsWith(monthYear) && t.type === "debit" && !t.isCommitted && t.category !== "transfer" && t.category !== "Transfer" && t.category !== "adjustment")
           .toArray();
 
         const spent = monthTxs.reduce((sum, t) => sum + t.amount, 0);
@@ -138,154 +104,138 @@ export function useNotificationScheduler() {
 
         if (pct >= 100) {
           alerts.push({
+            id: alertIdCounter++,
             title: "Budget Exceeded",
             body: `You've spent ${formatINR(spent)}, exceeding your ${formatINR(budget)} limit!`,
-            tag: "budget-100",
             url: "/home",
           });
         } else if (pct >= 90) {
           alerts.push({
+            id: alertIdCounter++,
             title: "Budget Warning",
             body: `You've used ${Math.round(pct)}% of your monthly budget.`,
-            tag: "budget-90",
             url: "/home",
           });
         }
       }
     }
 
-    // ── Dispatch notifications ───────────────────────────────────────────
-    const showPush = (
-      title: string,
-      body: string,
-      url: string,
-      tag: string,
-    ) => {
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.ready
-          .then((reg) => {
-            reg.showNotification(title, {
-              body,
-              badge: "/buckflo_favicon.png",
-              tag,
-              data: { url },
-            } as NotificationOptions);
-          })
-          .catch(() => fallback(title, body, url, tag));
-      } else {
-        fallback(title, body, url, tag);
-      }
-    };
-
-    const fallback = (
-      title: string,
-      body: string,
-      url: string,
-      tag: string,
-    ) => {
-      const n = new Notification(title, {
-        body,
-        tag,
-      });
-      n.onclick = () => {
-        window.focus();
-        window.location.pathname = url;
-      };
-    };
-
     if (alerts.length > 0) {
-      if (alerts.length > 2) {
-        showPush(
-          "Smart Alerts",
-          `You have ${alerts.length} important updates requiring your attention.`,
-          "/notifications",
-          "bundled-alerts",
-        );
+      if (Capacitor.isNativePlatform()) {
+        const nativeAlerts = alerts.map(a => ({
+          id: a.id,
+          title: a.title,
+          body: a.body,
+          extra: { url: a.url }
+        }));
+        await LocalNotifications.schedule({ notifications: nativeAlerts });
       } else {
-        alerts.forEach((a) => showPush(a.title, a.body, a.url, a.tag));
+        alerts.forEach((a) => {
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.ready.then((reg) => {
+              reg.showNotification(a.title, { body: a.body, data: { url: a.url }, badge: "/buckflo_favicon.png" });
+            }).catch(() => new Notification(a.title, { body: a.body }));
+          } else {
+            new Notification(a.title, { body: a.body });
+          }
+        });
       }
-    } else {
-      // 4. Fallback Daily Reminder
-      const todayTxs = await db.transactions
-        .where("date")
-        .equals(today)
-        .toArray();
-      const hasRealTxs = todayTxs.some(
-        (t) =>
-          t.category !== "transfer" &&
-          t.category !== "Transfer" &&
-          t.category !== "starting-transfer" &&
-          t.category !== "adjustment",
-      );
-      if (!hasRealTxs) {
-        showPush(
-          "Daily Reminder",
-          `Hey ${freshProfile.displayName || "there"}, anything to log today?`,
-          "/home",
-          "daily-reminder",
-        );
-      }
+      // Only mark smart alerts as fired if we actually found something
+      await db.profile.update(1, { lastNotificationDate: today });
     }
-
-    if ("setAppBadge" in navigator) {
-      navigator
-        .setAppBadge(alerts.length > 0 ? alerts.length : 1)
-        .catch(console.error);
-    }
-
-    // ── Mark today as fired ──────────────────────────────────────────────
-    await db.profile.update(1, { lastNotificationDate: today });
   }, []);
 
-  // ── Effect 1: visibilitychange listener (the primary mechanism) ─────────
+  // ── Visibility Listener for Smart Alerts ──────────────────────────────────
   useEffect(() => {
-    if (!profile || !profile.notificationsEnabled) return;
-
-    // Fire on initial mount too (handles "user just opened the app")
-    checkAndFire();
+    checkSmartAlerts(); // check on mount
 
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        checkAndFire();
+        checkSmartAlerts();
       }
     };
-
     document.addEventListener("visibilitychange", handleVisibility);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibility);
-    };
-  }, [profile?.notificationsEnabled, checkAndFire]);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [checkSmartAlerts]);
 
-  // ── Effect 2: setTimeout as a bonus for open-tab scenarios ──────────────
+  // ── Native Daily Reminder (OS Level Alarm) ────────────────────────────────
   useEffect(() => {
-    if (!profile || !profile.notificationsEnabled) return;
+    if (!profile) return;
 
-    const [hour, minute] = (profile.notificationTime || "20:00")
-      .split(":")
-      .map(Number);
+    const setupNativeDailyAlarm = async () => {
+      if (!Capacitor.isNativePlatform()) return;
 
-    const now = new Date();
+      // Clear any previously scheduled daily alarms (ID: 999 is our designated daily reminder ID)
+      await LocalNotifications.cancel({ notifications: [{ id: 999 }] });
+
+      if (!profile.notificationsEnabled) return;
+
+      const permStatus = await LocalNotifications.checkPermissions();
+      if (permStatus.display !== 'granted') return;
+
+      const [hour, minute] = (profile.notificationTime || "20:00").split(":").map(Number);
+
+      // Schedule the native repeating alarm
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: 999, // Static ID for the daily reminder so we can easily cancel/replace it
+            title: "Daily Reminder",
+            body: `Hey ${profile.displayName || "there"}, anything to log today?`,
+            schedule: {
+              on: {
+                hour: hour,
+                minute: minute,
+              },
+              allowWhileIdle: true, // Fire even in Doze mode / deep sleep
+            },
+            extra: { url: "/home" }
+          }
+        ]
+      });
+    };
+
+    setupNativeDailyAlarm();
+  }, [profile?.notificationsEnabled, profile?.notificationTime, profile?.displayName]);
+
+  // ── Web Fallback for Daily Reminder ───────────────────────────────────────
+  useEffect(() => {
+    if (Capacitor.isNativePlatform() || !profile || !profile.notificationsEnabled) return;
+
+    // Web-only: Fallback timeout approach
+    const [hour, minute] = (profile.notificationTime || "20:00").split(":").map(Number);
     const target = new Date();
     target.setHours(hour, minute, 0, 0);
 
+    const now = new Date();
     if (now.getTime() >= target.getTime()) {
-      // Already past today's time — schedule for tomorrow
       target.setDate(target.getDate() + 1);
     }
-
     const delay = target.getTime() - now.getTime();
 
-    const timerId = setTimeout(() => {
-      checkAndFire();
+    const timerId = setTimeout(async () => {
+      if (Notification.permission === "granted") {
+        const today = todayISO();
+        const todayTxs = await db.transactions.where("date").equals(today).toArray();
+        const hasRealTxs = todayTxs.some(
+          (t) => t.category !== "transfer" && t.category !== "Transfer" && t.category !== "adjustment"
+        );
+        if (!hasRealTxs) {
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.ready.then((reg) => {
+              reg.showNotification("Daily Reminder", {
+                body: `Hey ${profile.displayName || "there"}, anything to log today?`,
+                data: { url: "/home" },
+                badge: "/buckflo_favicon.png",
+              });
+            }).catch(() => { });
+          } else {
+            new Notification("Daily Reminder", { body: `Hey ${profile.displayName || "there"}, anything to log today?` });
+          }
+        }
+      }
     }, delay);
 
     return () => clearTimeout(timerId);
-  }, [profile?.notificationsEnabled, profile?.notificationTime, checkAndFire]);
-
-  // ── Effect 3: Clear app badge on mount ──────────────────────────────────
-  useEffect(() => {
-    if (typeof navigator !== "undefined" && "clearAppBadge" in navigator) {
-      navigator.clearAppBadge().catch(console.error);
-    }
-  }, []);
+  }, [profile]);
 }

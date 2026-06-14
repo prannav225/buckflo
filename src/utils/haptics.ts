@@ -3,26 +3,53 @@
  * Provides preset patterns for common interactions.
  */
 
+import { Capacitor } from "@capacitor/core";
+import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
+
 export const vibrate = (pattern: number | number[]) => {
   if (typeof navigator !== "undefined" && navigator.vibrate) {
     try {
       navigator.vibrate(pattern);
     } catch (e) {
-      // Ignore failures
       console.log(e);
     }
   }
 };
 
 export const hapticFeedback = {
-  // Light tick for small interactions (toggles, tabs)
-  light: () => vibrate(10),
-  // Medium tick for standard buttons (save, add)
-  medium: () => vibrate(30),
-  // Heavy tick or double pulse for destructive actions (delete, wipe)
-  heavy: () => vibrate([40, 60, 40]),
-  // Success pattern
-  success: () => vibrate([20, 50, 40]),
-  // Error pattern
-  error: () => vibrate([50, 50, 50, 50, 50]),
+  light: async () => {
+    if (Capacitor.isNativePlatform()) {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } else {
+      vibrate(10);
+    }
+  },
+  medium: async () => {
+    if (Capacitor.isNativePlatform()) {
+      await Haptics.impact({ style: ImpactStyle.Medium });
+    } else {
+      vibrate(30);
+    }
+  },
+  heavy: async () => {
+    if (Capacitor.isNativePlatform()) {
+      await Haptics.impact({ style: ImpactStyle.Heavy });
+    } else {
+      vibrate([40, 60, 40]);
+    }
+  },
+  success: async () => {
+    if (Capacitor.isNativePlatform()) {
+      await Haptics.notification({ type: NotificationType.Success });
+    } else {
+      vibrate([20, 50, 40]);
+    }
+  },
+  error: async () => {
+    if (Capacitor.isNativePlatform()) {
+      await Haptics.notification({ type: NotificationType.Error });
+    } else {
+      vibrate([50, 50, 50, 50, 50]);
+    }
+  },
 };

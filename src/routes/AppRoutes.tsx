@@ -4,6 +4,7 @@ import { AppLayout } from "../components/layout/AppLayout";
 import { useMonthSetup } from "../db/hooks";
 import { useProfile } from "../hooks/useProfile";
 import { useNotificationScheduler } from "../hooks/useNotificationScheduler";
+import { Capacitor } from "@capacitor/core";
 
 // Lazy loaded pages
 const Dashboard = lazy(() =>
@@ -105,12 +106,13 @@ function LandingPageWrapper({ hasProfile }: { hasProfile: boolean }) {
   const navigate = useNavigate();
 
   const isStandalone =
+    Capacitor.isNativePlatform() ||
     window.matchMedia("(display-mode: standalone)").matches ||
     (navigator as unknown as { standalone?: boolean }).standalone ||
     document.referrer.includes("android-app://");
 
-  if (isStandalone && hasProfile) {
-    return <Navigate to="/home" replace />;
+  if (isStandalone) {
+    return <Navigate to={hasProfile ? "/home" : "/setup"} replace />;
   }
 
   return (

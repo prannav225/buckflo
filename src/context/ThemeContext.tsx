@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from "react";
 import { hapticFeedback } from "../utils/haptics";
+import { Capacitor } from "@capacitor/core";
+import { StatusBar, Style } from "@capacitor/status-bar";
 
 
 export type Theme = "light" | "dark" | "system";
@@ -36,6 +38,10 @@ const applyTheme = (t: Theme) => {
   } else {
     root.classList.add("light");
     root.classList.remove("dark");
+  }
+
+  if (Capacitor.isNativePlatform()) {
+    StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light }).catch(console.warn);
   }
 
   if (typeof window !== "undefined") {

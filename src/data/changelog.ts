@@ -9,6 +9,25 @@ export interface ChangelogEntry {
 // Ensure the latest version is always the first item in the array.
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "2.3.0",
+    date: "2026-06-14",
+    title: "True Native Experience & Live Updates",
+    features: [
+      "Transformed Buckflo into a true native Android app",
+      "Introduced Over-The-Air (OTA) updates",
+      "Added a completely transparent native Android status bar so the background gradient flows seamlessly",
+      "Integrated native haptic feedback, replacing web vibrations with the phone's true Taptic Engine",
+    ],
+    fixes: [
+      "Fixed Android hardware back button routing to properly close modals instead of crashing the app",
+      "Fixed an issue where the native keyboard would awkwardly crush the webview when opened",
+      "Fixed a bug preventing the file picker from selecting `.json` files on Android",
+      "Optimized the native Splash Screen to hide perfectly after React fully mounts, preventing white flashes",
+      "Adjusted Toast notification positions so they are never hidden behind camera cutouts or notches",
+      "Hid the native webview scrollbars entirely on Android for a much cleaner look",
+    ],
+  },
+  {
     version: "2.2.2",
     date: "2026-06-10",
     title: "Cinematic Onboarding & Notification Flow",

@@ -164,10 +164,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         <>
           {isMainPage && (
             <div
-              className="fixed top-0 left-0 right-0 h-[calc(90px+env(safe-area-inset-top,0))] z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="fixed top-0 left-0 right-0 h-[calc(70px+env(safe-area-inset-top,0))] z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] opacity-90"
               style={{
                 background:
-                  "linear-gradient(to bottom, var(--bg) 0%, var(--bg) 66%, color-mix(in srgb, var(--bg) 30%, transparent) 85%, transparent 100%)",
+                  "linear-gradient(to bottom, var(--bg) 0%, var(--bg) 40%, color-mix(in srgb, var(--bg) 10%, transparent) 75%, transparent 100%)",
               }}
             />
           )}
