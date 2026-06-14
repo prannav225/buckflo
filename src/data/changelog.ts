@@ -14,7 +14,7 @@ export const changelogData: ChangelogEntry[] = [
     title: "True Native Experience & Live Updates",
     features: [
       "Transformed Buckflo into a true native Android app",
-      "Introduced Over-The-Air (OTA) updates",
+      "Introduced Self-Hosted Over-The-Air (OTA) updates—bypassing paid services so updates stream directly from your own Vercel site",
       "Added a completely transparent native Android status bar so the background gradient flows seamlessly",
       "Integrated native haptic feedback, replacing web vibrations with the phone's true Taptic Engine",
     ],

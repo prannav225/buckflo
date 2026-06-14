@@ -16,7 +16,7 @@ const config: CapacitorConfig = {
       androidScaleType: "CENTER_CROP"
     },
     CapacitorUpdater: {
-      autoUpdate: true,
+      autoUpdate: false,
     }
   }
 };
