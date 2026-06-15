@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Widget Colors Dark Mode (Cinematic Charcoal) -->
+    <color name="widget_bg_start">#2d2d2c</color>
+    <color name="widget_bg_end">#1f1f1e</color>
+    <color name="widget_border">#1AFFFFFF</color>
+    <color name="widget_bezel">#0DFFFFFF</color>
+
+    <!-- Text -->
+    <color name="widget_text_primary">#f5f5f3</color>
+    <color name="widget_text_secondary">#9d9d99</color>
+    <color name="widget_text_label">#6b6b69</color>
+    <color name="widget_divider">#1AFFFFFF</color>
+
+    <!-- Status & Accent -->
+    <color name="widget_accent">#d97757</color>
+    <color name="widget_accent_end">#c2633e</color>
+    <color name="widget_success">#5a9e6f</color>
+    <color name="widget_blue">#5a9e6f</color>
+    <color name="widget_danger">#e05545</color>
+
+    <!-- Internal Surfaces -->
+    <color name="widget_recessed_bg">#26000000</color>
+    <color name="widget_recessed_border">#12FFFFFF</color>
+</resources>

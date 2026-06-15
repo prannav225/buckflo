@@ -5,52 +5,43 @@
     android:viewportWidth="16"
     android:viewportHeight="16">
 
-    <!-- Outer Dark Gray/Faint Outline -->
+    <!-- Inactive Shadow -->
     <path
-        android:fillColor="#22FFFFFF"
+        android:fillColor="#757575"
+        android:fillAlpha="0.4"
         android:pathData="
-            M 8,1 h1 v1 h-1 Z
-            M 7,2 h2 v1 h-2 Z
-            M 6,3 h1 v1 h-1 Z M 8,3 h2 v1 h-2 Z
-            M 6,4 h1 v1 h-1 Z M 9,4 h1 v1 h-1 Z M 11,4 h1 v1 h-1 Z
-            M 5,5 h2 v1 h-2 Z M 9,5 h3 v1 h-3 Z
-            M 4,6 h1 v1 h-1 Z M 6,6 h1 v1 h-1 Z M 11,6 h1 v1 h-1 Z
-            M 3,7 h1 v1 h-1 Z M 6,7 h1 v1 h-1 Z M 11,7 h1 v1 h-1 Z
-            M 3,8 h1 v1 h-1 Z M 11,8 h1 v1 h-1 Z
-            M 2,9 h1 v1 h-1 Z M 11,9 h1 v1 h-1 Z
-            M 2,10 h1 v1 h-1 Z M 11,10 h1 v1 h-1 Z
-            M 2,11 h1 v1 h-1 Z M 11,11 h1 v1 h-1 Z
-            M 3,12 h1 v1 h-1 Z M 10,12 h1 v1 h-1 Z
-            M 4,13 h1 v1 h-1 Z M 9,13 h1 v1 h-1 Z
-            M 5,14 h4 v1 h-4 Z
+            M 7,0 h2 v1 h-2 Z
+            M 6,1 h1 v1 h-1 Z M 9,1 h1 v1 h-1 Z
+            M 5,2 h1 v1 h-1 Z M 10,2 h1 v1 h-1 Z
+            M 4,3 h1 v1 h-1 Z M 11,3 h1 v1 h-1 Z
+            M 3,4 h1 v1 h-1 Z M 7,4 h1 v1 h-1 Z M 12,4 h1 v1 h-1 Z
+            M 2,5 h1 v1 h-1 Z M 6,5 h1 v1 h-1 Z M 13,5 h1 v1 h-1 Z
+            M 2,6 h1 v1 h-1 Z M 14,6 h1 v1 h-1 Z
+            M 1,7 h1 v1 h-1 Z M 14,7 h1 v1 h-1 Z
+            M 1,8 h1 v1 h-1 Z M 14,8 h1 v1 h-1 Z
+            M 1,9 h1 v1 h-1 Z M 14,9 h1 v1 h-1 Z
+            M 2,10 h1 v1 h-1 Z M 13,10 h1 v1 h-1 Z
+            M 3,11 h1 v1 h-1 Z M 12,11 h1 v1 h-1 Z
+            M 4,12 h1 v1 h-1 Z M 11,12 h1 v1 h-1 Z
+            M 5,13 h6 v1 h-6 Z
         " />
 
-    <!-- Mid Gray -->
+    <!-- Inactive Body -->
     <path
-        android:fillColor="#44FFFFFF"
+        android:fillColor="#BDBDBD"
+        android:fillAlpha="0.3"
         android:pathData="
-            M 7,3 h1 v1 h-1 Z
-            M 7,4 h2 v1 h-2 Z
-            M 7,5 h2 v1 h-2 Z
-            M 5,6 h1 v1 h-1 Z M 7,6 h4 v1 h-4 Z
-            M 4,7 h2 v1 h-2 Z M 7,7 h1 v1 h-1 Z M 9,7 h2 v1 h-2 Z
-            M 4,8 h3 v1 h-3 Z M 9,8 h2 v1 h-2 Z
-            M 3,9 h3 v1 h-3 Z M 10,9 h1 v1 h-1 Z
-            M 3,10 h2 v1 h-2 Z M 10,10 h1 v1 h-1 Z
-            M 3,11 h2 v1 h-2 Z M 9,11 h2 v1 h-2 Z
-            M 4,12 h3 v1 h-3 Z M 8,12 h2 v1 h-2 Z
-            M 5,13 h4 v1 h-4 Z
-        " />
-
-    <!-- Inner Light Gray Core -->
-    <path
-        android:fillColor="#66FFFFFF"
-        android:pathData="
-            M 8,7 h1 v1 h-1 Z
-            M 7,8 h2 v1 h-2 Z
-            M 6,9 h4 v1 h-4 Z
-            M 5,10 h5 v1 h-5 Z
-            M 5,11 h4 v1 h-4 Z
-            M 7,12 h1 v1 h-1 Z
+            M 7,1 h2 v1 h-2 Z
+            M 6,2 h4 v1 h-4 Z
+            M 5,3 h6 v1 h-6 Z
+            M 4,4 h3 v1 h-3 Z M 8,4 h4 v1 h-4 Z
+            M 3,5 h3 v1 h-3 Z M 7,5 h6 v1 h-6 Z
+            M 3,6 h11 v1 h-11 Z
+            M 2,7 h12 v1 h-12 Z
+            M 2,8 h12 v1 h-12 Z
+            M 2,9 h12 v1 h-12 Z
+            M 3,10 h10 v1 h-10 Z
+            M 4,11 h8 v1 h-8 Z
+            M 5,12 h6 v1 h-6 Z
         " />
 </vector>

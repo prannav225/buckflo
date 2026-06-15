@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <corners android:radius="100dp" /> <!-- Extreme radius makes it a perfect pill shape -->
-    <solid android:color="#cc1c1c1a" /> <!-- 80% opacity dark background -->
-    <stroke android:width="1dp" android:color="#33ffffff" />
+    <corners android:radius="@dimen/widget_corner_radius_pill" />
+    <solid android:color="#F21A1C1E" />
+    <stroke android:width="1dp" android:color="#26ffffff" />
 </shape>

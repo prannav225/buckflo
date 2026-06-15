@@ -6,9 +6,13 @@
     android:targetCellHeight="2"
     android:minResizeWidth="40dp"
     android:minResizeHeight="40dp"
+    android:maxResizeWidth="512dp"
+    android:maxResizeHeight="512dp"
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_layout"
+    android:previewLayout="@layout/widget_layout"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
-    android:description="@string/app_name">
+    android:widgetFeatures="reconfigurable"
+    android:description="@string/budget_widget_description">
 </appwidget-provider>

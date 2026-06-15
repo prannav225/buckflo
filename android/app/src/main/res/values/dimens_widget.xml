@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Buckflo Widget Design Tokens
+    Based on One UI 9 widget aesthetic analysis.
+    ─────────────────────────────────────────────
+    CORNER RADIUS
+    widget_corner_radius        — Standard large widget (4x2, 2x2 etc.)
+    widget_corner_radius_pill   — Short/wide pill widgets (2x1 etc.)
+    widget_corner_radius_inner  — Inner elements (progress bar, pill tags)
+
+    PADDING
+    widget_padding_horizontal   — Left/right padding for widget root
+    widget_padding_vertical     — Top/bottom padding for widget root
+
+    SPACING
+    widget_gap_xs   — Smallest gap (within a row, between dot and text)
+    widget_gap_sm   — Small gap (between label and amount)
+    widget_gap_md   — Medium gap (between sections)
+
+    SIZES
+    widget_dot_size             — Category / streak accent dot
+    widget_icon_size            — Pixel flame & add button
+    widget_btn_size             — Add (+) button circle
+    widget_progress_height      — Progress bar height
+
+    TYPOGRAPHY (sp)
+    widget_text_label           — "THIS MONTH" caps label
+    widget_text_amount          — Large primary number
+    widget_text_unit            — "days" inline unit
+    widget_text_category        — Category name row
+    widget_text_tx              — Recent transaction row
+    widget_text_dot             — Dot character size
+    ─────────────────────────────────────────────
+-->
+<resources>
+
+    <!-- ── Corner Radii ──────────────────────────────── -->
+    <!-- Matching brand radii system (r-2xl for root, r-md for inner) -->
+    <dimen name="widget_corner_radius">28dp</dimen>
+    <dimen name="widget_corner_radius_pill">999dp</dimen>
+    <dimen name="widget_corner_radius_inner">14dp</dimen>
+
+    <!-- ── Root Padding ──────────────────────────────── -->
+    <!-- Android Widget Guidelines recommend 16dp padding to prevent clipping on 28dp corners -->
+    <dimen name="widget_padding_horizontal">12dp</dimen>
+    <dimen name="widget_padding_vertical">12dp</dimen>
+
+    <!-- ── Internal Spacing ──────────────────────────── -->
+    <dimen name="widget_gap_xs">6dp</dimen>
+    <dimen name="widget_gap_sm">10dp</dimen>
+    <dimen name="widget_gap_md">14dp</dimen>
+    <dimen name="widget_gap_lg">20dp</dimen>
+
+    <!-- ── Element Sizes ─────────────────────────────── -->
+    <dimen name="widget_dot_size">8dp</dimen>
+    <dimen name="widget_dot_text_size">9sp</dimen>
+    <dimen name="widget_icon_size">32dp</dimen>
+    <dimen name="widget_btn_size">40dp</dimen>
+    <dimen name="widget_btn_padding">10dp</dimen>
+    <dimen name="widget_progress_height">8dp</dimen>
+
+    <!-- ── Typography ────────────────────────────────── -->
+    <dimen name="widget_text_label">12sp</dimen>
+    <dimen name="widget_text_amount">28sp</dimen>
+    <dimen name="widget_text_amount_unit">14sp</dimen>
+    <dimen name="widget_text_category">14sp</dimen>
+    <dimen name="widget_text_tx">14sp</dimen>
+    <dimen name="widget_text_streak_count">24sp</dimen>
+    <dimen name="widget_text_streak_unit">14sp</dimen>
+    <dimen name="widget_text_streak_label">12sp</dimen>
+
+</resources>

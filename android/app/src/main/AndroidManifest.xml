@@ -28,7 +28,10 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
         </provider>
 
-        <receiver android:name=".BuckfloWidgetProvider" android:exported="true">
+        <receiver 
+            android:name=".BuckfloWidgetProvider" 
+            android:label="@string/budget_widget_label"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -38,7 +41,10 @@
         </receiver>
 
         <!-- Streak Flame Widget -->
-        <receiver android:name=".StreakWidgetProvider" android:exported="true">
+        <receiver 
+            android:name=".StreakWidgetProvider" 
+            android:label="@string/streak_widget_label"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Official Brand Colors -->
+    <color name="colorPrimary">#d97757</color>
+    <color name="colorPrimaryDark">#c2633e</color>
+    <color name="colorAccent">#d97757</color>
+
+    <!-- Widget Colors Light Mode (Refined for Premium look) -->
+    <color name="widget_bg_start">#f8f8f6</color>
+    <color name="widget_bg_end">#f0f0ee</color>
+    <color name="widget_border">#1A000000</color>
+    <color name="widget_bezel">#33FFFFFF</color>
+
+    <!-- Text -->
+    <color name="widget_text_primary">#1f1f1e</color>
+    <color name="widget_text_secondary">#6b6b69</color>
+    <color name="widget_text_label">#9d9d99</color>
+    <color name="widget_divider">#12000000</color>
+
+    <!-- Status & Accent -->
+    <color name="widget_accent">#d97757</color>
+    <color name="widget_accent_end">#c2633e</color>
+    <color name="widget_success">#5a9e6f</color>
+    <color name="widget_blue">#5a9e6f</color>
+    <color name="widget_danger">#e05545</color>
+
+    <!-- Internal Surfaces -->
+    <color name="widget_recessed_bg">#0D000000</color>
+    <color name="widget_recessed_border">#0D000000</color>
+
+    <!-- Fire Theme -->
+    <color name="fire_red">#D84315</color>
+    <color name="fire_orange">#FF9800</color>
+    <color name="fire_yellow">#FFEB3B</color>
+    <color name="fire_glow">#40FF9800</color>
+</resources>

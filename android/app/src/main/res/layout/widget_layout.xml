@@ -1,133 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_background"
-    android:paddingLeft="24dp"
-    android:paddingRight="16dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
-    android:id="@+id/widget_root">
+    android:background="@drawable/widget_accent_card"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    android:paddingLeft="@dimen/widget_padding_horizontal"
+    android:paddingRight="@dimen/widget_padding_horizontal"
+    android:paddingTop="@dimen/widget_padding_vertical"
+    android:paddingBottom="@dimen/widget_padding_vertical">
 
-    <!-- Top Right: Add Button (Primary Action) -->
-    <ImageView
-        android:id="@+id/widget_add_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/widget_btn_bg"
-        android:src="@drawable/ic_add_white"
-        android:padding="10dp"/>
-
-    <!-- Top Left: Header and Total Spent -->
+    <!-- HEADER: Label and Add button -->
     <LinearLayout
         android:id="@+id/widget_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@id/widget_add_btn"
-        android:layout_marginRight="8dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/widget_gap_xs">
+
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/widget_label"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="THIS MONTH"
-            android:textColor="#88ffffff"
-            android:textSize="11sp"
+            android:layout_weight="1"
+            android:text="SPENDING BALANCE"
+            android:textColor="#B3FFFFFF"
+            android:textSize="@dimen/widget_text_label"
             android:fontFamily="sans-serif-medium"
-            android:singleLine="true"
-            android:letterSpacing="0.1" />
-        <TextView
-            android:id="@+id/widget_total_spent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="₹0"
-            android:textColor="#ffffff"
-            android:textSize="36sp"
-            android:fontFamily="sans-serif-medium"
-            android:singleLine="true"
-            android:layout_marginTop="0dp"/>
+            android:letterSpacing="0.1"
+            android:textAllCaps="true" />
+
+        <ImageView
+            android:id="@+id/widget_add_btn"
+            android:layout_width="@dimen/widget_btn_size"
+            android:layout_height="@dimen/widget_btn_size"
+            android:background="@drawable/widget_pill_bg"
+            android:src="@drawable/ic_add_white"
+            android:padding="@dimen/widget_btn_padding"
+            android:contentDescription="Add Transaction" />
     </LinearLayout>
 
-    <!-- Content Area spans fully below the header row -->
-    <LinearLayout
-        android:id="@+id/widget_content_area"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_below="@id/widget_header"
-        android:layout_marginTop="16dp"
-        android:clipChildren="true">
+    <!-- MAIN AMOUNT -->
+    <TextView
+        android:id="@+id/widget_total_spent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="₹0"
+        android:textColor="#FFFFFF"
+        android:textSize="@dimen/widget_text_amount"
+        android:fontFamily="serif"
+        android:includeFontPadding="false" />
 
-        <!-- Top Categories Row -->
+    <!-- PROGRESS BAR: Thin line style from app -->
+    <FrameLayout
+        android:id="@+id/widget_progress_container"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#33FFFFFF"
+        android:layout_marginTop="@dimen/widget_gap_md">
+
+        <ImageView
+            android:id="@+id/widget_progress_fill"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- SPENT LABEL -->
+    <TextView
+        android:id="@+id/widget_spent_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/widget_gap_sm"
+        android:text="spent this month"
+        android:textColor="#CCFFFFFF"
+        android:textSize="@dimen/widget_text_label"
+        android:fontFamily="sans-serif" />
+
+    <!-- CONTENT CONTAINER: Categories and Transactions (Shown on larger sizes) -->
+    <LinearLayout
+        android:id="@+id/widget_content_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="12dp">
+
+        <!-- CATEGORIES -->
         <LinearLayout
             android:id="@+id/widget_categories_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:visibility="gone">
-            <TextView
-                android:id="@+id/widget_cat_1"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="6dp"
-                android:background="@drawable/widget_pill_bg"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:textSize="13sp"
-                android:textColor="#ffffff"
-                android:gravity="center"
-                android:fontFamily="sans-serif-medium"
-                android:singleLine="true"
-                android:text="Food"/>
-            <TextView
-                android:id="@+id/widget_cat_2"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="6dp"
-                android:background="@drawable/widget_pill_bg"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:textSize="13sp"
-                android:textColor="#ffffff"
-                android:gravity="center"
-                android:fontFamily="sans-serif-medium"
-                android:singleLine="true"
-                android:text="Transport"/>
+            <!-- (Logic from previous design but simplified for accent card) -->
+            <TextView android:id="@+id/widget_cat_1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#B3FFFFFF" android:textSize="@dimen/widget_text_category" android:layout_marginBottom="@dimen/widget_gap_xs" />
+            <TextView android:id="@+id/widget_cat_2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#B3FFFFFF" android:textSize="@dimen/widget_text_category" />
         </LinearLayout>
 
-        <!-- Recent Transactions List (Auto-fills available space) -->
+        <!-- TRANSACTIONS -->
         <LinearLayout
             android:id="@+id/widget_transactions_container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/widget_gap_sm"
             android:visibility="gone">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="RECENT"
-                android:textColor="#88ffffff"
-                android:textSize="11sp"
-                android:fontFamily="sans-serif-medium"
-                android:layout_marginBottom="12dp"/>
-                
-            <TextView android:id="@+id/widget_tx_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
-            <TextView android:id="@+id/widget_tx_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
-            <TextView android:id="@+id/widget_tx_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
-            <TextView android:id="@+id/widget_tx_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
-            <TextView android:id="@+id/widget_tx_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
-            <TextView android:id="@+id/widget_tx_6" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#ffffff" android:textSize="15sp" android:paddingBottom="10dp" android:text="" android:fontFamily="sans-serif" android:singleLine="true"/>
+            <TextView android:id="@+id/widget_tx_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
+            <TextView android:id="@+id/widget_tx_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
+            <TextView android:id="@+id/widget_tx_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
+            <TextView android:id="@+id/widget_tx_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
+            <TextView android:id="@+id/widget_tx_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
+            <TextView android:id="@+id/widget_tx_6" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" />
         </LinearLayout>
     </LinearLayout>
-</RelativeLayout>
+
+</LinearLayout>

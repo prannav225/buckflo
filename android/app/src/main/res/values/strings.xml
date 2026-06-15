@@ -4,5 +4,10 @@
     <string name="title_activity_main">buckflo</string>
     <string name="package_name">com.buckflo.app</string>
     <string name="custom_url_scheme">com.buckflo.app</string>
+
+    <!-- Widget Strings -->
+    <string name="budget_widget_label">Budget Balance</string>
+    <string name="budget_widget_description">Quick view of your monthly spending and balance.</string>
+    <string name="streak_widget_label">Day Streak</string>
     <string name="streak_widget_description">A glowing flame that tracks your daily expense logging habit.</string>
 </resources>
