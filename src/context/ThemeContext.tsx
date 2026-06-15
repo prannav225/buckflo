@@ -5,6 +5,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
   type ReactNode,
 } from "react";
 import { hapticFeedback } from "../utils/haptics";
@@ -76,21 +77,68 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return "system";
   });
 
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    const handleGlobalClick = (e: MouseEvent) => {
+      const x = e.clientX || window.innerWidth / 2;
+      const y = e.clientY || window.innerHeight / 2;
+      const r = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+      document.documentElement.style.setProperty("--theme-x", `${x}px`);
+      document.documentElement.style.setProperty("--theme-y", `${y}px`);
+      document.documentElement.style.setProperty("--theme-r", `${r}px`);
+    };
+
+    window.addEventListener("click", handleGlobalClick, { capture: true });
+    return () => {
+      window.removeEventListener("click", handleGlobalClick, { capture: true });
+    };
+  }, []);
+
   const setTheme = useCallback((nextTheme: Theme) => {
     hapticFeedback.medium();
-    setThemeState(nextTheme);
-    localStorage.setItem("theme", nextTheme);
-    applyTheme(nextTheme);
+    const trigger = () => {
+      setThemeState(nextTheme);
+      localStorage.setItem("theme", nextTheme);
+      applyTheme(nextTheme);
+    };
+
+    if (isMountedRef.current && typeof document !== "undefined" && "startViewTransition" in document) {
+      document.documentElement.classList.add("theme-transitioning");
+      const transition = (document as any).startViewTransition(trigger);
+      transition.finished.finally(() => {
+        document.documentElement.classList.remove("theme-transitioning");
+      });
+    } else {
+      trigger();
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
     hapticFeedback.medium();
-    setThemeState((prev) => {
-      const nextTheme = prev === "dark" ? "light" : "dark";
-      localStorage.setItem("theme", nextTheme);
-      applyTheme(nextTheme);
-      return nextTheme;
-    });
+    const trigger = () => {
+      setThemeState((prev) => {
+        const nextTheme = prev === "dark" ? "light" : "dark";
+        localStorage.setItem("theme", nextTheme);
+        applyTheme(nextTheme);
+        return nextTheme;
+      });
+    };
+
+    if (isMountedRef.current && typeof document !== "undefined" && "startViewTransition" in document) {
+      document.documentElement.classList.add("theme-transitioning");
+      const transition = (document as any).startViewTransition(trigger);
+      transition.finished.finally(() => {
+        document.documentElement.classList.remove("theme-transitioning");
+      });
+    } else {
+      trigger();
+    }
   }, []);
 
   // Sync theme when system settings change (only if current theme is system)
@@ -101,7 +149,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = () => {
-      applyTheme("system");
+      const trigger = () => {
+        applyTheme("system");
+      };
+      if (isMountedRef.current && typeof document !== "undefined" && "startViewTransition" in document) {
+        document.documentElement.classList.add("theme-transitioning");
+        const transition = (document as any).startViewTransition(trigger);
+        transition.finished.finally(() => {
+          document.documentElement.classList.remove("theme-transitioning");
+        });
+      } else {
+        trigger();
+      }
     };
 
     mediaQuery.addEventListener("change", handleChange);
@@ -113,9 +172,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const handleProfileUpdate = (e: Event) => {
       const updatedProfile = (e as CustomEvent).detail;
       if (updatedProfile && updatedProfile.theme) {
-        setThemeState(updatedProfile.theme);
-        localStorage.setItem("theme", updatedProfile.theme);
-        applyTheme(updatedProfile.theme);
+        const trigger = () => {
+          setThemeState(updatedProfile.theme);
+          localStorage.setItem("theme", updatedProfile.theme);
+          applyTheme(updatedProfile.theme);
+        };
+        if (isMountedRef.current && typeof document !== "undefined" && "startViewTransition" in document) {
+          document.documentElement.classList.add("theme-transitioning");
+          const transition = (document as any).startViewTransition(trigger);
+          transition.finished.finally(() => {
+            document.documentElement.classList.remove("theme-transitioning");
+          });
+        } else {
+          trigger();
+        }
       }
     };
     window.addEventListener("buckflo_profile_updated", handleProfileUpdate);
@@ -129,11 +199,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     import("../db/database").then(({ db }) => {
       db.profile.get(1).then((p) => {
         if (p && p.theme) {
-          setTheme(p.theme);
+          // Wrap in a trigger that doesn't trigger transitions to prevent flashes on app boot
+          setThemeState(p.theme);
+          localStorage.setItem("theme", p.theme);
+          applyTheme(p.theme);
         }
       });
     }).catch(err => console.error("Theme init error:", err));
-  }, [setTheme]);
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
