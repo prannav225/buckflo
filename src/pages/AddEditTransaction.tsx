@@ -7,6 +7,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Upload,
+  X,
 } from "lucide-react";
 import { useTransactionForm } from "../hooks/useTransactionForm";
 import { useConfirm } from "../hooks/useConfirm";
@@ -151,7 +152,7 @@ export function AddEditTransaction() {
               onClick={handleBack}
               aria-label="Close"
             >
-              ✕
+              <X size={18} />
             </button>
           </div>
         </div>

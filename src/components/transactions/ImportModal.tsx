@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { AlertCircle, CheckCircle2, Upload, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Upload, X, Lightbulb } from "lucide-react";
 import { parseCSV, mapRowsToTransactions, importTransactionsToDB } from "../../utils/csvImport";
 import type { ParsedCSVRow } from "../../utils/csvImport";
 import { useAccount } from "../../db/hooks";
@@ -240,8 +240,9 @@ export function ImportModal({ isOpen, onClose, onSuccess, activeTab }: ImportMod
             )}
 
             {hasExplicitAccounts && (
-              <p className="text-[10px] text-(--text-muted) leading-relaxed m-0 italic bg-black/3 dark:bg-white/3 p-2.5 rounded-lg border border-black/5 dark:border-white/5">
-                💡 Note: This CSV contains row-level account declarations. Transactions will be routed to their respective accounts.
+              <p className="text-[10px] text-(--text-muted) leading-relaxed m-0 italic bg-black/3 dark:bg-white/3 p-2.5 rounded-lg border border-black/5 dark:border-white/5 flex gap-1.5 items-start">
+                <Lightbulb size={12} className="shrink-0 mt-0.5 text-(--accent)" />
+                <span>Note: This CSV contains row-level account declarations. Transactions will be routed to their respective accounts.</span>
               </p>
             )}
           </div>

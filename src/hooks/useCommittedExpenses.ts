@@ -41,7 +41,7 @@ export function useCommittedExpenses(
           .equals([spendingAcc.id, monthSetup.monthYear])
           .modify({ committedExpenses: updatedExpenses });
 
-        toast.success(`${expense.name} marked as paid ✓`);
+        toast.success(`${expense.name} marked as paid`);
       } catch (err) {
         console.error("Failed to mark as paid:", err);
         toast.error("Failed to mark as paid");
@@ -77,7 +77,7 @@ export function useCommittedExpenses(
           .equals([spendingAcc.id, monthSetup.monthYear])
           .modify({ committedExpenses: updatedExpenses });
 
-        toast.success(`${expense.name} unmarked ✓`);
+        toast.success(`${expense.name} unmarked`);
       } catch (err) {
         console.error("Failed to undo:", err);
         toast.error("Failed to undo");

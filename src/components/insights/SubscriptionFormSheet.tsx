@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import {
   addSubscription,
   updateSubscription,
@@ -120,10 +120,10 @@ export function SubscriptionFormSheet({
     try {
       if (editingSub?.id) {
         await updateSubscription(editingSub.id, subData);
-        toast.success("Subscription updated successfully ✓");
+        toast.success("Subscription updated successfully");
       } else {
         await addSubscription(subData);
-        toast.success("Subscription added successfully ✓");
+        toast.success("Subscription added successfully");
       }
       setShowFormModal(false);
     } catch (err) {
@@ -156,7 +156,7 @@ export function SubscriptionFormSheet({
             className="btn-ghost p-2 rounded-full"
             onClick={() => setShowFormModal(false)}
           >
-            ✕
+            <X size={20} />
           </button>
         </div>
 

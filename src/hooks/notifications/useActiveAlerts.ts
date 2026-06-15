@@ -213,7 +213,7 @@ export function useActiveAlerts({
                 );
                 await updateSubscription(sub.id!, { nextDueDate: newDueDate });
                 toast.success(
-                  `Skipped: ${sub.name} advanced to ${newDueDate} ✓`,
+                  `Skipped: ${sub.name} advanced to ${newDueDate}`,
                 );
               } catch {
                 toast.error("Failed to skip subscription.");
@@ -224,7 +224,7 @@ export function useActiveAlerts({
               try {
                 await updateSubscription(sub.id!, { status: "paused" });
                 toast.success(
-                  `Subscription '${sub.name}' paused successfully ✓`,
+                  `Subscription '${sub.name}' paused successfully`,
                 );
               } catch {
                 toast.error("Failed to pause subscription.");

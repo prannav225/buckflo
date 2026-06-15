@@ -72,7 +72,7 @@ export function SavingsNudgeSheet({
         "Initial savings allocation",
         "transfer"
       );
-      toast.success(`${formatINR(parsedAmt)} moved to Savings Wallet ✓`);
+      toast.success(`${formatINR(parsedAmt)} moved to Savings Wallet`);
       onSuccess();
       onClose();
     } catch (err) {

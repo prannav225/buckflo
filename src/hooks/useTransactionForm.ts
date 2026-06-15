@@ -140,10 +140,10 @@ export function useTransactionForm(): TransactionFormState {
 
       if (isEdit) {
         await updateTransaction(Number(id), txData);
-        toast.success("Entry updated ✓");
+        toast.success("Entry updated");
       } else {
         await addTransaction(txData);
-        toast.success("Entry logged ✓");
+        toast.success("Entry logged");
       }
       hapticFeedback.success();
       if (window.history.state && window.history.state.idx > 0) {
@@ -169,7 +169,7 @@ export function useTransactionForm(): TransactionFormState {
     setLoading(true);
     try {
       await deleteTransaction(Number(id));
-      toast.success("Entry deleted ✓");
+      toast.success("Entry deleted");
       hapticFeedback.heavy();
       if (window.history.state && window.history.state.idx > 0) {
         navigate(-1);

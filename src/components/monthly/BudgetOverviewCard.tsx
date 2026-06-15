@@ -69,12 +69,12 @@ export function BudgetOverviewCard({
                   {name}
                   {hasBudget && thresholdStatus === "warning" && (
                     <span className="inline-block font-sans text-[11px] font-semibold px-2 py-0.5 rounded-(--r-pill) leading-[1.6] whitespace-nowrap bg-[rgba(234,179,8,0.12)] text-[#b8960f] dark:text-[#eab308]">
-                      ⚠ {pct.toFixed(0)}%
+                      {pct.toFixed(0)}%
                     </span>
                   )}
                   {hasBudget && thresholdStatus === "danger" && (
                     <span className="inline-block font-sans text-[11px] font-semibold px-2 py-0.5 rounded-(--r-pill) leading-[1.6] whitespace-nowrap bg-[rgba(224,85,69,0.1)] text-(--debit)">
-                      {pct >= 100 ? "⚠ Over limit" : `⚠ ${pct.toFixed(0)}%`}
+                      {pct >= 100 ? "Over limit" : `${pct.toFixed(0)}%`}
                     </span>
                   )}
                 </span>

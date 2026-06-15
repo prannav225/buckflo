@@ -95,7 +95,7 @@ export function useTransferForm({
         note || defaultNoteText,
         "transfer",
       );
-      toast.success(`${amt} moved successfully ✓`);
+      toast.success(`${amt} moved successfully`);
       onClose();
     } catch (err) {
       toast.error("Transfer failed. Please try again.");

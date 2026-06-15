@@ -250,7 +250,7 @@ export function InsightsSubscriptionsTab({ openForm, monthYear }: Props) {
                               status: isCancelled ? "active" : "cancelled",
                             });
                             toast.success(
-                              `Subscription marked as ${isCancelled ? "Active" : "Cancelled"} ✓`,
+                              `Subscription marked as ${isCancelled ? "Active" : "Cancelled"}`,
                             );
                           } catch {
                             toast.error("Failed to update subscription status");

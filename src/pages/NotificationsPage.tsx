@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef } from "react";
-import { Bell } from "lucide-react";
+import { Bell, AlertTriangle } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 import toast from "react-hot-toast";
 import { CustomTimePicker } from "../components/ui/CustomTimePicker";
@@ -118,7 +118,7 @@ export function NotificationsPage() {
 
           {permission === "denied" && (
             <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start gap-2.5 mt-1">
-              <span className="text-[14px] mt-0.5">⚠️</span>
+              <AlertTriangle size={14} className="shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
               <p className="text-[11px] text-red-600 dark:text-red-400 m-0 leading-relaxed font-medium">
                 Notifications are blocked. Please enable them in your device or
                 browser settings to receive alerts.

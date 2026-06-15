@@ -38,7 +38,7 @@ export function useSubscriptionLogic(monthYear?: string) {
     const newStatus = nextStatusMap[sub.status];
     try {
       await updateSubscription(sub.id!, { status: newStatus });
-      toast.success(`Subscription ${newStatus === "active" ? "activated" : "paused"} ✓`);
+      toast.success(`Subscription ${newStatus === "active" ? "activated" : "paused"}`);
     } catch (err) {
       toast.error("Failed to change status");
       console.error(err);

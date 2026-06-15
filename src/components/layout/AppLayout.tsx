@@ -45,7 +45,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     const result = await requestPermission();
 
     if (result === "granted") {
-      toast.success("Notifications enabled! 🔔");
+      toast.success("Notifications enabled!");
     } else if (result === "denied") {
       toast.error("Notifications were denied. You can re-enable in Settings.");
     }
@@ -164,86 +164,87 @@ export function AppLayout({ children }: AppLayoutProps) {
         <>
           {isMainPage && (
             <div
-              className="fixed top-0 left-0 right-0 h-[calc(90px+env(safe-area-inset-top,0))] z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className={`fixed top-0 left-0 right-0 h-[calc(80px+env(safe-area-inset-top,0))] z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                scrolled ? "opacity-100" : "opacity-0"
+              }`}
               style={{
                 background:
-                  "linear-gradient(to bottom, var(--bg) 0%, var(--bg) 70%, transparent 100%)",
+                  "linear-gradient(to bottom, var(--bg) 0%, var(--bg) 60%, transparent 100%)",
               }}
             />
+          )}
+          {isMainPage && (
+            <header className="h-11 sticky top-0 z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-[720px] mx-auto w-full px-4 pt-[calc(16px+env(safe-area-inset-top,0))]">
+              {pathname === "/home" ? (
+                <button
+                  onClick={() => window.location.reload()}
+                  className={`pointer-events-auto transition-all duration-300 ease-out flex items-center justify-center rounded-full hover:-translate-y-0.5 active:translate-y-0 border p-0.5 cursor-pointer outline-none ${
+                    scrolled
+                      ? "bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border-black/8 dark:border-white/6 shadow-(--glass-shadow)"
+                      : "bg-transparent border-transparent shadow-none"
+                  }`}
+                >
+                  <img
+                    src="/buckflo_favicon.svg"
+                    alt="buckflo"
+                    className={`object-contain rounded-full transition-all duration-300 ${
+                      scrolled ? "w-8 h-8" : "w-10 h-10"
+                    }`}
+                  />
+                </button>
+              ) : (
+                <div className="pointer-events-auto flex items-start">
+                  {isSubPage && (
+                    <ChevronLeft
+                      size={24}
+                      onClick={() => navigate(-1)}
+                      className="-pl-5 m-0 min-h-0 h-auto flex items-center justify-center text-(--text-muted) hover:text-(--text) cursor-pointer bg-transparent border-0 outline-none rounded-full"
+                      aria-label="Go back"
+                    />
+                  )}
+                  <h1 className="text-[22px] font-bold text-(--text) tracking-tight m-0 leading-none">
+                    {pageTitle}
+                  </h1>
+                </div>
+              )}
+              <div className="flex items-center gap-2 pointer-events-auto">
+                <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
+                  <button
+                    onClick={openNotifications}
+                    className="inline-flex items-center justify-center w-8 h-8 bg-transparent border-0 rounded-full text-(--text-secondary) cursor-pointer transition-[background,color,transform] duration-150 active:scale-90 outline-none relative"
+                    aria-label="Open notifications"
+                    title="Notifications"
+                    id="header-notification-btn"
+                  >
+                    <Bell size={16} />
+                    {hasUnread && (
+                      <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-(--debit) rounded-full animate-[pulse-glow_2s_infinite] shadow-[0_0_0_0_rgba(217,119,87,0.7)]" />
+                    )}
+                  </button>
+                </div>
+                <button
+                  onClick={() => navigate("/profile")}
+                  className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer overflow-hidden p-0 outline-none"
+                  aria-label="Open profile"
+                  title="Profile"
+                  id="header-profile-btn"
+                >
+                  <BrandedAvatar
+                    name={profile?.displayName || "buckflo"}
+                    size={34}
+                    className="border-0 bg-transparent"
+                  />
+                </button>
+              </div>
+            </header>
           )}
           <main
             className={
               isMainPage
-                ? "pt-[calc(16px+env(safe-area-inset-top,0))] pl-4 pr-4 pb-[calc(90px+env(safe-area-inset-bottom,0))] max-w-[720px] mx-auto w-full"
+                ? "pl-4 pr-4 pb-[calc(90px+env(safe-area-inset-bottom,0))] max-w-[720px] mx-auto w-full"
                 : "pt-[calc(16px+env(safe-area-inset-top,0))] pl-4 pr-4 pb-[calc(24px+env(safe-area-inset-bottom,0))] max-w-[720px] mx-auto w-full"
             }
           >
-            {/* ── Persistent Global Header ────────────────────────────────────────── */}
-            {isMainPage && (
-              <header className="h-11 sticky top-[calc(12px+env(safe-area-inset-top,0))] z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                {pathname === "/home" ? (
-                  <button
-                    onClick={() => window.location.reload()}
-                    className={`pointer-events-auto transition-all duration-300 ease-out flex items-center justify-center rounded-full hover:-translate-y-0.5 active:translate-y-0 border p-0.5 cursor-pointer outline-none ${
-                      scrolled
-                        ? "bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border-black/8 dark:border-white/6 shadow-(--glass-shadow)"
-                        : "bg-transparent border-transparent shadow-none"
-                    }`}
-                  >
-                    <img
-                      src="/buckflo_favicon.svg"
-                      alt="buckflo"
-                      className={`object-contain rounded-full transition-all duration-300 ${
-                        scrolled ? "w-8 h-8" : "w-10 h-10"
-                      }`}
-                    />
-                  </button>
-                ) : (
-                  <div className="pointer-events-auto flex items-start">
-                    {isSubPage && (
-                      <ChevronLeft
-                        size={24}
-                        onClick={() => navigate(-1)}
-                        className="-pl-5 m-0 min-h-0 h-auto flex items-center justify-center text-(--text-muted) hover:text-(--text) cursor-pointer bg-transparent border-0 outline-none rounded-full"
-                        aria-label="Go back"
-                      />
-                    )}
-                    <h1 className="text-[22px] font-bold text-(--text) tracking-tight m-0 leading-none">
-                      {pageTitle}
-                    </h1>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 pointer-events-auto">
-                  <div className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
-                    <button
-                      onClick={openNotifications}
-                      className="inline-flex items-center justify-center w-8 h-8 bg-transparent border-0 rounded-full text-(--text-secondary) cursor-pointer transition-[background,color,transform] duration-150 active:scale-90 outline-none relative"
-                      aria-label="Open notifications"
-                      title="Notifications"
-                      id="header-notification-btn"
-                    >
-                      <Bell size={16} />
-                      {hasUnread && (
-                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-(--debit) rounded-full animate-[pulse-glow_2s_infinite] shadow-[0_0_0_0_rgba(217,119,87,0.7)]" />
-                      )}
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => navigate("/profile")}
-                    className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer overflow-hidden p-0 outline-none"
-                    aria-label="Open profile"
-                    title="Profile"
-                    id="header-profile-btn"
-                  >
-                    <BrandedAvatar
-                      name={profile?.displayName || "buckflo"}
-                      size={34}
-                      className="border-0 bg-transparent"
-                    />
-                  </button>
-                </div>
-              </header>
-            )}
 
             {/* PWA Install Banner */}
             {isInstallable && (

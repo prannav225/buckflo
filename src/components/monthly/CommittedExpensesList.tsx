@@ -81,7 +81,7 @@ export function CommittedExpensesList({
                     </span>
                     {expense.isPaid && (
                       <span className="text-[0.625rem] font-medium px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20">
-                        Paid ✓
+                        Paid
                       </span>
                     )}
                     {isDue && (

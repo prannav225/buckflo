@@ -248,7 +248,7 @@ export function useMonthInit({
           }
         }
 
-        toast.success("Budget setup updated ✓");
+        toast.success("Budget setup updated");
       } else {
         // Calculate the current balance based on expBal (opening balance) and any transactions that already exist in the month
         const { startDate } = getMonthDateRange(monthYear);

@@ -27,7 +27,7 @@ export function useTransactionDetails(tx: Transaction, onClose: () => void) {
     try {
       if (tx.id === undefined) return;
       await deleteTransaction(tx.id);
-      toast.success("Transaction deleted successfully ✓");
+      toast.success("Transaction deleted successfully");
       onClose();
     } catch (err) {
       toast.error("Failed to delete transaction");
