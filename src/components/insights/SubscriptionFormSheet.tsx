@@ -13,6 +13,7 @@ import { SegmentedControl } from "../ui/SegmentedControl";
 import { useBackHandler } from "../../hooks/useBackHandler";
 import { CustomDropdown, type DropdownOption } from "../layout/CustomDropdown";
 import { CustomDatePicker } from "../CustomDatePicker";
+import { CurrencyInput } from "../ui/CurrencyInput";
 
 const frequencyOptions: DropdownOption<
   "weekly" | "monthly" | "3_months" | "6_months" | "yearly"
@@ -178,12 +179,10 @@ export function SubscriptionFormSheet({
           <div className="form-row">
             <div className="form-group flex-[1.2]">
               <span className="label">Amount (₹)</span>
-              <input
-                type="number"
-                step="0.01"
+              <CurrencyInput
                 placeholder="0.00"
                 value={formAmount}
-                onChange={(e) => setFormAmount(e.target.value)}
+                onChange={(val) => setFormAmount(val)}
                 className="input-field"
                 required
               />

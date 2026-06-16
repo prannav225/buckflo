@@ -34,58 +34,29 @@ public class BuckfloWidgetProvider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
-        // Budget widget now uses the official orange accent card background
-        views.setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_accent_card);
+        // Budget widget now uses the official adaptive sleek dark background
+        views.setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_background);
 
         float density = context.getResources().getDisplayMetrics().density;
         int ph, pv;
 
-        // Dynamic adjustments based on widget height
-        if (minHeight < 70) {
-            // Micro mode (very short 1x* widgets)
-            ph = (int) (12 * density);
-            pv = (int) (4 * density);
-            views.setViewPadding(R.id.widget_root, ph, pv, ph, pv);
-            views.setTextViewTextSize(R.id.widget_total_spent, android.util.TypedValue.COMPLEX_UNIT_SP, 20);
-            views.setViewVisibility(R.id.widget_header, View.VISIBLE); // Show header (add button) if possible
-            views.setViewVisibility(R.id.widget_label, View.GONE); // Hide label text in micro to save space
-            views.setViewVisibility(R.id.widget_spent_label, View.GONE);
-            views.setViewVisibility(R.id.widget_progress_container, View.GONE);
-        } else if (minHeight < 110) {
-            // Compact mode (1x* or 2x1 widgets)
+        // Dynamic Padding
+        if (minHeight < 90) {
             ph = (int) (16 * density);
-            pv = (int) (8 * density);
-            views.setViewPadding(R.id.widget_root, ph, pv, ph, pv);
-            views.setTextViewTextSize(R.id.widget_total_spent, android.util.TypedValue.COMPLEX_UNIT_SP, 24);
-            views.setViewVisibility(R.id.widget_header, View.VISIBLE);
-            views.setViewVisibility(R.id.widget_label, View.VISIBLE);
-            views.setViewVisibility(R.id.widget_spent_label, View.VISIBLE);
-            views.setViewVisibility(R.id.widget_progress_container, View.VISIBLE);
+            pv = (int) (12 * density);
         } else {
-            // Standard mode (2x2, 4x2 etc.)
             ph = (int) (context.getResources().getDimension(R.dimen.widget_padding_horizontal));
             pv = (int) (context.getResources().getDimension(R.dimen.widget_padding_vertical));
-            views.setViewPadding(R.id.widget_root, ph, pv, ph, pv);
-            views.setTextViewTextSize(R.id.widget_total_spent, android.util.TypedValue.COMPLEX_UNIT_SP, 28);
-            views.setViewVisibility(R.id.widget_header, View.VISIBLE);
-            views.setViewVisibility(R.id.widget_label, View.VISIBLE);
-            views.setViewVisibility(R.id.widget_spent_label, View.VISIBLE);
-            views.setViewVisibility(R.id.widget_progress_container, View.VISIBLE);
         }
+        views.setViewPadding(R.id.widget_root, ph, pv, ph, pv);
 
-        // Default to gone for sections only shown on larger sizes
-        views.setViewVisibility(R.id.widget_categories_container, View.GONE);
-        views.setViewVisibility(R.id.widget_transactions_container, View.GONE);
-        views.setViewVisibility(R.id.widget_progress_fill, View.GONE);
-
-        // Show categories on wide widgets or tall widgets
-        if (minWidth > 160 || minHeight >= 110) {
-            views.setViewVisibility(R.id.widget_categories_container, View.VISIBLE);
-        }
-        // Show recent transactions on tall widgets
-        if (minHeight >= 160) {
-            views.setViewVisibility(R.id.widget_transactions_container, View.VISIBLE);
-        }
+        // Hide individual transaction rows by default
+        views.setViewVisibility(R.id.widget_tx_1, View.GONE);
+        views.setViewVisibility(R.id.widget_tx_2, View.GONE);
+        views.setViewVisibility(R.id.widget_tx_3, View.GONE);
+        views.setViewVisibility(R.id.widget_tx_4, View.GONE);
+        views.setViewVisibility(R.id.widget_tx_5, View.GONE);
+        views.setViewVisibility(R.id.widget_tx_6, View.GONE);
 
         // Load data from SharedPreferences
         SharedPreferences sharedPref = context.getSharedPreferences("BuckfloWidgetPrefs", Context.MODE_PRIVATE);
@@ -94,39 +65,73 @@ public class BuckfloWidgetProvider extends AppWidgetProvider {
         try {
             JSONObject data = new JSONObject(dataStr);
 
-            // Total spent
-            String totalSpent = data.optString("totalSpent", "₹0");
-            views.setTextViewText(R.id.widget_total_spent, totalSpent);
+            // Adaptive Currency
+            String totalSpentFull = data.optString("totalSpentFull", "₹0");
+            String totalSpentCompact = data.optString("totalSpentCompact", "₹0");
+            String totalSpentMicro = data.optString("totalSpentMicro", "₹0");
+            
+            String totalSpent = totalSpentFull;
 
-            // Top categories
-            JSONArray categories = data.optJSONArray("topCategories");
-            if (categories != null && categories.length() >= 1) {
-                views.setTextViewText(R.id.widget_cat_1, categories.getString(0));
-            }
-            if (categories != null && categories.length() >= 2) {
-                views.setTextViewText(R.id.widget_cat_2, categories.getString(1));
-            }
+            // Determine which layout to show based on height
+            if (minHeight < 90) {
+                // COMPACT LAYOUT (1x1, 2x1)
+                views.setViewVisibility(R.id.layout_compact, View.VISIBLE);
+                views.setViewVisibility(R.id.layout_standard, View.GONE);
+                
+                // Shorten label to save horizontal space
+                views.setTextViewText(R.id.widget_label_compact, "BALANCE");
 
-            // Recent transactions
-            JSONArray txs = data.optJSONArray("recentTransactions");
-            if (txs != null) {
-                if (txs.length() > 0) views.setTextViewText(R.id.widget_tx_1, txs.getString(0));
-                if (txs.length() > 1) views.setTextViewText(R.id.widget_tx_2, txs.getString(1));
-                if (txs.length() > 2) views.setTextViewText(R.id.widget_tx_3, txs.getString(2));
-                if (txs.length() > 3) views.setTextViewText(R.id.widget_tx_4, txs.getString(3));
-                if (txs.length() > 4) views.setTextViewText(R.id.widget_tx_5, txs.getString(4));
-                if (txs.length() > 5) views.setTextViewText(R.id.widget_tx_6, txs.getString(5));
-            }
+                // For tiny width, use Micro string
+                if (minWidth < 120) {
+                    totalSpent = totalSpentMicro;
+                } else if (totalSpentFull.length() > 8) {
+                    totalSpent = totalSpentCompact;
+                }
 
-            // Progress bar: show fill only when budget is set (spentPercent > 0)
-            int spentPercent = Math.max(0, Math.min(100, data.optInt("spentPercent", 0)));
-            if (spentPercent > 0) {
-                views.setViewVisibility(R.id.widget_progress_fill, View.VISIBLE);
-                // Pick danger vs normal fill
-                int fillDrawable = spentPercent > 85
-                        ? R.drawable.widget_progress_fill_danger
-                        : R.drawable.widget_progress_fill;
-                views.setImageViewResource(R.id.widget_progress_fill, fillDrawable);
+                views.setTextViewText(R.id.widget_total_spent_compact, totalSpent);
+
+            } else {
+                // STANDARD LAYOUT (2x2+)
+                views.setViewVisibility(R.id.layout_compact, View.GONE);
+                views.setViewVisibility(R.id.layout_standard, View.VISIBLE);
+
+                if (minWidth < 180 && totalSpentFull.length() > 8) {
+                    totalSpent = totalSpentCompact;
+                }
+
+                views.setTextViewText(R.id.widget_total_spent_standard, totalSpent);
+
+                // Progress bar
+                int spentPercent = Math.max(0, Math.min(100, data.optInt("spentPercent", 0)));
+                views.setViewVisibility(R.id.widget_progress_normal, View.GONE);
+                views.setViewVisibility(R.id.widget_progress_danger, View.GONE);
+                if (spentPercent > 85) {
+                    views.setViewVisibility(R.id.widget_progress_danger, View.VISIBLE);
+                    views.setProgressBar(R.id.widget_progress_danger, 100, spentPercent, false);
+                } else {
+                    views.setViewVisibility(R.id.widget_progress_normal, View.VISIBLE);
+                    views.setProgressBar(R.id.widget_progress_normal, 100, spentPercent, false);
+                }
+
+                // Recent transactions (Show only if minHeight >= 160)
+                int maxTxs = 0;
+                if (minHeight >= 160 && minHeight < 220) maxTxs = 3;
+                else if (minHeight >= 220) maxTxs = 6;
+
+                if (maxTxs > 0) {
+                    views.setViewVisibility(R.id.widget_transactions_container, View.VISIBLE);
+                    JSONArray txs = data.optJSONArray("recentTransactions");
+                    if (txs != null) {
+                        if (maxTxs > 0 && txs.length() > 0) { views.setViewVisibility(R.id.widget_tx_1, View.VISIBLE); views.setTextViewText(R.id.widget_tx_1, txs.getString(0)); }
+                        if (maxTxs > 1 && txs.length() > 1) { views.setViewVisibility(R.id.widget_tx_2, View.VISIBLE); views.setTextViewText(R.id.widget_tx_2, txs.getString(1)); }
+                        if (maxTxs > 2 && txs.length() > 2) { views.setViewVisibility(R.id.widget_tx_3, View.VISIBLE); views.setTextViewText(R.id.widget_tx_3, txs.getString(2)); }
+                        if (maxTxs > 3 && txs.length() > 3) { views.setViewVisibility(R.id.widget_tx_4, View.VISIBLE); views.setTextViewText(R.id.widget_tx_4, txs.getString(3)); }
+                        if (maxTxs > 4 && txs.length() > 4) { views.setViewVisibility(R.id.widget_tx_5, View.VISIBLE); views.setTextViewText(R.id.widget_tx_5, txs.getString(4)); }
+                        if (maxTxs > 5 && txs.length() > 5) { views.setViewVisibility(R.id.widget_tx_6, View.VISIBLE); views.setTextViewText(R.id.widget_tx_6, txs.getString(5)); }
+                    }
+                } else {
+                    views.setViewVisibility(R.id.widget_transactions_container, View.GONE);
+                }
             }
 
         } catch (Exception e) {
@@ -139,7 +144,10 @@ public class BuckfloWidgetProvider extends AppWidgetProvider {
         launchIntent.putExtra("widget_action", "add_transaction");
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, launchIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        views.setOnClickPendingIntent(R.id.widget_add_btn, pendingIntent);
+        
+        // Assign intent to both possible FABs
+        views.setOnClickPendingIntent(R.id.widget_add_btn_compact, pendingIntent);
+        views.setOnClickPendingIntent(R.id.widget_add_btn_standard, pendingIntent);
 
         // Tap widget body to open app
         PendingIntent appIntent = PendingIntent.getActivity(context, 1,

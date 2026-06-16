@@ -8,6 +8,7 @@ import { useCategories } from "../../hooks/useCategories";
 import { updateSheetOpenState } from "../../utils/modalHelper";
 import { useBackHandler } from "../../hooks/useBackHandler";
 import toast from "react-hot-toast";
+import { CurrencyInput } from "../ui/CurrencyInput";
 
 interface CreatePresetSheetProps {
   isOpen: boolean;
@@ -185,15 +186,11 @@ export function CreatePresetSheet({
             <label className="label" htmlFor="preset-amount">
               Amount
             </label>
-            <input
+            <CurrencyInput
               id="preset-amount"
-              type="number"
-              inputMode="decimal"
-              step="0.01"
-              min="0.01"
               placeholder="0"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(val) => setAmount(val)}
               className="input-field"
               required
             />

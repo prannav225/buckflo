@@ -2,6 +2,7 @@ import { registerPlugin, Capacitor } from "@capacitor/core";
 import { db } from "../db/core";
 import { formatCurrency } from "../utils/currency";
 import type { Transaction } from "../db/schema";
+import { getSpendingWallet } from "../db/queries";
 
 export interface WidgetDataPlugin {
   setWidgetData(options: { data: string }): Promise<void>;
@@ -20,6 +21,8 @@ export const checkWidgetIntent = async () => {
   }
 };
 
+let syncTimeout: number | null = null;
+
 export const syncWidgetData = async () => {
   if (Capacitor.getPlatform() !== "android") return;
 
@@ -37,19 +40,7 @@ export const syncWidgetData = async () => {
       .filter((t: Transaction) => t.type === "debit")
       .reduce((sum: number, t: Transaction) => sum + t.amount, 0);
 
-    // 2. Get Top 2 Categories
-    const catTotals = monthlyTxs
-      .filter((t: Transaction) => t.type === "debit")
-      .reduce((acc: Record<string, number>, t: Transaction) => {
-        const cat = t.category || "Other";
-        acc[cat] = (acc[cat] || 0) + t.amount;
-        return acc;
-      }, {});
 
-    const topCategories = Object.entries(catTotals)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 2)
-      .map(([cat]) => cat);
 
     // 3. Get Recent 6 Transactions
     const recentTxs = await db.transactions
@@ -98,13 +89,31 @@ export const syncWidgetData = async () => {
       /* No profile/budget set */
     }
 
-    // 6. Send to Android
+    const spendingAcc = await getSpendingWallet();
+    const spendingBalance = spendingAcc?.currentBalance ?? 0;
+
+    // 6. Calculate last 7 days activity (Pixel Heatmap)
+    const last7Days: boolean[] = [];
+    const last7DayNames: string[] = [];
+    const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i);
+      const dateStr = d.toISOString().split("T")[0];
+      last7Days.push(uniqueDates.includes(dateStr));
+      last7DayNames.push(dayNames[d.getDay()]);
+    }
+
+    // 7. Send to Android
     const payload = {
-      totalSpent: formatCurrency(totalSpent),
+      totalSpentFull: formatCurrency(spendingBalance, 2, 100000000), // Won't truncate until 10 Cr
+      totalSpentCompact: formatCurrency(spendingBalance, 2, 10000), // Truncates at 10k+ (e.g. 10k, 1L)
+      totalSpentMicro: formatCurrency(spendingBalance, 0, 1000), // Aggressive truncation, no decimals (e.g. 9k, 1L)
       spentPercent,
       streakCount,
-      topCategories,
       recentTransactions: recentFormatted,
+      last7Days,
+      last7DayNames,
     };
 
     await WidgetData.setWidgetData({ data: JSON.stringify(payload) });
@@ -112,4 +121,31 @@ export const syncWidgetData = async () => {
   } catch (error) {
     console.error("Failed to sync widget data", error);
   }
+};
+
+export const triggerWidgetSync = () => {
+  if (syncTimeout) {
+    window.clearTimeout(syncTimeout);
+  }
+  syncTimeout = window.setTimeout(() => {
+    syncWidgetData();
+  }, 1000); // Debounce for 1 second
+};
+
+export const setupWidgetSyncHooks = () => {
+  if (Capacitor.getPlatform() !== "android") return;
+
+  const tables = ["transactions", "accounts", "profile"] as const;
+  tables.forEach((tableName) => {
+    const table = db.table(tableName);
+    table.hook("creating", function (_primKey, _obj, trans) {
+      trans.on("complete", triggerWidgetSync);
+    });
+    table.hook("updating", function (_mods, _primKey, _obj, trans) {
+      trans.on("complete", triggerWidgetSync);
+    });
+    table.hook("deleting", function (_primKey, _obj, trans) {
+      trans.on("complete", triggerWidgetSync);
+    });
+  });
 };

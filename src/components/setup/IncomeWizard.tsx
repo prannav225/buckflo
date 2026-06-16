@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ArrowLeft, ChevronRight, Target } from "lucide-react";
 import { DueDatePicker } from "../ui/DueDatePicker";
+import { CurrencyInput } from "../ui/CurrencyInput";
 import { updateSheetOpenState } from "../../utils/modalHelper";
 import { useProfile } from "../../hooks/useProfile";
 import { getCurrentMonthYear } from "../../utils/dateUtils";
@@ -192,21 +193,6 @@ export function IncomeWizard({
     setNewCatName("");
   };
 
-  const formatInputText = (value: string) => {
-    const cleanValue = value.replace(/[^0-9]/g, "");
-    if (!cleanValue) return "";
-    const num = parseInt(cleanValue, 10);
-    if (isNaN(num)) return "";
-    return new Intl.NumberFormat("en-IN").format(num);
-  };
-
-  const handleMoneyInputChange = (
-    value: string,
-    setter: (v: string) => void,
-  ) => {
-    const formatted = formatInputText(value);
-    setter(formatted);
-  };
 
   const calculateTotalBudget = () => {
     return Object.values(catBudgets).reduce(
@@ -381,14 +367,10 @@ export function IncomeWizard({
               <span className="absolute left-0 bottom-4 text-2xl sm:text-3xl text-(--text-muted) font-light">
                 ₹
               </span>
-              <input
-                type="text"
-                inputMode="decimal"
+              <CurrencyInput
                 placeholder="0"
                 value={income}
-                onChange={(e) =>
-                  handleMoneyInputChange(e.target.value, setIncome)
-                }
+                onChange={(val) => setIncome(val)}
                 className="w-full bg-transparent border-b-2 border-black/10 dark:border-white/10 text-5xl! font-display font-medium pl-4 pb-3 focus:border-(--accent) outline-none transition-colors text-(--text)"
                 autoFocus
               />
@@ -440,18 +422,14 @@ export function IncomeWizard({
                       <span className="text-lg text-(--text-muted) mr-1">
                         ₹
                       </span>
-                      <input
-                        type="text"
-                        inputMode="decimal"
+                      <CurrencyInput
                         placeholder="0"
                         value={catBudgets[cat] || ""}
-                        onChange={(e) =>
-                          handleMoneyInputChange(e.target.value, (formatted) =>
-                            setCatBudgets((prev) => ({
-                              ...prev,
-                              [cat]: formatted,
-                            })),
-                          )
+                        onChange={(val) =>
+                          setCatBudgets((prev) => ({
+                            ...prev,
+                            [cat]: val,
+                          }))
                         }
                         className="w-full sm:w-24 bg-transparent border-none text-xl font-semibold text-right outline-none placeholder:text-black/20 dark:placeholder:text-white/20 text-(--text)"
                       />
@@ -594,19 +572,12 @@ export function IncomeWizard({
                       </span>
                       <div className="flex items-center text-xl font-semibold text-(--text) w-full justify-end">
                         <span className="text-(--text-muted) mr-1">₹</span>
-                        <input
-                          type="text"
-                          inputMode="decimal"
+                        <CurrencyInput
                           placeholder={new Intl.NumberFormat("en-IN").format(
                             leftoverAmount,
                           )}
                           value={savingsSplitAmount}
-                          onChange={(e) =>
-                            handleMoneyInputChange(
-                              e.target.value,
-                              setSavingsSplitAmount,
-                            )
-                          }
+                          onChange={(val) => setSavingsSplitAmount(val)}
                           className="bg-transparent border-none outline-none w-full sm:w-32 text-right font-semibold text-xl text-(--text)"
                           autoFocus
                         />
@@ -718,14 +689,10 @@ export function IncomeWizard({
                 <span className="absolute left-0 bottom-3 text-2xl text-(--text-muted) font-light">
                   ₹
                 </span>
-                <input
-                  type="text"
-                  inputMode="decimal"
+                <CurrencyInput
                   placeholder="0"
                   value={manualSpendingBal}
-                  onChange={(e) =>
-                    handleMoneyInputChange(e.target.value, setManualSpendingBal)
-                  }
+                  onChange={(val) => setManualSpendingBal(val)}
                   className="w-full bg-transparent border-b-2 border-black/10 dark:border-white/10 text-3xl! font-display font-light! text-left pl-4 pb-3 focus:border-(--accent) outline-none transition-colors text-(--text)"
                   autoFocus
                 />
@@ -743,14 +710,10 @@ export function IncomeWizard({
                 <span className="absolute left-0 bottom-3 text-2xl text-(--text-muted) font-light">
                   ₹
                 </span>
-                <input
-                  type="text"
-                  inputMode="decimal"
+                <CurrencyInput
                   placeholder="0"
                   value={manualSavingsBal}
-                  onChange={(e) =>
-                    handleMoneyInputChange(e.target.value, setManualSavingsBal)
-                  }
+                  onChange={(val) => setManualSavingsBal(val)}
                   className="w-full bg-transparent border-b-2 border-black/10 dark:border-white/10 text-3xl! font-display font-light! text-left pl-4 pb-3 focus:border-(--accent) outline-none transition-colors text-(--text)"
                 />
               </div>

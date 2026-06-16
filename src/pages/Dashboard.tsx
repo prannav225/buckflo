@@ -239,7 +239,7 @@ export function Dashboard() {
             </p>
           </div>
           <DashboardHeroCard
-            balance={summary.closingBalance}
+            balance={spendingAcc?.currentBalance ?? 0}
             monthSetup={monthSetup}
             monthYear={monthYear}
             spent={spent}

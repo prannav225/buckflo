@@ -32,29 +32,24 @@ public class StreakWidgetProvider extends AppWidgetProvider {
         int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 40);
         float density = context.getResources().getDisplayMetrics().density;
 
-        // Dynamic padding and sizing
-        if (minHeight < 70) {
-            views.setViewPadding(R.id.widget_streak_root, (int)(12*density), (int)(8*density), (int)(12*density), (int)(8*density));
-            views.setTextViewTextSize(R.id.widget_streak_count, android.util.TypedValue.COMPLEX_UNIT_SP, 24);
+        // Adaptive visibility based on widget height/width
+        if (minHeight < 80) {
+            // Micro: Just flame and numbers. Padding tightened.
+            views.setViewPadding(R.id.widget_streak_root, (int)(16*density), (int)(12*density), (int)(16*density), (int)(12*density));
+            views.setViewVisibility(R.id.widget_streak_heatmap_container, android.view.View.GONE);
         } else {
+            // Full: Flame + numbers + Heatmap
             int ph = (int) context.getResources().getDimension(R.dimen.widget_padding_horizontal);
             int pv = (int) context.getResources().getDimension(R.dimen.widget_padding_vertical);
             views.setViewPadding(R.id.widget_streak_root, ph, pv, ph, pv);
-            views.setTextViewTextSize(R.id.widget_streak_count, android.util.TypedValue.COMPLEX_UNIT_SP, 32);
-        }
-        
-        // Show extra content on taller widgets
-        if (minHeight >= 100) {
-            views.setViewVisibility(R.id.widget_streak_extra_container, android.view.View.VISIBLE);
-        } else {
-            views.setViewVisibility(R.id.widget_streak_extra_container, android.view.View.GONE);
-        }
-
-        // Show weekly progress on large square widgets (2x2 or bigger)
-        if (minHeight >= 100 && minWidth >= 110) {
-            views.setViewVisibility(R.id.widget_streak_weekly_container, android.view.View.VISIBLE);
-        } else {
-            views.setViewVisibility(R.id.widget_streak_weekly_container, android.view.View.GONE);
+            views.setViewVisibility(R.id.widget_streak_heatmap_container, android.view.View.VISIBLE);
+            
+            // If it's quite wide, we can optionally hide day labels to save vertical space if it's tight
+            if (minHeight < 110) {
+                views.setViewVisibility(R.id.widget_streak_day_labels, android.view.View.GONE);
+            } else {
+                views.setViewVisibility(R.id.widget_streak_day_labels, android.view.View.VISIBLE);
+            }
         }
 
         // Streak widget uses the dark/surface card background (like Savings Wallet)
@@ -72,21 +67,38 @@ public class StreakWidgetProvider extends AppWidgetProvider {
             
             if (streakCount == 0) {
                 views.setImageViewResource(R.id.widget_streak_icon, R.drawable.ic_pixel_flame_inactive);
-                views.setTextViewText(R.id.widget_streak_message, "Start your journey today! Log an expense to begin your streak.");
-                views.setTextViewText(R.id.widget_streak_dot, "○");
-                views.setTextColor(R.id.widget_streak_dot, context.getColor(R.color.widget_text_label));
-                // Remove glow in inactive state
-                views.setInt(R.id.widget_streak_icon_container, "setBackgroundResource", R.drawable.widget_pill_bg);
             } else {
                 views.setImageViewResource(R.id.widget_streak_icon, R.drawable.ic_pixel_flame_active);
-                String msg = streakCount > 5 ? "You're on fire! " + streakCount + " days and counting." : "Great job! Keep the momentum going.";
-                views.setTextViewText(R.id.widget_streak_message, msg);
-                views.setTextViewText(R.id.widget_streak_dot, "●");
-                views.setTextColor(R.id.widget_streak_dot, context.getColor(R.color.widget_success));
-                
-                // Add a glowing background to the fire icon when active
-                views.setInt(R.id.widget_streak_icon_container, "setBackgroundResource", R.drawable.widget_accent_card);
             }
+
+            // Parse last7Days and last7DayNames for Pixel Heatmap
+            org.json.JSONArray last7Days = data.optJSONArray("last7Days");
+            org.json.JSONArray last7DayNames = data.optJSONArray("last7DayNames");
+            
+            if (last7Days != null && last7Days.length() >= 7) {
+                int[] dayIds = {
+                    R.id.widget_streak_day_1, R.id.widget_streak_day_2,
+                    R.id.widget_streak_day_3, R.id.widget_streak_day_4,
+                    R.id.widget_streak_day_5, R.id.widget_streak_day_6,
+                    R.id.widget_streak_day_7
+                };
+                int[] labelIds = {
+                    R.id.widget_streak_label_1, R.id.widget_streak_label_2,
+                    R.id.widget_streak_label_3, R.id.widget_streak_label_4,
+                    R.id.widget_streak_label_5, R.id.widget_streak_label_6,
+                    R.id.widget_streak_label_7
+                };
+                
+                for (int i = 0; i < 7; i++) {
+                    boolean active = last7Days.optBoolean(i, false);
+                    views.setImageViewResource(dayIds[i], active ? R.drawable.widget_pixel_active : R.drawable.widget_pixel_inactive);
+                    
+                    if (last7DayNames != null && last7DayNames.length() > i) {
+                        views.setTextViewText(labelIds[i], last7DayNames.getString(i));
+                    }
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,120 +1,264 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_root"
+<?xml version="1.0" encoding="utf-8" ?>
+<FrameLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/widget_root"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/widget_background"
+  android:paddingLeft="@dimen/widget_padding_horizontal"
+  android:paddingRight="@dimen/widget_padding_horizontal"
+  android:paddingTop="@dimen/widget_padding_vertical"
+  android:paddingBottom="@dimen/widget_padding_vertical"
+>
+
+    <!-- ============================================== -->
+    <!-- COMPACT LAYOUT (For 1x1, 2x1 wide-but-short) -->
+    <!-- ============================================== -->
+    <RelativeLayout
+    android:id="@+id/layout_compact"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_accent_card"
-    android:orientation="vertical"
-    android:gravity="center_vertical"
-    android:paddingLeft="@dimen/widget_padding_horizontal"
-    android:paddingRight="@dimen/widget_padding_horizontal"
-    android:paddingTop="@dimen/widget_padding_vertical"
-    android:paddingBottom="@dimen/widget_padding_vertical">
+    android:visibility="gone"
+  >
 
-    <!-- HEADER: Label and Add button -->
-    <LinearLayout
-        android:id="@+id/widget_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layout_marginBottom="@dimen/widget_gap_xs">
-
-        <TextView
-            android:id="@+id/widget_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="SPENDING BALANCE"
-            android:textColor="#B3FFFFFF"
-            android:textSize="@dimen/widget_text_label"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.1"
-            android:textAllCaps="true" />
-
+        <!-- Floating Action Button (Far Right) -->
         <ImageView
-            android:id="@+id/widget_add_btn"
-            android:layout_width="@dimen/widget_btn_size"
-            android:layout_height="@dimen/widget_btn_size"
-            android:background="@drawable/widget_pill_bg"
-            android:src="@drawable/ic_add_white"
-            android:padding="@dimen/widget_btn_padding"
-            android:contentDescription="Add Transaction" />
-    </LinearLayout>
+      android:id="@+id/widget_add_btn_compact"
+      android:layout_width="32dp"
+      android:layout_height="32dp"
+      android:layout_alignParentRight="true"
+      android:layout_centerVertical="true"
+      android:background="@drawable/widget_fab_bg"
+      android:src="@drawable/ic_add_white"
+      android:padding="8dp"
+      android:contentDescription="Add Transaction"
+    />
 
-    <!-- MAIN AMOUNT -->
-    <TextView
-        android:id="@+id/widget_total_spent"
+        <!-- Text Content (Vertically Centered on Left) -->
+        <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_toLeftOf="@id/widget_add_btn_compact"
+      android:layout_centerVertical="true"
+      android:orientation="vertical"
+      android:layout_marginRight="12dp"
+    >
+
+            <TextView
+        android:id="@+id/widget_label_compact"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SPENDING BALANCE"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.15"
+        android:singleLine="true"
+        android:textAllCaps="true"
+      />
+
+            <TextView
+        android:id="@+id/widget_total_spent_compact"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="₹0"
-        android:textColor="#FFFFFF"
-        android:textSize="@dimen/widget_text_amount"
+        android:textColor="@color/widget_text_primary"
         android:fontFamily="serif"
-        android:includeFontPadding="false" />
+        android:includeFontPadding="false"
+        android:singleLine="true"
+        android:layout_marginTop="-2dp"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMinTextSize="14sp"
+        android:autoSizeMaxTextSize="32sp"
+        android:autoSizeStepGranularity="1sp"
+      />
+        </LinearLayout>
+    </RelativeLayout>
 
-    <!-- PROGRESS BAR: Thin line style from app -->
-    <FrameLayout
-        android:id="@+id/widget_progress_container"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="#33FFFFFF"
-        android:layout_marginTop="@dimen/widget_gap_md">
 
-        <ImageView
-            android:id="@+id/widget_progress_fill"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FFFFFF"
-            android:visibility="gone" />
-    </FrameLayout>
+    <!-- ============================================== -->
+    <!-- STANDARD LAYOUT (For 2x2, 2x3, 4x4 etc)        -->
+    <!-- ============================================== -->
+    <LinearLayout
+    android:id="@+id/layout_standard"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:visibility="visible"
+  >
 
-    <!-- SPENT LABEL -->
-    <TextView
-        android:id="@+id/widget_spent_label"
+        <!-- HEADER: Label (Left) and FAB (Right) -->
+        <RelativeLayout
+      android:id="@+id/widget_header_row_standard"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+    >
+
+            <TextView
+        android:id="@+id/widget_label_standard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/widget_gap_sm"
-        android:text="spent this month"
-        android:textColor="#CCFFFFFF"
-        android:textSize="@dimen/widget_text_label"
-        android:fontFamily="sans-serif" />
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/widget_add_btn_standard"
+        android:text="SPENDING BALANCE"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.15"
+        android:singleLine="true"
+        android:textAllCaps="true"
+      />
 
-    <!-- CONTENT CONTAINER: Categories and Transactions (Shown on larger sizes) -->
-    <LinearLayout
-        android:id="@+id/widget_content_container"
+            <ImageView
+        android:id="@+id/widget_add_btn_standard"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/widget_fab_bg"
+        android:src="@drawable/ic_add_white"
+        android:padding="8dp"
+        android:contentDescription="Add Transaction"
+      />
+        </RelativeLayout>
+
+        <!-- FLEXIBLE MIDDLE AREA: Perfectly Centers Amount + Progress if no Txs -->
+        <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"
+      android:gravity="center_vertical"
+      android:orientation="vertical"
+    >
+
+            <!-- MASSIVE AMOUNT -->
+            <TextView
+        android:id="@+id/widget_total_spent_standard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="₹0"
+        android:textColor="@color/widget_text_primary"
+        android:fontFamily="serif"
+        android:includeFontPadding="false"
+        android:singleLine="true"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMinTextSize="18sp"
+        android:autoSizeMaxTextSize="40sp"
+        android:autoSizeStepGranularity="1sp"
+      />
+
+            <!-- PROGRESS BAR AREA -->
+            <LinearLayout
+        android:id="@+id/widget_progress_area_standard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="12dp">
+        android:layout_marginTop="8dp"
+      >
 
-        <!-- CATEGORIES -->
-        <LinearLayout
-            android:id="@+id/widget_categories_container"
+                <FrameLayout
+          android:id="@+id/widget_progress_container"
+          android:layout_width="match_parent"
+          android:layout_height="6dp"
+        >
+                    <ProgressBar
+            android:id="@+id/widget_progress_normal"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-            <!-- (Logic from previous design but simplified for accent card) -->
-            <TextView android:id="@+id/widget_cat_1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#B3FFFFFF" android:textSize="@dimen/widget_text_category" android:layout_marginBottom="@dimen/widget_gap_xs" />
-            <TextView android:id="@+id/widget_cat_2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#B3FFFFFF" android:textSize="@dimen/widget_text_category" />
+            android:layout_height="match_parent"
+            android:max="100"
+            android:progressDrawable="@drawable/widget_progress_bar_normal"
+            android:visibility="gone"
+          />
+                    <ProgressBar
+            android:id="@+id/widget_progress_danger"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:max="100"
+            android:progressDrawable="@drawable/widget_progress_bar_danger"
+            android:visibility="gone"
+          />
+                </FrameLayout>
+
+                <TextView
+          android:id="@+id/widget_spent_label"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="6dp"
+          android:text="Available to Spend"
+          android:textColor="@color/widget_text_secondary"
+          android:textSize="12sp"
+          android:fontFamily="sans-serif"
+        />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- TRANSACTIONS -->
+        <!-- RECENT TRANSACTIONS (Shown on large widgets only) -->
         <LinearLayout
-            android:id="@+id/widget_transactions_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="@dimen/widget_gap_sm"
-            android:visibility="gone">
-            <TextView android:id="@+id/widget_tx_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
-            <TextView android:id="@+id/widget_tx_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
-            <TextView android:id="@+id/widget_tx_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
-            <TextView android:id="@+id/widget_tx_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
-            <TextView android:id="@+id/widget_tx_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" android:layout_marginBottom="@dimen/widget_gap_xs" />
-            <TextView android:id="@+id/widget_tx_6" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#99FFFFFF" android:textSize="@dimen/widget_text_tx" android:singleLine="true" />
+      android:id="@+id/widget_transactions_container"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:layout_marginTop="12dp"
+      android:visibility="gone"
+    >
+            <TextView
+        android:id="@+id/widget_tx_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/widget_text_secondary"
+        android:textSize="12sp"
+        android:singleLine="true"
+        android:layout_marginBottom="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_tx_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/widget_text_secondary"
+        android:textSize="12sp"
+        android:singleLine="true"
+        android:layout_marginBottom="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_tx_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/widget_text_secondary"
+        android:textSize="12sp"
+        android:singleLine="true"
+        android:layout_marginBottom="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_tx_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/widget_text_secondary"
+        android:textSize="12sp"
+        android:singleLine="true"
+        android:layout_marginBottom="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_tx_5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/widget_text_secondary"
+        android:textSize="12sp"
+        android:singleLine="true"
+        android:layout_marginBottom="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_tx_6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/widget_text_secondary"
+        android:textSize="12sp"
+        android:singleLine="true"
+      />
         </LinearLayout>
+
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

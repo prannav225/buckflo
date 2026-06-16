@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+import { CurrencyInput } from "../../ui/CurrencyInput";
 
 interface TransactionAmountCardProps {
   type: "debit" | "credit";
@@ -53,15 +54,11 @@ export function TransactionAmountCard({
         >
           ₹
         </span>
-        <input
+        <CurrencyInput
           id="page-tx-amount"
           ref={amountInputRef}
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0.01"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(val) => setAmount(val)}
           placeholder="0"
           required
           className={`bg-transparent border-none outline-none text-[clamp(2.25rem,10vw,3rem)] ${

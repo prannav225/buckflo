@@ -7,6 +7,7 @@ import { formatINR } from "../../utils/currency";
 import { useTransferForm } from "../../hooks/useTransferForm";
 import { SegmentedControl } from "../ui/SegmentedControl";
 import { useBackHandler } from "../../hooks/useBackHandler";
+import { CurrencyInput } from "../ui/CurrencyInput";
 
 interface TransferSheetProps {
   isOpen: boolean;
@@ -164,15 +165,12 @@ function TransferSheetContent({
               <span className="font-display text-3xl text-(--text-muted) leading-none pb-0.5 shrink-0">
                 ₹
               </span>
-              <input
+              <CurrencyInput
                 id="transfer-amount"
                 ref={inputRef}
-                type="number"
-                step="0.01"
-                min="0.01"
                 placeholder="0"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(val) => setAmount(val)}
                 required
                 className={`flex-1 border-none bg-transparent outline-none font-display text-4xl font-normal tracking-tight leading-normal py-2.5 w-full ${
                   parsedAmt > 0 ? "text-(--accent)" : "text-(--text-muted)"

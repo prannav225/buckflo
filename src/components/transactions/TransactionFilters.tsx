@@ -10,6 +10,7 @@ import {
 import { hapticFeedback } from "../../utils/haptics";
 import { useCategories } from "../../hooks/useCategories";
 import { CustomDropdown } from "../layout/CustomDropdown";
+import { CurrencyInput } from "../ui/CurrencyInput";
 
 interface TransactionFiltersProps {
   searchQuery: string;
@@ -201,12 +202,11 @@ export function TransactionFilters({
               </label>
               <div className="relative flex items-center">
                 <span className="absolute left-2.5 text-(--text-muted)">₹</span>
-                <input
-                  type="number"
+                <CurrencyInput
                   placeholder="Min"
                   value={minAmount}
-                  onChange={(e) => {
-                    setMinAmount(e.target.value);
+                  onChange={(val) => {
+                    setMinAmount(val);
                     onResetPage();
                   }}
                   className="w-full pl-6 pr-2 py-1.5 bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/6 rounded-xl outline-none text-(--text)"
@@ -219,12 +219,11 @@ export function TransactionFilters({
               </label>
               <div className="relative flex items-center">
                 <span className="absolute left-2.5 text-(--text-muted)">₹</span>
-                <input
-                  type="number"
+                <CurrencyInput
                   placeholder="Max"
                   value={maxAmount}
-                  onChange={(e) => {
-                    setMaxAmount(e.target.value);
+                  onChange={(val) => {
+                    setMaxAmount(val);
                     onResetPage();
                   }}
                   className="w-full pl-6 pr-2 py-1.5 bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/6 rounded-xl outline-none text-(--text)"

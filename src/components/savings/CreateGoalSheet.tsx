@@ -2,6 +2,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { formatINR } from "../../utils/currency";
 import { CustomDatePicker } from "../CustomDatePicker";
+import { CurrencyInput } from "../ui/CurrencyInput";
 import { useCreateGoal } from "../../hooks/useCreateGoal";
 import { useBackHandler } from "../../hooks/useBackHandler";
 
@@ -90,26 +91,20 @@ function CreateGoalSheetContent({
           <div className="grid grid-cols-2 gap-3">
             <div className="form-group">
               <span className="label">Target Amount (₹)</span>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
+              <CurrencyInput
                 placeholder="0"
                 value={targetAmount}
-                onChange={(e) => setTargetAmount(e.target.value)}
+                onChange={(val) => setTargetAmount(val)}
                 className="input-field"
                 required
               />
             </div>
             <div className="form-group">
               <span className="label">Initial Allocation (₹)</span>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
+              <CurrencyInput
                 placeholder="0"
                 value={initialAllocation}
-                onChange={(e) => setInitialAllocation(e.target.value)}
+                onChange={(val) => setInitialAllocation(val)}
                 className="input-field"
               />
             </div>

@@ -6,7 +6,7 @@ import { TooltipProvider } from "./context/TooltipContext";
 import { AppRoutes } from "./routes/AppRoutes";
 import { Analytics } from "@vercel/analytics/react";
 import { App as CapApp } from '@capacitor/app';
-import { syncWidgetData, checkWidgetIntent } from "./lib/widgetSync";
+import { syncWidgetData, checkWidgetIntent, setupWidgetSyncHooks } from "./lib/widgetSync";
 
 export function App() {
   useEffect(() => {
@@ -22,9 +22,9 @@ export function App() {
     };
     handleWidgetIntent();
 
-
     // Initial sync for Android Widget
     syncWidgetData();
+    setupWidgetSyncHooks();
 
     // Listen for app resume to check intents
     const resumeListener = CapApp.addListener('appStateChange', ({ isActive }) => {

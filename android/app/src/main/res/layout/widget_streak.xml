@@ -1,134 +1,221 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_streak_root"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/widget_background"
-    android:orientation="vertical"
-    android:gravity="center_vertical"
-    android:paddingLeft="@dimen/widget_padding_horizontal"
-    android:paddingRight="@dimen/widget_padding_horizontal"
-    android:paddingTop="@dimen/widget_padding_vertical"
-    android:paddingBottom="@dimen/widget_padding_vertical">
+<?xml version="1.0" encoding="utf-8" ?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/widget_streak_root"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/widget_background"
+  android:orientation="vertical"
+  android:gravity="center"
+  android:paddingLeft="@dimen/widget_padding_horizontal"
+  android:paddingRight="@dimen/widget_padding_horizontal"
+  android:paddingTop="@dimen/widget_padding_vertical"
+  android:paddingBottom="@dimen/widget_padding_vertical"
+>
 
-    <!-- PRIMARY ROW: Icon, Count, and Status -->
+    <!-- HERO SECTION (Flame + Count) -->
     <LinearLayout
-        android:id="@+id/widget_streak_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+    android:id="@+id/widget_streak_hero_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="8dp"
+  >
 
-        <!-- Pixel Flame Icon Container -->
-        <FrameLayout
-            android:id="@+id/widget_streak_icon_container"
-            android:layout_width="@dimen/widget_btn_size"
-            android:layout_height="@dimen/widget_btn_size"
-            android:background="@drawable/widget_pill_bg"
-            android:padding="@dimen/widget_btn_padding">
-            <ImageView
-                android:id="@+id/widget_streak_icon"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_pixel_flame_active"
-                android:scaleType="fitCenter" />
-        </FrameLayout>
+        <!-- Generative Flame directly on the background (No circle container) -->
+        <ImageView
+      android:id="@+id/widget_streak_icon"
+      android:layout_width="48dp"
+      android:layout_height="48dp"
+      android:src="@drawable/ic_pixel_flame_active"
+      android:scaleType="fitCenter"
+    />
 
+        <!-- Count & Label Stack -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="@dimen/widget_gap_md">
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:layout_marginStart="16dp"
+    >
 
             <TextView
-                android:id="@+id/widget_streak_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="serif"
-                android:singleLine="true"
-                android:text="0"
-                android:textColor="@color/widget_text_primary"
-                android:textSize="@dimen/widget_text_streak_count"
-                android:includeFontPadding="false" />
+        android:id="@+id/widget_streak_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="serif"
+        android:singleLine="true"
+        android:text="0"
+        android:textColor="@color/widget_text_primary"
+        android:textSize="42sp"
+        android:includeFontPadding="false"
+        android:layout_marginBottom="-4dp"
+      />
 
             <TextView
-                android:id="@+id/widget_streak_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="DAY STREAK"
-                android:textColor="@color/widget_text_label"
-                android:textSize="@dimen/widget_text_streak_label"
-                android:textAllCaps="true"
-                android:letterSpacing="0.1" />
+        android:id="@+id/widget_streak_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="DAY STREAK"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+        android:textAllCaps="true"
+        android:letterSpacing="0.15"
+      />
         </LinearLayout>
-
-        <!-- Status indicator -->
-        <TextView
-            android:id="@+id/widget_streak_dot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="●"
-            android:textColor="@color/widget_success"
-            android:textSize="@dimen/widget_dot_text_size" />
     </LinearLayout>
 
-    <!-- EXTRA CONTENT: Dynamically shown in Provider -->
+    <!-- DATA LAYER (Pixel Heatmap) -->
     <LinearLayout
-        android:id="@+id/widget_streak_extra_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="@dimen/widget_gap_md"
-        android:visibility="gone">
+    android:id="@+id/widget_streak_heatmap_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginTop="8dp"
+    android:visibility="gone"
+  >
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/widget_divider"
-            android:layout_marginBottom="@dimen/widget_gap_sm" />
-
-        <TextView
-            android:id="@+id/widget_streak_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Keep the momentum going!"
-            android:textColor="@color/widget_text_secondary"
-            android:textSize="@dimen/widget_text_label"
-            android:lineSpacingExtra="2dp"
-            android:fontFamily="sans-serif" />
-
-        <!-- WEEKLY DOTS -->
+        <!-- Pixels -->
         <LinearLayout
-            android:id="@+id/widget_streak_weekly_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="@dimen/widget_gap_sm"
-            android:gravity="center_horizontal"
-            android:visibility="gone">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●" android:textColor="@color/widget_success" android:textSize="12sp" android:layout_marginRight="8dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●" android:textColor="@color/widget_success" android:textSize="12sp" android:layout_marginRight="8dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●" android:textColor="@color/widget_success" android:textSize="12sp" android:layout_marginRight="8dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●" android:textColor="@color/widget_text_label" android:textSize="12sp" android:layout_marginRight="8dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●" android:textColor="@color/widget_text_label" android:textSize="12sp" android:layout_marginRight="8dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●" android:textColor="@color/widget_text_label" android:textSize="12sp" android:layout_marginRight="8dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●" android:textColor="@color/widget_text_label" android:textSize="12sp" />
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:gravity="center_horizontal"
+    >
+            <ImageView
+        android:id="@+id/widget_streak_day_1"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/widget_pixel_inactive"
+        android:layout_marginRight="4dp"
+      />
+            <ImageView
+        android:id="@+id/widget_streak_day_2"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/widget_pixel_inactive"
+        android:layout_marginRight="4dp"
+      />
+            <ImageView
+        android:id="@+id/widget_streak_day_3"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/widget_pixel_inactive"
+        android:layout_marginRight="4dp"
+      />
+            <ImageView
+        android:id="@+id/widget_streak_day_4"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/widget_pixel_inactive"
+        android:layout_marginRight="4dp"
+      />
+            <ImageView
+        android:id="@+id/widget_streak_day_5"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/widget_pixel_inactive"
+        android:layout_marginRight="4dp"
+      />
+            <ImageView
+        android:id="@+id/widget_streak_day_6"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/widget_pixel_inactive"
+        android:layout_marginRight="4dp"
+      />
+            <ImageView
+        android:id="@+id/widget_streak_day_7"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/widget_pixel_inactive"
+      />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/widget_streak_action_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Tap to log →"
-            android:textColor="@color/widget_accent"
-            android:textSize="10sp"
-            android:fontFamily="sans-serif-medium"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1" />
+        <!-- Labels -->
+        <LinearLayout
+      android:id="@+id/widget_streak_day_labels"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:gravity="center"
+      android:layout_marginTop="6dp"
+    >
+            
+            <!-- Using fixed width elements for exact alignment with the 16dp+4dp squares -->
+            <!-- 16dp block + 4dp margin = 20dp space per item. 16dp center. -->
+            <TextView
+        android:id="@+id/widget_streak_label_1"
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="M"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+        android:layout_marginRight="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_streak_label_2"
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="T"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+        android:layout_marginRight="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_streak_label_3"
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="W"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+        android:layout_marginRight="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_streak_label_4"
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="T"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+        android:layout_marginRight="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_streak_label_5"
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="F"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+        android:layout_marginRight="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_streak_label_6"
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="S"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+        android:layout_marginRight="4dp"
+      />
+            <TextView
+        android:id="@+id/widget_streak_label_7"
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="S"
+        android:textColor="@color/widget_text_label"
+        android:textSize="10sp"
+      />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

@@ -4,6 +4,7 @@ import { X, Trash2 } from "lucide-react";
 import { type SavingGoal } from "../../db/database";
 import { formatINR } from "../../utils/currency";
 import { CustomDatePicker } from "../CustomDatePicker";
+import { CurrencyInput } from "../ui/CurrencyInput";
 import { updateSheetOpenState } from "../../utils/modalHelper";
 import { useManageGoal } from "../../hooks/useManageGoal";
 import { todayISO } from "../../utils/dateUtils";
@@ -119,13 +120,10 @@ function ManageGoalSheetContent({
                 <span className="font-display text-2xl text-(--text-muted)">
                   ₹
                 </span>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
+                <CurrencyInput
                   placeholder="0"
                   value={allocated}
-                  onChange={(e) => setAllocated(e.target.value)}
+                  onChange={(val) => setAllocated(val)}
                   className="flex-1 border-none bg-transparent outline-none font-display text-3xl font-normal text-(--text) py-1.5 w-full"
                 />
               </div>
@@ -156,13 +154,10 @@ function ManageGoalSheetContent({
 
               <div className="form-group m-0!">
                 <span className="label">Target Amount (₹)</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
+                <CurrencyInput
                   placeholder="0"
                   value={targetAmount}
-                  onChange={(e) => setTargetAmount(e.target.value)}
+                  onChange={(val) => setTargetAmount(val)}
                   className="input-field"
                   required
                 />
