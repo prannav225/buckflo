@@ -24,6 +24,14 @@ async function init() {
 // Handle Android Hardware Back Button and DIY OTA Updates
   import('@capacitor/core').then(({ Capacitor }) => {
     if (Capacitor.isNativePlatform()) {
+      import('capacitor-plugin-safe-area').then(({ SafeArea }) => {
+        SafeArea.getSafeAreaInsets().then(({ insets }) => {
+          for (const [key, value] of Object.entries(insets)) {
+            document.documentElement.style.setProperty(`--safe-area-inset-${key}`, `${value}px`);
+          }
+        }).catch(console.error);
+      }).catch(console.error);
+
       import('@capgo/capacitor-updater').then(({ CapacitorUpdater }) => {
         CapacitorUpdater.notifyAppReady();
 

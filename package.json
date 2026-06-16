@@ -22,6 +22,7 @@
     "@capgo/capacitor-updater": "^8.49.1",
     "@vercel/analytics": "^2.0.1",
     "boring-avatars": "^2.0.4",
+    "capacitor-plugin-safe-area": "^5.0.0",
     "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",

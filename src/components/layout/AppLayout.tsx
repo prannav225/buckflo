@@ -35,9 +35,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Derive whether to show the prompt to avoid cascading renders in useEffect
   const showPermissionPrompt = Boolean(
     !permissionPromptDismissed &&
-    profile?.notificationsEnabled &&
-    !profile?.notificationPermissionAsked &&
-    isDefault,
+      profile?.notificationsEnabled &&
+      !profile?.notificationPermissionAsked &&
+      isDefault,
   );
 
   const handleEnableNotifications = async () => {
@@ -164,7 +164,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <>
           {isMainPage && (
             <div
-              className={`fixed top-0 left-0 right-0 h-[calc(80px+env(safe-area-inset-top,0))] z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              className={`fixed top-0 left-0 right-0 h-[calc(80px+var(--safe-area-inset-top,env(safe-area-inset-top,0px)))] z-99 pointer-events-none transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 scrolled ? "opacity-100" : "opacity-0"
               }`}
               style={{
@@ -174,7 +174,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             />
           )}
           {isMainPage && (
-            <header className="h-11 sticky top-0 z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-[720px] mx-auto w-full px-4 pt-[calc(16px+env(safe-area-inset-top,0))]">
+            <header className="sticky top-0 z-100 flex items-center justify-between bg-transparent pointer-events-none mb-6 transition-opacity duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-[720px] mx-auto w-full px-4 pt-[calc(16px+var(--safe-area-inset-top,env(safe-area-inset-top,0px)))]">
               {pathname === "/home" ? (
                 <button
                   onClick={() => window.location.reload()}
@@ -241,11 +241,10 @@ export function AppLayout({ children }: AppLayoutProps) {
           <main
             className={
               isMainPage
-                ? "pl-4 pr-4 pb-[calc(90px+env(safe-area-inset-bottom,0))] max-w-[720px] mx-auto w-full"
-                : "pt-[calc(16px+env(safe-area-inset-top,0))] pl-4 pr-4 pb-[calc(24px+env(safe-area-inset-bottom,0))] max-w-[720px] mx-auto w-full"
+                ? "pl-4 pr-4 pb-[calc(90px+var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))] max-w-[720px] mx-auto w-full"
+                : "pt-[calc(16px+var(--safe-area-inset-top,env(safe-area-inset-top,0px)))] pl-4 pr-4 pb-[calc(24px+var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))] max-w-[720px] mx-auto w-full"
             }
           >
-
             {/* PWA Install Banner */}
             {isInstallable && (
               <div className="flex items-center justify-between p-3 mb-6 rounded-xl bg-(--accent)/10 dark:bg-(--accent)/20 border border-(--accent)/20 fade-in-up">
@@ -312,7 +311,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           )}
         </>
       ) : isLegalPage ? (
-        <main className="pt-[calc(16px+env(safe-area-inset-top,0))] pl-4 pr-4 pb-[calc(24px+env(safe-area-inset-bottom,0))] max-w-[720px] mx-auto w-full">
+        <main className="pt-[calc(16px+var(--safe-area-inset-top,env(safe-area-inset-top,0px)))] pl-4 pr-4 pb-[calc(24px+var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))] max-w-[720px] mx-auto w-full">
           {children}
         </main>
       ) : (

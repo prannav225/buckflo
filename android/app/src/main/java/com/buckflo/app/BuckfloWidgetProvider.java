@@ -50,14 +50,6 @@ public class BuckfloWidgetProvider extends AppWidgetProvider {
         }
         views.setViewPadding(R.id.widget_root, ph, pv, ph, pv);
 
-        // Hide individual transaction rows by default
-        views.setViewVisibility(R.id.widget_tx_1, View.GONE);
-        views.setViewVisibility(R.id.widget_tx_2, View.GONE);
-        views.setViewVisibility(R.id.widget_tx_3, View.GONE);
-        views.setViewVisibility(R.id.widget_tx_4, View.GONE);
-        views.setViewVisibility(R.id.widget_tx_5, View.GONE);
-        views.setViewVisibility(R.id.widget_tx_6, View.GONE);
-
         // Load data from SharedPreferences
         SharedPreferences sharedPref = context.getSharedPreferences("BuckfloWidgetPrefs", Context.MODE_PRIVATE);
         String dataStr = sharedPref.getString("widget_data", "{}");
@@ -111,26 +103,6 @@ public class BuckfloWidgetProvider extends AppWidgetProvider {
                 } else {
                     views.setViewVisibility(R.id.widget_progress_normal, View.VISIBLE);
                     views.setProgressBar(R.id.widget_progress_normal, 100, spentPercent, false);
-                }
-
-                // Recent transactions (Show only if minHeight >= 160)
-                int maxTxs = 0;
-                if (minHeight >= 160 && minHeight < 220) maxTxs = 3;
-                else if (minHeight >= 220) maxTxs = 6;
-
-                if (maxTxs > 0) {
-                    views.setViewVisibility(R.id.widget_transactions_container, View.VISIBLE);
-                    JSONArray txs = data.optJSONArray("recentTransactions");
-                    if (txs != null) {
-                        if (maxTxs > 0 && txs.length() > 0) { views.setViewVisibility(R.id.widget_tx_1, View.VISIBLE); views.setTextViewText(R.id.widget_tx_1, txs.getString(0)); }
-                        if (maxTxs > 1 && txs.length() > 1) { views.setViewVisibility(R.id.widget_tx_2, View.VISIBLE); views.setTextViewText(R.id.widget_tx_2, txs.getString(1)); }
-                        if (maxTxs > 2 && txs.length() > 2) { views.setViewVisibility(R.id.widget_tx_3, View.VISIBLE); views.setTextViewText(R.id.widget_tx_3, txs.getString(2)); }
-                        if (maxTxs > 3 && txs.length() > 3) { views.setViewVisibility(R.id.widget_tx_4, View.VISIBLE); views.setTextViewText(R.id.widget_tx_4, txs.getString(3)); }
-                        if (maxTxs > 4 && txs.length() > 4) { views.setViewVisibility(R.id.widget_tx_5, View.VISIBLE); views.setTextViewText(R.id.widget_tx_5, txs.getString(4)); }
-                        if (maxTxs > 5 && txs.length() > 5) { views.setViewVisibility(R.id.widget_tx_6, View.VISIBLE); views.setTextViewText(R.id.widget_tx_6, txs.getString(5)); }
-                    }
-                } else {
-                    views.setViewVisibility(R.id.widget_transactions_container, View.GONE);
                 }
             }
 

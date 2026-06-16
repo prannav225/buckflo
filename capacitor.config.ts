@@ -1,9 +1,9 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'com.buckflo.app',
-  appName: 'buckflo',
-  webDir: 'dist',
+  appId: "com.buckflo.app",
+  appName: "Buckflo",
+  webDir: "dist",
   plugins: {
     StatusBar: {
       overlaysWebView: true,
@@ -13,12 +13,12 @@ const config: CapacitorConfig = {
       launchAutoHide: false,
       backgroundColor: "#1f1f1e",
       androidSplashResourceName: "splash",
-      androidScaleType: "CENTER_CROP"
+      androidScaleType: "CENTER_CROP",
     },
     CapacitorUpdater: {
       autoUpdate: false,
-    }
-  }
+    },
+  },
 };
 
 export default config;
