@@ -4,7 +4,12 @@ Welcome to the central technical documentation and knowledge base for **pocket_l
 
 This document details the application architecture, database schemas, custom hooks, smart analytical features, core flows, styling guidelines, and folder structure.
 
-> **Current Version:** `2.3.1`
+> Version pulled from package.json. Update manually if docs are out of sync.
+
+**Quick Reference:**
+- DB: Dexie.js (IndexedDB), singleton `FloDB` via `src/db/core.ts`
+- State: React hooks in `src/hooks/`, Dexie `useLiveQuery` for reactivity
+- Entry Point: `src/App.tsx` (contexts) → `src/routes/AppRoutes.tsx` (routing)
 
 ---
 
@@ -86,7 +91,25 @@ Below is the step-by-step operational guide for the application:
 
 ## 3. Interactive Directory Map
 
-The directory structure is organized logically into modules:
+### Part A: Core Folder Structure
+A visual high-level map of the codebase architecture:
+
+```
+/
+├── android/              # Capacitor Android project
+├── public/               # Static assets & manifest files
+├── src/
+│   ├── components/       # UI Components (layout, dashboard, UI controls, feature folders)
+│   ├── context/          # Global state contexts (Theme, Tooltip)
+│   ├── db/               # Dexie.js schema, core definitions, and database helper queries
+│   ├── hooks/            # Core React custom hooks (analytics, notification logic)
+│   ├── pages/            # Lazy-loaded route-level screen components
+│   ├── routes/           # AppRoutes mapping routes to screen pages
+│   └── utils/            # Shared utility functions (currency formats, seed data, haptics, CSVs)
+```
+
+### Part B: Deep Directory Dive
+The exhaustive directory structure organized by module:
 
 - `/` (Root): Configuration files (`package.json`, `tsconfig.json`, `vite.config.ts`, `vercel.json`, `capacitor.config.ts`) and entry points.
 - `/public/`: Static branding assets and web app manifestation files.
@@ -298,6 +321,15 @@ Data persistence relies on **IndexedDB** wrapped in Dexie. The database class is
   - _Schema_: `{ id?: number, title: string, message: string, type: 'info' | 'warning' | 'alert' | 'success' | 'danger', date: string, read: boolean, referenceId?: string }`
   - _Indexes_: `++id, type, date, read, referenceId`
 
+### Practical Example: Transaction Logging Flow
+
+1. **User Action:** The user logs a ₹500 coffee debit from the UI on the Spending wallet.
+2. **Method Execution:** The system calls `addTransaction()` with `{ date, amount: -500, type: 'debit', accountId: 1 }`.
+3. **Database Transaction:** A Dexie database transaction executes:
+   - Writes the new transaction record to the `transactions` table.
+   - Adjusts the `accounts` table record for the Spending wallet: `currentBalance -= 500`.
+4. **Reactivity & Render:** The `useLiveQuery` hook watching the `accounts` table triggers a re-evaluation of the active query, and the React UI dynamically re-renders to reflect the new wallet balance.
+
 ### Auto-Population & Seed Logic
 
 On `populate` (first-ever DB creation) and `ready` (every startup, guards via count check):
@@ -326,17 +358,17 @@ Powered by `useDatabaseSync`, loaded in `AppLayout.tsx` on startup:
 
 ### Database Upgrades & Version History
 
-| Version | Key Change |
-|---------|-----------|
-| v1 | Initial schema (accounts, monthSetups, transactions) |
-| v2 | Added `savingGoals` |
-| v3 | Added `subscriptions` |
-| v4 | Added `categories`, seeded defaults |
-| v5 | Added `presets`, extended subscriptions index |
-| v6 | Added `profile` |
-| v8 | Added `notifications` |
-| v9 | Upgraded accounts types to `spending`/`savings`; seeded profile notification fields |
-| v10 | Fixed `notificationsEnabled` default to `true` for upgrades |
+| Version | Key Change | Note / Context |
+|---------|------------|----------------|
+| v1 | Initial schema (accounts, monthSetups, transactions) | Base local-first table setup |
+| v2 | Added `savingGoals` | Enabled target tracking |
+| v3 | Added `subscriptions` | Enabled recurring bills engine |
+| v4 | Added `categories`, seeded defaults | Standardized category coloring |
+| v5 | Added `presets`, extended subscriptions index | Allowed quick preset mapping |
+| v6 | Added `profile` | Singleton table for persistent configuration |
+| v8 | Added `notifications` | Allowed persistent notification logs |
+| v9 | Upgraded accounts types to `spending`/`savings`; seeded profile notification fields | Dual-wallet isolation |
+| v10 | Fixed `notificationsEnabled` default to `true` for upgrades | Prevents old users from losing notification ability |
 
 ### Dexie Querying Limitations & Best Practices
 
@@ -350,7 +382,11 @@ Powered by `useDatabaseSync`, loaded in `AppLayout.tsx` on startup:
 
 ---
 
-## 5. Smart Features List
+## 5. Smart Features & Technical Implementations
+
+> The features below are architectural patterns that power buckflo's core 
+> capabilities (analytics, notifications, sync). Each is isolated to a specific 
+> hook or utility and can be understood independently.
 
 **buckflo** contains a collection of smart analytical engines inside [`src/hooks/analytics/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/analytics) and [`src/hooks/notifications/`](file:///Volumes/Mac%20T7/Projects/pocket_ledger/src/hooks/notifications):
 
@@ -358,6 +394,25 @@ Powered by `useDatabaseSync`, loaded in `AppLayout.tsx` on startup:
 > **Data Aggregation Rule (Analytics Isolation):** Across all analytical engines (Insights charts, Week-over-Week, Month-over-Month, Category Budgets, and Burn Rates), the application explicitly isolates two types of debits:
 > 1. **Wealth Accumulation**: Debit transactions with category `transfer`, `Transfer`, or `starting-transfer` are ignored. Moving funds to Savings is treated as wealth accumulation.
 > 2. **Committed Expenses**: Transactions with `isCommitted: true` are completely blacklisted from flexible spending algorithms. These parked funds are structurally walled off from all ledger math totals.
+
+### Why Committed Expenses ≠ Subscriptions (Architectural Clarity)
+
+**Committed Expenses**: Fixed monthly bills with a due day, linked to a specific month.
+- User explicitly marks as paid
+- Auto-logs transaction when marked paid
+- Stored in `MonthSetup.committedExpenses[]`
+- Examples: Rent (15th), Electric bill (10th), Loan payment (25th)
+
+**Subscriptions**: Auto-recurring charges with irregular cadences, independent of months.
+- Auto-detected or manually registered
+- Auto-logged via autopay engine on app launch
+- Stored in `subscriptions` table
+- Examples: Netflix (monthly), Gym (weekly), Insurance (6-months)
+
+**Why separate?**
+- Committed = *explicit monthly planning* (user decides per month)
+- Subscriptions = *discovered recurring patterns* (independent cycle)
+- Merging breaks analytics (is a skipped Netflix a "missed bill" alert?)
 
 ### 1. Frequent Presets Auto-Detection (`useFrequentPresets`)
 
@@ -625,7 +680,30 @@ The visual aesthetic is governed by [`src/index.css`](file:///Volumes/Mac%20T7/P
 
 - `AppRoutes.tsx` wraps each route in `.page-transition-tab` (main tabs) or `.page-transition-sheet` (sub-pages), driving entry animations.
 
-### 8. Route Architecture
+---
+
+## 9. Common Implementation Patterns & Gotchas
+
+### Dexie Querying: Index Everything
+If you add a new `.where()` query, it MUST have an index or Dexie will throw SchemaError.
+Use the "Filter Fallback Pattern": query via indexed field → `.toArray()` → JS `.filter()` for non-indexed fields.
+
+### Analytics Isolation: "Wealth Accumulation" Rule
+All charting/analytics hooks ignore `category === 'transfer'` transactions. 
+These are *wealth moves*, not *spending*. Accidentally including them breaks burn rate math.
+
+### Sheet Open State
+Always use `updateSheetOpenState()` when opening/closing modals.
+This adds `.sheet-open` to `<body>`, triggering the scale-dim transition on main content.
+Forgetting this breaks the visual hierarchy.
+
+### Notification Deduplication
+Alerts are keyed by `month+category` (budget) or `name+date` (subscriptions).
+If you add a new alert type, ensure the `referenceId` is unique per logical alert, not per trigger.
+
+---
+
+## 10. Route Architecture
 
 All routes lazy-loaded. Primary routes:
 
@@ -648,6 +726,8 @@ All routes lazy-loaded. Primary routes:
 | `/privacy` | PrivacyPolicy | Legal |
 | `/terms` | TermsConditions | Legal |
 
-### 9. Copywriting & Tone
+---
+
+## 11. Copywriting & Tone
 
 - **Strict Gender Neutrality:** UI copy, smart analytics, and notifications must maintain a universally neutral and professional tone. Hardcoded gendered titles or colloquialisms are strictly prohibited.
