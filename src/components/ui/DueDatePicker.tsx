@@ -28,7 +28,7 @@ export function DueDatePicker({ value, onChange }: DueDatePickerProps) {
             className="fixed inset-0 z-[100]" 
             onClick={() => setIsOpen(false)} 
           />
-          <div className="absolute right-0 top-[calc(100%+6px)] z-[101] bg-white dark:bg-[#1f1f1e] border border-black/10 dark:border-white/10 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-2.5 w-[220px] origin-top-right animate-in fade-in zoom-in-95 duration-100">
+          <div className="absolute right-0 bottom-[calc(100%+6px)] z-[101] bg-white dark:bg-[#1f1f1e] border border-black/10 dark:border-white/10 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-2.5 w-[220px] origin-bottom-right animate-in fade-in zoom-in-95 duration-100">
             <div className="grid grid-cols-7 gap-1">
               <button
                 type="button"

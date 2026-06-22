@@ -7,6 +7,7 @@ import {
   RichWordFadeIn,
   type WordSegment,
 } from "../components/ui/rich-word-fade-in";
+import { Tooltip } from "../components/ui/Tooltip";
 import { commonOptions } from "../utils/chartConfig";
 import { getCurrentMonthYear, formatMonthYear } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/currency";
@@ -233,9 +234,18 @@ export function Insights() {
             <div className="w-6 h-6 rounded-full bg-linear-to-br from-(--accent)/20 to-transparent flex items-center justify-center">
               <BrainCircuit size={14} className="text-(--accent)" />
             </div>
-            <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider opacity-80">
-              Smart Analysis
-            </h3>
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider opacity-80">
+                Smart Analysis
+              </h3>
+              <div onClick={(e) => e.stopPropagation()}>
+                <Tooltip
+                  id="smart-analysis-info-expanded"
+                  text="Tap to analyze your recent spending patterns."
+                  preferredPosition="top"
+                />
+              </div>
+            </div>
           </div>
 
           {isGenerating ? (

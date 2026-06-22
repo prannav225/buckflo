@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Flame, CheckCircle, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 import { type BurnRateResult } from "../../hooks/analytics/useBurnRate";
 import { formatCurrency } from "../../utils/currency";
 import { Tooltip } from "../ui/Tooltip";
 import { CollapsibleInsightCard } from "./CollapsibleInsightCard";
+import { RichWordFadeIn, type WordSegment } from "../ui/rich-word-fade-in";
 
 interface BurnVelocityCardProps {
   burnRateData: BurnRateResult;
@@ -15,6 +17,7 @@ export function BurnVelocityCard({
   budget,
 }: BurnVelocityCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   const {
     avgDailySpend,
@@ -32,10 +35,30 @@ export function BurnVelocityCard({
     Math.round((projectedTotalSpend / budget) * 100),
   );
 
+  const segments: WordSegment[] = isSafe
+    ? [
+        { text: "You're pacing well. If you maintain this velocity, you will finish the month safely under budget with roughly " },
+        { text: formatCurrency(budget - projectedTotalSpend), className: "font-bold text-(--text)" },
+        { text: " to spare." },
+      ]
+    : [
+        { text: "You are currently projected to exceed your budget. At this rate, your funds will run out around " },
+        { text: `Day ${dayOfExhaustion}`, className: "font-bold text-(--debit)" },
+        { text: ` (${daysRemaining} days remaining).` },
+      ];
+
+  const handleOpen = () => {
+    setIsCalculating(true);
+    setIsOpen(true);
+    setTimeout(() => {
+      setIsCalculating(false);
+    }, 1500);
+  };
+
   return (
     <CollapsibleInsightCard
-      isOpen={isOpen}
-      onOpen={() => setIsOpen(true)}
+      isOpen={isOpen || isCalculating}
+      onOpen={handleOpen}
       title="Burn Velocity"
       tooltipText="Projects if you'll stay under budget based on your average daily spend this month."
       tooltipId="burn-velocity-info"
@@ -48,33 +71,64 @@ export function BurnVelocityCard({
         {isOverrunProjected && (
           <div className="absolute top-0 right-0 w-32 h-32 bg-(--debit)/10 blur-3xl pointer-events-none group-hover:bg-(--debit)/20 transition-colors duration-500" />
         )}
-          <div className="flex items-center gap-2 mb-4 relative z-10">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${isSafe ? "bg-credit/20 text-[#64b079]" : "bg-(--debit)/20 text-(--debit)"}`}
-            >
-              {isSafe ? <CheckCircle size={16} /> : <Flame size={16} />}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider">
-                  Burn Velocity
-                </h3>
-                <div onClick={(e) => e.stopPropagation()}>
-                  <Tooltip
-                    id="burn-velocity-info-expanded"
-                    text="Projects if you'll stay under budget based on your average daily spend this month."
-                    preferredPosition="top"
-                  />
-                </div>
+
+        {/* Static Header - remains visible during calculations just like Smart Analysis */}
+        <div className="flex items-center gap-2 mb-4 relative z-10">
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center ${isSafe ? "bg-credit/20 text-[#64b079]" : "bg-(--debit)/20 text-(--debit)"}`}
+          >
+            {isSafe ? <CheckCircle size={16} /> : <Flame size={16} />}
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-[13px] font-bold text-(--text) m-0 uppercase tracking-wider">
+                Burn Velocity
+              </h3>
+              <div onClick={(e) => e.stopPropagation()}>
+                <Tooltip
+                  id="burn-velocity-info-expanded"
+                  text="Projects if you'll stay under budget based on your average daily spend this month."
+                  preferredPosition="top"
+                />
               </div>
-              <p className="text-[10px] text-(--text-muted) font-medium mt-0.5 m-0">
-                Based on your average daily spend of{" "}
-                {formatCurrency(avgDailySpend)}
-              </p>
+            </div>
+            <p className="text-[10px] text-(--text-muted) font-medium mt-0.5 m-0">
+              Based on your average daily spend of{" "}
+              {formatCurrency(avgDailySpend)}
+            </p>
+          </div>
+        </div>
+        
+        {isCalculating ? (
+          <div className="flex flex-col gap-4 animate-pulse relative z-10">
+            {/* Numbers skeleton */}
+            <div className="flex justify-between items-end mt-2">
+              <div className="flex flex-col gap-1.5">
+                <div className="h-3 bg-black/5 dark:bg-white/5 rounded-full w-[80px]" />
+                <div className="h-5 bg-black/5 dark:bg-white/5 rounded-full w-[120px]" />
+              </div>
+              <div className="flex flex-col gap-1.5 items-end">
+                <div className="h-2.5 bg-black/5 dark:bg-white/5 rounded-full w-[70px]" />
+                <div className="h-4 bg-black/5 dark:bg-white/5 rounded-full w-[90px]" />
+              </div>
+            </div>
+            
+            {/* Bar skeleton */}
+            <div className="h-2 bg-black/5 dark:bg-white/5 rounded-full w-full" />
+            
+            {/* Paragraph skeleton */}
+            <div className="p-3 bg-black/4 dark:bg-white/4 rounded-xl border border-black/5 dark:border-white/5 flex flex-col gap-2">
+              <div className="h-3 bg-black/5 dark:bg-white/5 rounded-full w-full" />
+              <div className="h-3 bg-black/5 dark:bg-white/5 rounded-full w-[85%]" />
             </div>
           </div>
-
-          <div className="relative z-10">
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="relative z-10"
+          >
             <div className="flex justify-between items-end mb-2">
               <div className="flex flex-col">
                 <span className="text-[11px] text-(--text-secondary) font-medium mb-1">
@@ -109,33 +163,24 @@ export function BurnVelocityCard({
             {/* Narrative Analysis */}
             <div className="p-3 bg-black/4 dark:bg-white/4 rounded-xl border border-black/5 dark:border-white/5">
               {isSafe ? (
-                <p className="text-[12px] text-(--text-secondary) m-0 leading-relaxed">
-                  You're pacing well. If you maintain this velocity, you will
-                  finish the month safely under budget with roughly{" "}
-                  <strong className="text-(--text)">
-                    {formatCurrency(budget - projectedTotalSpend)}
-                  </strong>{" "}
-                  to spare.
-                </p>
+                <div className="text-[14px] leading-[1.6] text-(--text-secondary) font-medium">
+                  <RichWordFadeIn segments={segments} delay={0.1} />
+                </div>
               ) : (
                 <div className="flex gap-2.5 items-start">
                   <TrendingUp
                     size={14}
                     className="text-(--debit) shrink-0 mt-0.5"
                   />
-                  <p className="text-[12px] text-(--text-secondary) m-0 leading-relaxed">
-                    You are currently projected to exceed your budget. At this
-                    rate, your funds will run out around{" "}
-                    <strong className="text-(--debit)">
-                      Day {dayOfExhaustion}
-                    </strong>{" "}
-                    ({daysRemaining} days remaining).
-                  </p>
+                  <div className="text-[14px] leading-[1.6] text-(--text-secondary) font-medium">
+                    <RichWordFadeIn segments={segments} delay={0.1} />
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        )}
+      </div>
     </CollapsibleInsightCard>
   );
 }

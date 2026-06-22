@@ -31,7 +31,7 @@ export function CustomDatePicker({
   value,
   onChange,
   align = "left",
-  direction = "down",
+  direction = "up",
 }: CustomDatePickerProps) {
   const {
     open,

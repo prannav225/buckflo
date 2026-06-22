@@ -126,6 +126,8 @@ export function useNotificationScheduler() {
           id: a.id,
           title: a.title,
           body: a.body,
+          smallIcon: "ic_stat_icon",
+          iconColor: "#d97757",
           extra: { url: a.url }
         }));
         await LocalNotifications.schedule({ notifications: nativeAlerts });
@@ -182,6 +184,8 @@ export function useNotificationScheduler() {
             id: 999, // Static ID for the daily reminder so we can easily cancel/replace it
             title: "Daily Reminder",
             body: `Hey ${profile.displayName || "there"}, anything to log today?`,
+            smallIcon: "ic_stat_icon",
+            iconColor: "#d97757",
             schedule: {
               on: {
                 hour: hour,

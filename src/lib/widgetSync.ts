@@ -3,6 +3,7 @@ import { db } from "../db/core";
 import { formatCurrency } from "../utils/currency";
 import type { Transaction } from "../db/schema";
 import { getSpendingWallet } from "../db/queries";
+import { getCurrentMonthYear, getMonthDateRange } from "../utils/dateUtils";
 
 export interface WidgetDataPlugin {
   setWidgetData(options: { data: string }): Promise<void>;
@@ -28,19 +29,18 @@ export const syncWidgetData = async () => {
 
   try {
     const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthYear = getCurrentMonthYear();
+    const { startDate, endDate } = getMonthDateRange(monthYear);
 
-    // 1. Get Total Spent this month
+    const spendingAcc = await getSpendingWallet();
+    if (!spendingAcc?.id) return;
+    const accountId = spendingAcc.id;
+
+    // 1. Get Total Spent this month for this account
     const monthlyTxs = await db.transactions
-      .where("date")
-      .aboveOrEqual(firstDay.toISOString())
+      .where("[accountId+date]")
+      .between([accountId, startDate], [accountId, endDate], true, true)
       .toArray();
-
-    const totalSpent = monthlyTxs
-      .filter((t: Transaction) => t.type === "debit")
-      .reduce((sum: number, t: Transaction) => sum + t.amount, 0);
-
-
 
     // 3. Get Recent 6 Transactions
     const recentTxs = await db.transactions
@@ -79,17 +79,30 @@ export const syncWidgetData = async () => {
       }
     }
 
-    // 5. Calculate budget percent (using profile monthlyBudget if set)
+    // 5. Calculate budget percent (using monthSetup)
     let spentPercent = 0;
     try {
-      const profile = await db.table("profile").toCollection().first();
-      const budget = profile?.monthlyBudget ?? 0;
-      if (budget > 0) spentPercent = Math.round((totalSpent / budget) * 100);
-    } catch {
-      /* No profile/budget set */
+      const setup = await db.table("monthSetups")
+        .where("[accountId+monthYear]")
+        .equals([accountId, monthYear])
+        .first();
+      const budget = setup?.monthlyBudget ?? 0;
+      
+      const flexibleSpent = monthlyTxs
+        .filter((t: Transaction) => 
+          t.type === "debit" && 
+          !t.isCommitted && 
+          t.category !== "transfer" && 
+          t.category !== "Transfer" && 
+          t.category !== "starting-transfer"
+        )
+        .reduce((sum: number, t: Transaction) => sum + t.amount, 0);
+
+      if (budget > 0) spentPercent = Math.round((flexibleSpent / budget) * 100);
+    } catch (e) {
+      console.error("Failed to fetch monthly setup for widget:", e);
     }
 
-    const spendingAcc = await getSpendingWallet();
     const spendingBalance = spendingAcc?.currentBalance ?? 0;
 
     // 6. Calculate last 7 days activity (Pixel Heatmap)
