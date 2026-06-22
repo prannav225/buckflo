@@ -11,6 +11,7 @@ import { useAccounts } from "../db/hooks";
 import { todayISO } from "../utils/dateUtils";
 import toast from "react-hot-toast";
 import { hapticFeedback } from "../utils/haptics";
+import { suggestCategory, learnFromTransaction } from "../lib/keywordLearning";
 
 export interface TransactionFormState {
   date: string;
@@ -33,6 +34,8 @@ export interface TransactionFormState {
   handleSubmit: (e: FormEvent) => Promise<void>;
   /** Pass a confirmFn that resolves true/false; the hook performs the delete only if confirmed. */
   handleDelete: (confirmFn?: () => Promise<boolean>) => Promise<void>;
+  suggestedCategory: { category: string; confidence: number; isAutoLog: boolean } | null;
+  applySuggestion: () => void;
 }
 
 export function useTransactionForm(): TransactionFormState {
@@ -55,6 +58,7 @@ export function useTransactionForm(): TransactionFormState {
   const [category, setCategory] = useState(
     () => (!isEdit && searchParams.get("cat")) || "",
   );
+  const [suggestedCategory, setSuggestedCategory] = useState<{ category: string; confidence: number; isAutoLog: boolean } | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
 
@@ -92,24 +96,35 @@ export function useTransactionForm(): TransactionFormState {
       .finally(() => setFetching(false));
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Smart category guessing: search for a previous transaction matching the description
+  // Smart category guessing: search keyword mapping for suggestions
   useEffect(() => {
-    if (!description.trim() || isEdit || category !== "") return;
+    if (!description.trim() || isEdit || category !== "") {
+      setSuggestedCategory(null);
+      return;
+    }
 
-    const guessCategory = async () => {
-      const searchDesc = description.trim().toLowerCase();
-      const match = await db.transactions
-        .filter(tx => tx.description.toLowerCase() === searchDesc)
-        .last();
+    const doSuggestCategory = async () => {
+      const suggestion = await suggestCategory(description.trim());
 
-      if (match && match.category) {
-        setCategory(match.category);
+      // Auto-select if confidence is decent (>= 0.5)
+      if (suggestion && suggestion.confidence >= 0.5) {
+        setCategory(suggestion.category);
+        setSuggestedCategory(null);
+      } else {
+        setSuggestedCategory(suggestion);
       }
     };
 
-    const timeout = setTimeout(guessCategory, 250); // debounce database lookup
+    const timeout = setTimeout(doSuggestCategory, 250); // debounce
     return () => clearTimeout(timeout);
   }, [description, isEdit, category]);
+
+  const applySuggestion = () => {
+    if (suggestedCategory) {
+      setCategory(suggestedCategory.category);
+      setSuggestedCategory(null);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -145,6 +160,12 @@ export function useTransactionForm(): TransactionFormState {
         await addTransaction(txData);
         toast.success("Entry logged");
       }
+      
+      // Learn from this transaction if it has a category
+      if (txData.category) {
+        await learnFromTransaction(txData.description, txData.category);
+      }
+
       hapticFeedback.success();
       if (window.history.state && window.history.state.idx > 0) {
         navigate(-1);
@@ -204,5 +225,7 @@ export function useTransactionForm(): TransactionFormState {
     savingsAcc,
     handleSubmit,
     handleDelete,
+    suggestedCategory,
+    applySuggestion,
   };
 }

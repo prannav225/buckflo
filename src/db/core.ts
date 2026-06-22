@@ -22,6 +22,7 @@ export class FloDB extends Dexie {
   presets!: Table<Preset, number>;
   profile!: Table<Profile, number>;
   notifications!: Table<AppNotification, number>;
+  keywordMappings!: Table<import("./schema").KeywordMapping, number>;
 
   constructor() {
     super("BuckfloDB");
@@ -181,6 +182,20 @@ export class FloDB extends Dexie {
             }
           });
       });
+
+    this.version(11).stores({
+      accounts: "++id, type",
+      monthSetups: "++id, monthYear, accountId, [accountId+monthYear]",
+      transactions: "++id, date, accountId, type, [accountId+date]",
+      savingGoals: "++id, name, targetAmount, currentAllocated, deadline",
+      subscriptions:
+        "++id, name, frequency, status, nextDueDate, [name+amount]",
+      categories: "++id, name, isCustom",
+      presets: "++id, name, category, accountId, isCustom, usageCount",
+      profile: "id",
+      notifications: "++id, type, date, read, referenceId",
+      keywordMappings: "++id, keyword, category",
+    });
 
     this.on("populate", async () => {
       await this.accounts.bulkAdd([

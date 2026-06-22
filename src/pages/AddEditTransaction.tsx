@@ -43,6 +43,8 @@ export function AddEditTransaction() {
     savingsAcc,
     handleSubmit,
     handleDelete,
+    suggestedCategory,
+    applySuggestion,
   } = useTransactionForm();
 
   const categories = useCategories();
@@ -206,6 +208,8 @@ export function AddEditTransaction() {
             setNewCategoryName={setNewCategoryName}
             handleSaveNewCategory={handleSaveNewCategory}
             categoryInputRef={categoryInputRef as React.RefObject<HTMLInputElement>}
+            suggestedCategory={suggestedCategory}
+            applySuggestion={applySuggestion}
           />
 
           <div className="mt-1">

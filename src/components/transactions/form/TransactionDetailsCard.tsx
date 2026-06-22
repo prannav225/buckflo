@@ -23,6 +23,8 @@ interface TransactionDetailsCardProps {
   setNewCategoryName: (val: string) => void;
   handleSaveNewCategory: () => void;
   categoryInputRef: React.RefObject<HTMLInputElement>;
+  suggestedCategory?: { category: string; confidence: number; isAutoLog: boolean } | null;
+  applySuggestion?: () => void;
 }
 
 export function TransactionDetailsCard({
@@ -39,12 +41,27 @@ export function TransactionDetailsCard({
   setNewCategoryName,
   handleSaveNewCategory,
   categoryInputRef,
+  suggestedCategory,
+  applySuggestion,
 }: TransactionDetailsCardProps) {
   return (
     <div className="glass-card p-5 flex flex-col gap-4">
       <div className="form-group m-0">
-        <label className="label" htmlFor="page-tx-desc">
-          Description
+        <label className="label flex justify-between items-center" htmlFor="page-tx-desc">
+          <span>Description</span>
+          {suggestedCategory && !suggestedCategory.isAutoLog && (
+            <button 
+              type="button" 
+              onClick={(e) => {
+                e.preventDefault();
+                hapticFeedback.light();
+                applySuggestion?.();
+              }}
+              className="text-[11px] bg-(--accent)/10 text-(--accent) px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer hover:bg-(--accent)/20 transition-colors border border-(--accent)/20"
+            >
+              <span className="text-xs leading-none">✨</span> Tap for {suggestedCategory.category}
+            </button>
+          )}
         </label>
         <input
           id="page-tx-desc"

@@ -110,6 +110,16 @@ export interface AppNotification {
   referenceId?: string; // to prevent duplicates
 }
 
+export interface KeywordMapping {
+  id?: number;
+  keyword: string;
+  category: string;
+  correctCount: number;
+  totalCount: number;
+  confidence: number;
+  lastUsed: number;
+}
+
 // ─── Default Categories ──────────────────────────────────────────────────────
 
 export const DEFAULT_CATEGORIES: Omit<Category, "id" | "createdAt">[] = [
