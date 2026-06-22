@@ -13,6 +13,8 @@ import { updateSheetOpenState } from "../../utils/modalHelper";
 import { db } from "../../db/database";
 import { formatINR } from "../../utils/currency";
 import { PixelArtBackground } from "../ui/PixelArtBackground";
+import { PixelArtAvatar } from "../ui/PixelArtAvatar";
+import { evaluatePersona, type SpendingPersona } from "../../utils/personaEvaluator";
 
 interface MonthlyCloseSummaryProps {
   isOpen: boolean;
@@ -31,6 +33,7 @@ export function MonthlyCloseSummary({
     totalSpent: number;
     daysActive: number;
     leftover: number;
+    persona: SpendingPersona;
   } | null>(null);
 
   useEffect(() => {
@@ -83,21 +86,27 @@ export function MonthlyCloseSummary({
           leftover = prevSetup.openingBalance + monthNet;
         }
 
+        const persona = evaluatePersona(txs);
+
         setStats({
           txCount: txs.length,
           biggestCategory: biggestCat,
           totalSpent: total,
           daysActive: daysSet.size,
           leftover,
+          persona,
         });
       } catch (err) {
         console.error("Failed to load month stats", err);
+        // Fallback placeholder persona to prevent crashes if eval fails
+        const fallbackPersona = evaluatePersona([]);
         setStats({
           txCount: 0,
           biggestCategory: "None",
           totalSpent: 0,
           daysActive: 0,
           leftover: 0,
+          persona: fallbackPersona,
         });
       }
     };
@@ -192,6 +201,28 @@ export function MonthlyCloseSummary({
                 <p className="text-lg font-sans font-semibold text-white m-0 line-clamp-1 leading-tight mt-1">
                   {stats.biggestCategory}
                 </p>
+              </div>
+
+              {/* Persona Bento Box - Full Width */}
+              <div className="col-span-2 glass-card bg-black/40 backdrop-blur-xl border-white/10 p-5 rounded-3xl flex items-center gap-4 fade-in-up delay-4 shadow-xl mt-1">
+                <div className="shrink-0 select-none flex items-center justify-center py-0.5">
+                  <PixelArtAvatar
+                    id={stats.persona.id}
+                    size={56}
+                    colors={stats.persona.avatarColors}
+                  />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-[9px] text-white/50 font-bold uppercase tracking-widest m-0 mb-0.5">
+                    Your Spending Persona
+                  </p>
+                  <p className="text-base font-display font-semibold text-(--accent) m-0 leading-tight">
+                    {stats.persona.title}
+                  </p>
+                  <p className="text-[11px] text-white/70 m-0 mt-1 leading-normal font-sans font-medium">
+                    {stats.persona.description}
+                  </p>
+                </div>
               </div>
 
               {/* Footer Item - Full Width */}

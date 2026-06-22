@@ -8,6 +8,11 @@ import {
   type WordSegment,
 } from "../components/ui/rich-word-fade-in";
 import { Tooltip } from "../components/ui/Tooltip";
+import { MonthPicker } from "../components/MonthPicker";
+import { BurnVelocityCard } from "../components/insights/BurnVelocityCard";
+import { SegmentedControl } from "../components/ui/SegmentedControl";
+import { CollapsibleInsightCard } from "../components/insights/CollapsibleInsightCard";
+import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
 import { commonOptions } from "../utils/chartConfig";
 import { getCurrentMonthYear, formatMonthYear } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/currency";
@@ -18,11 +23,6 @@ import {
   useMonthOverMonth,
   useBurnRate,
 } from "../hooks/useAnalytics";
-import { MonthPicker } from "../components/MonthPicker";
-import { BurnVelocityCard } from "../components/insights/BurnVelocityCard";
-import { SegmentedControl } from "../components/ui/SegmentedControl";
-import { CollapsibleInsightCard } from "../components/insights/CollapsibleInsightCard";
-import { BudgetOverviewCard } from "../components/monthly/BudgetOverviewCard";
 
 const SMART_SUMMARY_STORAGE_KEY = "buckflo_smart_summary_state";
 
@@ -205,6 +205,7 @@ export function Insights() {
           compact={true}
         />
       </div>
+
 
       {/* ── Burn Velocity Meter (Current Month Only) ────────────────────── */}
       {isCurrentMonth &&

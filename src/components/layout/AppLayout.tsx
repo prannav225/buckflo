@@ -12,6 +12,10 @@ import { useAutopayTrigger } from "../../hooks/useAutopayTrigger";
 import { useProfile } from "../../hooks/useProfile";
 import { useDatabaseSync } from "../../hooks/useDatabaseSync";
 import { BrandedAvatar } from "./BrandedAvatar";
+import { useAccount, useTransactions } from "../../db/hooks";
+import { evaluatePersona } from "../../utils/personaEvaluator";
+import { PixelArtAvatar } from "../ui/PixelArtAvatar";
+
 import { usePWAInstall } from "../../hooks/usePWAInstall";
 import { ChangelogModal } from "../ui/ChangelogModal";
 import { UpdatePrompt } from "../ui/UpdatePrompt";
@@ -28,6 +32,30 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { profile } = useProfile();
+  const spendingAcc = useAccount("spending");
+  const currentMonth = getCurrentMonthYear();
+  const transactions = useTransactions(spendingAcc?.id, currentMonth);
+  
+  const persona = evaluatePersona(transactions);
+
+  const [showPersonaDetails, setShowPersonaDetails] = useState(() => {
+    try {
+      const saved = localStorage.getItem("buckflo_show_persona_details");
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  });
+
+  const togglePersonaDetails = (val: boolean) => {
+    setShowPersonaDetails(val);
+    try {
+      localStorage.setItem("buckflo_show_persona_details", JSON.stringify(val));
+    } catch (e) {
+      console.error(e);
+    }
+    window.dispatchEvent(new CustomEvent("buckflo_persona_toggle", { detail: val }));
+  };
   const { requestPermission, isDefault } = useNotificationPermission();
   const [permissionPromptDismissed, setPermissionPromptDismissed] =
     useState(false);
@@ -222,19 +250,50 @@ export function AppLayout({ children }: AppLayoutProps) {
                     )}
                   </button>
                 </div>
-                <button
-                  onClick={() => navigate("/profile")}
-                  className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer overflow-hidden p-0 outline-none"
-                  aria-label="Open profile"
-                  title="Profile"
-                  id="header-profile-btn"
-                >
-                  <BrandedAvatar
-                    name={profile?.displayName || "buckflo"}
-                    size={34}
-                    className="border-0 bg-transparent"
-                  />
-                </button>
+                 {pathname === "/profile" ? (
+                  <button
+                    onClick={() => togglePersonaDetails(!showPersonaDetails)}
+                    className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer overflow-hidden p-0 outline-none"
+                    aria-label={showPersonaDetails ? "Switch to Normal Profile" : "View Spending Persona"}
+                    title={showPersonaDetails ? "Switch to Normal Profile" : "View Spending Persona"}
+                    id="header-profile-btn"
+                  >
+                    {showPersonaDetails ? (
+                      <BrandedAvatar
+                        name={profile?.displayName || "buckflo"}
+                        size={34}
+                        className="border-0 bg-transparent"
+                      />
+                    ) : (
+                      <div 
+                        className="w-full h-full flex items-center justify-center"
+                        style={{ 
+                          background: `radial-gradient(circle at center, ${persona.avatarColors[0]}45, ${persona.avatarColors[0]}15)`
+                        }}
+                      >
+                        <PixelArtAvatar
+                          id={persona.id}
+                          size={32}
+                          colors={persona.avatarColors}
+                        />
+                      </div>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => navigate("/profile")}
+                    className="inline-flex items-center justify-center bg-(--bg-glass-strong) [-webkit-backdrop-filter:var(--glass-blur)] [backdrop-filter:var(--glass-blur)] border border-black/8 dark:border-white/6 rounded-full w-9 h-9 shadow-(--glass-shadow) transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer overflow-hidden p-0 outline-none"
+                    aria-label="Open profile"
+                    title="Profile"
+                    id="header-profile-btn"
+                  >
+                    <BrandedAvatar
+                      name={profile?.displayName || "buckflo"}
+                      size={34}
+                      className="border-0 bg-transparent"
+                    />
+                  </button>
+                )}
               </div>
             </header>
           )}
@@ -302,6 +361,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           <ChangelogModal />
           <UpdatePrompt />
+
+
 
           {showPermissionPrompt && (
             <NotificationPermissionDialog

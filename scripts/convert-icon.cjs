@@ -44,10 +44,13 @@ try {
     
     const fillAlphaAttr = opacity < 1.0 ? ` android:fillAlpha="${opacity}"` : '';
     
-    // For notification stats icon (needs to be solid white)
-    statPaths.push(`    <path
-        android:fillColor="#FFFFFF"${fillAlphaAttr}
+    // For notification stats icon (needs to be solid white silhouette with no fillAlpha)
+    // Filter out low opacity background/ambient pixels (opacity < 0.3) to make the shape crisp
+    if (opacity >= 0.3) {
+      statPaths.push(`    <path
+        android:fillColor="#FFFFFF"
         android:pathData="${pathData}" />`);
+    }
         
     // For adaptive launcher icon foreground (uses brand color #d97757)
     fgPaths.push(`    <path
