@@ -159,13 +159,11 @@ export function ProfilePage() {
               className="absolute inset-0 z-0 transition-all duration-500 overflow-hidden"
               style={{
                 background:
-                  theme === "dark"
-                    ? "linear-gradient(to bottom, transparent, rgba(28, 28, 27, 0.95) 15%, rgba(28, 28, 27, 0.95) 85%, transparent)"
-                    : "linear-gradient(to bottom, transparent, rgba(240, 235, 225, 0.95) 15%, rgba(240, 235, 225, 0.95) 85%, transparent)",
+                  "linear-gradient(to bottom, transparent, var(--bg) 15%, var(--bg) 85%, transparent)",
               }}
             >
               <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full blur-[56px] opacity-35 pointer-events-none"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 rounded-full blur-[70px] opacity-20 pointer-events-none"
                 style={{ backgroundColor: persona.avatarColors[0] }}
               />
             </div>
