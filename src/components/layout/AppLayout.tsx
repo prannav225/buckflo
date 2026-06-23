@@ -99,7 +99,9 @@ export function AppLayout({ children }: AppLayoutProps) {
     pathname === "/profile/about" ||
     pathname === "/profile/edit" ||
     pathname === "/profile/categories" ||
-    pathname === "/profile/notifications";
+    pathname === "/profile/notifications" ||
+    pathname === "/privacy" ||
+    pathname === "/terms";
 
   const getPageTitle = () => {
     switch (pathname) {
@@ -121,6 +123,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         return "Edit Profile";
       case "/profile/notifications":
         return "Notifications";
+      case "/privacy":
+        return "Privacy Policy";
+      case "/terms":
+        return "Terms & Conditions";
       default:
         return "";
     }
@@ -197,7 +203,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               }`}
               style={{
                 background:
-                  "linear-gradient(to bottom, var(--bg) 0%, var(--bg) 60%, transparent 100%)",
+                  "linear-gradient(to bottom, color-mix(in srgb, var(--bg) 95%, transparent) 0%, color-mix(in srgb, var(--bg) 60%, transparent) 40%, color-mix(in srgb, var(--bg) 20%, transparent) 70%, transparent 100%)",
               }}
             />
           )}
@@ -372,9 +378,24 @@ export function AppLayout({ children }: AppLayoutProps) {
           )}
         </>
       ) : isLegalPage ? (
-        <main className="pt-[calc(16px+var(--safe-area-inset-top,env(safe-area-inset-top,0px)))] pl-4 pr-4 pb-[calc(24px+var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))] max-w-[720px] mx-auto w-full">
-          {children}
-        </main>
+        <>
+          <header className="sticky top-0 z-100 flex items-center justify-between bg-(--bg) mb-6 max-w-[720px] mx-auto w-full px-4 pt-[calc(16px+var(--safe-area-inset-top,env(safe-area-inset-top,0px)))]">
+            <div className="flex items-start">
+              <ChevronLeft
+                size={24}
+                onClick={() => navigate(-1)}
+                className="-pl-5 m-0 min-h-0 h-auto flex items-center justify-center text-(--text-muted) hover:text-(--text) cursor-pointer bg-transparent border-0 outline-none rounded-full"
+                aria-label="Go back"
+              />
+              <h1 className="text-[22px] font-bold text-(--text) tracking-tight m-0 leading-none">
+                {pageTitle}
+              </h1>
+            </div>
+          </header>
+          <main className="pl-4 pr-4 pb-[calc(24px+var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))] max-w-[720px] mx-auto w-full">
+            {children}
+          </main>
+        </>
       ) : (
         <OnboardingFlow
           onComplete={handleOnboardingComplete}

@@ -24,13 +24,17 @@ const navItems = [
 export function BottomNav() {
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 h-[calc(110px+env(safe-area-inset-bottom,0))] bg-linear-to-t from-(--bg) via-(--bg)/15 to-transparent pointer-events-none flex justify-center items-end pb-[calc(16px+env(safe-area-inset-bottom,0))] nav-wrapper"
+      className="fixed bottom-0 left-0 right-0 h-[calc(110px+env(safe-area-inset-bottom,0))] pointer-events-none flex justify-center items-end pb-[calc(16px+env(safe-area-inset-bottom,0))] nav-wrapper"
+      style={{
+        background:
+          "linear-gradient(to top, color-mix(in srgb, var(--bg) 75%, transparent) 0%, color-mix(in srgb, var(--bg) 40%, transparent) 40%, color-mix(in srgb, var(--bg) 15%, transparent) 70%, transparent 100%)",
+      }}
       role="navigation"
       aria-label="App navigation"
     >
       {/* Symmetrical 5-tab glass navigation pill */}
       <nav
-        className="flex items-center gap-[clamp(2px,0.5vw,4px)] p-[clamp(6px,1.5vw,10px)_clamp(8px,2.5vw,16px)] bg-(--bg-glass-strong) [-webkit-backdrop-filter:blur(32px)_saturate(200%)] [backdrop-filter:blur(32px)_saturate(200%)] border border-black/8 dark:border-white/6 rounded-(--r-pill) shadow-(--glass-shadow-lg) pointer-events-auto nav-pill"
+        className="flex items-center gap-[clamp(2px,0.5vw,4px)] p-[clamp(6px,1.5vw,10px)_clamp(8px,2.5vw,16px)] bg-[color-mix(in_srgb,var(--bg)_75%,transparent)] dark:bg-[color-mix(in_srgb,var(--bg)_45%,transparent)] [-webkit-backdrop-filter:blur(32px)_saturate(200%)] [backdrop-filter:blur(32px)_saturate(200%)] border border-black/8 dark:border-white/6 rounded-(--r-pill) shadow-(--glass-shadow-lg) pointer-events-auto nav-pill"
         aria-label="Main navigation"
       >
         {navItems.map(({ to, end, label, id, Icon, isFab }) => (

@@ -43,7 +43,7 @@ export function MonthlyTransactionsView() {
 
   return (
     <>
-      <div className="sticky top-[calc(60px+env(safe-area-inset-top,0))] z-90 bg-(--bg) pb-2 -mx-4 px-4">
+      <div className="pb-2">
         {/* ── Header ───────────────────────────────────────────────────────── */}
         <div className="fade-in-up flex items-center justify-center mb-4">
           <MonthPicker
@@ -68,29 +68,30 @@ export function MonthlyTransactionsView() {
             </span>
           </div>
         </div>
-
-        {/* ── Search & Filter Controls ────────────────────────────────────────── */}
-        {tabFilteredItems.length > 0 && (
-          <TransactionFilters
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            minAmount={minAmount}
-            setMinAmount={setMinAmount}
-            maxAmount={maxAmount}
-            setMaxAmount={setMaxAmount}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            txTypeFilter={txTypeFilter}
-            setTxTypeFilter={setTxTypeFilter}
-            categoryFilter={categoryFilter}
-            setCategoryFilter={setCategoryFilter}
-            onResetPage={() => setPageSize(20)}
-          />
-        )}
       </div>
 
+      {/* ── Search & Filter Controls ────────────────────────────────────────── */}
+
+      {tabFilteredItems.length > 0 && (
+        <TransactionFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          minAmount={minAmount}
+          setMinAmount={setMinAmount}
+          maxAmount={maxAmount}
+          setMaxAmount={setMaxAmount}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          txTypeFilter={txTypeFilter}
+          setTxTypeFilter={setTxTypeFilter}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+          onResetPage={() => setPageSize(20)}
+        />
+      )}
+
       {/* ── Transaction List ──────────────────────────────────────────────── */}
-      <div className="fade-in-up delay-2 mb-10">
+      <div className="fade-in-up delay-2 mb-2">
         {tabFilteredItems.length === 0 ? (
           <div className="glass-card empty-state mt-3">
             <Calendar size={32} className="empty-state-icon" />
@@ -129,12 +130,26 @@ export function MonthlyTransactionsView() {
               ))}
             </div>
             {hasMoreItems && (
-              <button
-                className="btn-secondary w-full mt-4 py-2!"
-                onClick={() => setPageSize((prev) => prev + 20)}
-              >
-                Load More
-              </button>
+              <div className="mt-5 flex justify-center pb-2">
+                <button
+                  className="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-full text-[0.8125rem] font-medium tracking-wide text-(--text-secondary) bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-95 cursor-pointer outline-none border-0"
+                  onClick={() => setPageSize((prev) => prev + 20)}
+                >
+                  Load more
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+              </div>
             )}
           </>
         )}

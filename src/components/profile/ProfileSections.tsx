@@ -15,6 +15,8 @@ import {
   Bell,
   MessageSquare,
   ExternalLink,
+  Shield,
+  FileText,
 } from "lucide-react";
 import { formatINR } from "../../utils/currency";
 import { CustomDropdown } from "../layout/CustomDropdown";
@@ -324,6 +326,50 @@ export function AboutSection() {
               </div>
               <div className="font-sans text-xs text-(--text-muted) mt-0.5">
                 Offline-first accounting
+              </div>
+            </div>
+          </div>
+          <ChevronRight size={16} className="text-(--text-muted)" />
+        </div>
+
+        <div
+          onClick={() => navigate("/privacy")}
+          className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
+        >
+          <div className="flex items-center gap-3.5">
+            <Shield
+              size={20}
+              strokeWidth={1.5}
+              className="text-(--text-secondary) shrink-0"
+            />
+            <div>
+              <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
+                Privacy Policy
+              </div>
+              <div className="font-sans text-xs text-(--text-muted) mt-0.5">
+                How we protect your data
+              </div>
+            </div>
+          </div>
+          <ChevronRight size={16} className="text-(--text-muted)" />
+        </div>
+
+        <div
+          onClick={() => navigate("/terms")}
+          className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
+        >
+          <div className="flex items-center gap-3.5">
+            <FileText
+              size={20}
+              strokeWidth={1.5}
+              className="text-(--text-secondary) shrink-0"
+            />
+            <div>
+              <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
+                Terms & Conditions
+              </div>
+              <div className="font-sans text-xs text-(--text-muted) mt-0.5">
+                App usage terms
               </div>
             </div>
           </div>

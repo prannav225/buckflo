@@ -1,0 +1,1108 @@
+{
+  "formatName": "dexie",
+  "formatVersion": 1,
+  "data": {
+    "databaseName": "pocket_ledger_db",
+    "databaseVersion": 9,
+    "tables": [
+      {
+        "name": "profile",
+        "schema": "++id",
+        "rowCount": 1
+      },
+      {
+        "name": "accounts",
+        "schema": "++id",
+        "rowCount": 2
+      },
+      {
+        "name": "categories",
+        "schema": "++id",
+        "rowCount": 9
+      },
+      {
+        "name": "transactions",
+        "schema": "++id",
+        "rowCount": 82
+      },
+      {
+        "name": "savingGoals",
+        "schema": "++id",
+        "rowCount": 3
+      },
+      {
+        "name": "subscriptions",
+        "schema": "++id",
+        "rowCount": 3
+      },
+      {
+        "name": "monthSetups",
+        "schema": "++id",
+        "rowCount": 2
+      }
+    ],
+    "data": [
+      {
+        "tableName": "profile",
+        "inbound": true,
+        "rows": [
+          {
+            "id": 1,
+            "displayName": "Pranav",
+            "currency": "INR",
+            "currencySymbol": "₹",
+            "theme": "dark",
+            "createdAt": 1777028366904,
+            "updatedAt": 1782212366904,
+            "watchCategories": [
+              "Food",
+              "Shopping",
+              "Entertainment"
+            ],
+            "monthlyIncome": 80000,
+            "savingsNudgeDismissed": true,
+            "wizardCompleted": true,
+            "notificationsEnabled": true,
+            "notificationTime": "20:00",
+            "notificationPermissionAsked": true,
+            "$types": {
+              "createdAt": "date",
+              "updatedAt": "date"
+            }
+          }
+        ]
+      },
+      {
+        "tableName": "accounts",
+        "inbound": true,
+        "rows": [
+          {
+            "id": 1,
+            "name": "Spending Wallet",
+            "type": "spending",
+            "currentBalance": 14500.5
+          },
+          {
+            "id": 2,
+            "name": "Savings Wallet",
+            "type": "savings",
+            "currentBalance": 45000
+          }
+        ]
+      },
+      {
+        "tableName": "categories",
+        "inbound": true,
+        "rows": [
+          {
+            "id": 1,
+            "name": "Food",
+            "color": "#d97757",
+            "isCustom": false,
+            "createdAt": 1782212266904
+          },
+          {
+            "id": 2,
+            "name": "Transport",
+            "color": "#40a0c0",
+            "isCustom": false,
+            "createdAt": 1782212267904
+          },
+          {
+            "id": 3,
+            "name": "Bills",
+            "color": "#e0a045",
+            "isCustom": false,
+            "createdAt": 1782212268904
+          },
+          {
+            "id": 4,
+            "name": "Shopping",
+            "color": "#9060b0",
+            "isCustom": false,
+            "createdAt": 1782212269904
+          },
+          {
+            "id": 5,
+            "name": "Healthcare",
+            "color": "#5a9e6f",
+            "isCustom": false,
+            "createdAt": 1782212270904
+          },
+          {
+            "id": 6,
+            "name": "Entertainment",
+            "color": "#b04060",
+            "isCustom": false,
+            "createdAt": 1782212271904
+          },
+          {
+            "id": 7,
+            "name": "Rent",
+            "color": "#a0a860",
+            "isCustom": false,
+            "createdAt": 1782212272904
+          },
+          {
+            "id": 8,
+            "name": "Transfer",
+            "color": "#6b6b69",
+            "isCustom": false,
+            "createdAt": 1782212273904
+          },
+          {
+            "id": 9,
+            "name": "Other",
+            "color": "#9d9d99",
+            "isCustom": false,
+            "createdAt": 1782212274904
+          }
+        ]
+      },
+      {
+        "tableName": "transactions",
+        "inbound": true,
+        "rows": [
+          {
+            "id": 1,
+            "date": "2026-04-30",
+            "description": "Salary",
+            "amount": 80000,
+            "type": "credit",
+            "accountId": 1,
+            "category": "Other",
+            "createdAt": 1778756366904
+          },
+          {
+            "id": 2,
+            "date": "2026-05-31",
+            "description": "Salary",
+            "amount": 80000,
+            "type": "credit",
+            "accountId": 1,
+            "category": "Other",
+            "createdAt": 1781348366904
+          },
+          {
+            "id": 3,
+            "date": "2026-06-12",
+            "description": "Fuel",
+            "amount": 334,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1781303485491
+          },
+          {
+            "id": 4,
+            "date": "2026-05-30",
+            "description": "Groceries",
+            "amount": 1191,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1780155969884
+          },
+          {
+            "id": 5,
+            "date": "2026-06-08",
+            "description": "Local Cafe",
+            "amount": 1043,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1780946828213
+          },
+          {
+            "id": 6,
+            "date": "2026-05-12",
+            "description": "Amazon",
+            "amount": 3310,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1778583024846
+          },
+          {
+            "id": 7,
+            "date": "2026-06-21",
+            "description": "Consultation",
+            "amount": 571,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1782020560292
+          },
+          {
+            "id": 8,
+            "date": "2026-06-20",
+            "description": "Ola",
+            "amount": 342,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1781934912875
+          },
+          {
+            "id": 9,
+            "date": "2026-05-13",
+            "description": "Electricity",
+            "amount": 1659,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1778660986717
+          },
+          {
+            "id": 10,
+            "date": "2026-06-17",
+            "description": "Monthly Rent",
+            "amount": 15000,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Rent",
+            "createdAt": 1781718486249
+          },
+          {
+            "id": 11,
+            "date": "2026-06-09",
+            "description": "Local Store",
+            "amount": 3574,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1781016589368
+          },
+          {
+            "id": 12,
+            "date": "2026-06-08",
+            "description": "Miscellaneous",
+            "amount": 175,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transfer",
+            "createdAt": 1780898873736
+          },
+          {
+            "id": 13,
+            "date": "2026-05-14",
+            "description": "Internet",
+            "amount": 1012,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1778751359138
+          },
+          {
+            "id": 14,
+            "date": "2026-05-23",
+            "description": "Internet",
+            "amount": 1509,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1779554852818
+          },
+          {
+            "id": 15,
+            "date": "2026-06-14",
+            "description": "Fuel",
+            "amount": 390,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1781465695950
+          },
+          {
+            "id": 16,
+            "date": "2026-05-28",
+            "description": "Miscellaneous",
+            "amount": 691,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transfer",
+            "createdAt": 1780004071254
+          },
+          {
+            "id": 17,
+            "date": "2026-06-17",
+            "description": "Fuel",
+            "amount": 341,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1781703533552
+          },
+          {
+            "id": 18,
+            "date": "2026-06-16",
+            "description": "Starbucks",
+            "amount": 959,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1781628079546
+          },
+          {
+            "id": 19,
+            "date": "2026-05-15",
+            "description": "Consultation",
+            "amount": 809,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1778819295776
+          },
+          {
+            "id": 20,
+            "date": "2026-05-28",
+            "description": "Myntra",
+            "amount": 3862,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1779944212584
+          },
+          {
+            "id": 21,
+            "date": "2026-05-12",
+            "description": "Movie Tickets",
+            "amount": 582,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Entertainment",
+            "createdAt": 1778578729586
+          },
+          {
+            "id": 22,
+            "date": "2026-05-11",
+            "description": "Starbucks",
+            "amount": 887,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1778480007336
+          },
+          {
+            "id": 23,
+            "date": "2026-06-17",
+            "description": "Electricity",
+            "amount": 1979,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1781696262105
+          },
+          {
+            "id": 24,
+            "date": "2026-06-20",
+            "description": "Zomato",
+            "amount": 343,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1781966000373
+          },
+          {
+            "id": 25,
+            "date": "2026-06-23",
+            "description": "Local Cafe",
+            "amount": 724,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1782198999756
+          },
+          {
+            "id": 26,
+            "date": "2026-06-07",
+            "description": "Starbucks",
+            "amount": 402,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1780825423761
+          },
+          {
+            "id": 27,
+            "date": "2026-06-06",
+            "description": "Ola",
+            "amount": 326,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1780738756341
+          },
+          {
+            "id": 28,
+            "date": "2026-05-14",
+            "description": "Uber",
+            "amount": 215,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1778781928140
+          },
+          {
+            "id": 29,
+            "date": "2026-05-21",
+            "description": "Monthly Rent",
+            "amount": 15000,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Rent",
+            "createdAt": 1779327536808
+          },
+          {
+            "id": 30,
+            "date": "2026-06-07",
+            "description": "Pharmacy",
+            "amount": 1136,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1780851815771
+          },
+          {
+            "id": 31,
+            "date": "2026-06-07",
+            "description": "Vitamins",
+            "amount": 1424,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1780817816774
+          },
+          {
+            "id": 32,
+            "date": "2026-05-27",
+            "description": "Miscellaneous",
+            "amount": 610,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transfer",
+            "createdAt": 1779842294343
+          },
+          {
+            "id": 33,
+            "date": "2026-05-14",
+            "description": "Pharmacy",
+            "amount": 377,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1778740371486
+          },
+          {
+            "id": 34,
+            "date": "2026-06-17",
+            "description": "Amazon",
+            "amount": 1507,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1781728893166
+          },
+          {
+            "id": 35,
+            "date": "2026-06-13",
+            "description": "Miscellaneous",
+            "amount": 377,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transfer",
+            "createdAt": 1781324925981
+          },
+          {
+            "id": 36,
+            "date": "2026-06-05",
+            "description": "Groceries",
+            "amount": 670,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1780650357078
+          },
+          {
+            "id": 37,
+            "date": "2026-05-21",
+            "description": "Local Store",
+            "amount": 1989,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1779381530484
+          },
+          {
+            "id": 38,
+            "date": "2026-05-18",
+            "description": "Starbucks",
+            "amount": 1049,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1779074163351
+          },
+          {
+            "id": 39,
+            "date": "2026-05-11",
+            "description": "Gaming",
+            "amount": 535,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Entertainment",
+            "createdAt": 1778467300192
+          },
+          {
+            "id": 40,
+            "date": "2026-06-19",
+            "description": "Miscellaneous",
+            "amount": 436,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transfer",
+            "createdAt": 1781879876457
+          },
+          {
+            "id": 41,
+            "date": "2026-06-05",
+            "description": "Amazon",
+            "amount": 2285,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1780701337249
+          },
+          {
+            "id": 42,
+            "date": "2026-06-06",
+            "description": "Groceries",
+            "amount": 1010,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1780773228083
+          },
+          {
+            "id": 43,
+            "date": "2026-05-28",
+            "description": "Fuel",
+            "amount": 356,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1780001524879
+          },
+          {
+            "id": 44,
+            "date": "2026-06-03",
+            "description": "Myntra",
+            "amount": 1658,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1780524921888
+          },
+          {
+            "id": 45,
+            "date": "2026-05-29",
+            "description": "Miscellaneous",
+            "amount": 568,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transfer",
+            "createdAt": 1780025366161
+          },
+          {
+            "id": 46,
+            "date": "2026-06-14",
+            "description": "Zara",
+            "amount": 871,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1781432625714
+          },
+          {
+            "id": 47,
+            "date": "2026-06-13",
+            "description": "Miscellaneous",
+            "amount": 230,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transfer",
+            "createdAt": 1781332546564
+          },
+          {
+            "id": 48,
+            "date": "2026-05-30",
+            "description": "Movie Tickets",
+            "amount": 1302,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Entertainment",
+            "createdAt": 1780142296766
+          },
+          {
+            "id": 49,
+            "date": "2026-05-16",
+            "description": "Groceries",
+            "amount": 674,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1778934536056
+          },
+          {
+            "id": 50,
+            "date": "2026-06-13",
+            "description": "Fuel",
+            "amount": 222,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1781378185432
+          },
+          {
+            "id": 51,
+            "date": "2026-06-07",
+            "description": "Electricity",
+            "amount": 2929,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1780824878423
+          },
+          {
+            "id": 52,
+            "date": "2026-05-16",
+            "description": "Vitamins",
+            "amount": 624,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1778947441776
+          },
+          {
+            "id": 53,
+            "date": "2026-05-11",
+            "description": "Pharmacy",
+            "amount": 989,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1778493000481
+          },
+          {
+            "id": 54,
+            "date": "2026-05-23",
+            "description": "Spotify",
+            "amount": 1129,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Entertainment",
+            "createdAt": 1779495528624
+          },
+          {
+            "id": 55,
+            "date": "2026-05-28",
+            "description": "Electricity",
+            "amount": 2375,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1780006746367
+          },
+          {
+            "id": 56,
+            "date": "2026-05-21",
+            "description": "Local Store",
+            "amount": 1286,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1779326031833
+          },
+          {
+            "id": 57,
+            "date": "2026-05-10",
+            "description": "Fuel",
+            "amount": 51,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1778456440808
+          },
+          {
+            "id": 58,
+            "date": "2026-05-26",
+            "description": "Local Store",
+            "amount": 3021,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1779804119958
+          },
+          {
+            "id": 59,
+            "date": "2026-05-11",
+            "description": "Uber",
+            "amount": 300,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1778490645394
+          },
+          {
+            "id": 60,
+            "date": "2026-05-12",
+            "description": "Pharmacy",
+            "amount": 1162,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1778567892328
+          },
+          {
+            "id": 61,
+            "date": "2026-06-02",
+            "description": "Fuel",
+            "amount": 198,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1780423386253
+          },
+          {
+            "id": 62,
+            "date": "2026-06-08",
+            "description": "Netflix",
+            "amount": 1309,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Entertainment",
+            "createdAt": 1780911971086
+          },
+          {
+            "id": 63,
+            "date": "2026-05-31",
+            "description": "Groceries",
+            "amount": 1053,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1780223985901
+          },
+          {
+            "id": 64,
+            "date": "2026-06-09",
+            "description": "Uber",
+            "amount": 280,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1781010610406
+          },
+          {
+            "id": 65,
+            "date": "2026-06-07",
+            "description": "Monthly Rent",
+            "amount": 15000,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Rent",
+            "createdAt": 1780864763214
+          },
+          {
+            "id": 66,
+            "date": "2026-06-11",
+            "description": "Miscellaneous",
+            "amount": 452,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transfer",
+            "createdAt": 1781220079109
+          },
+          {
+            "id": 67,
+            "date": "2026-06-07",
+            "description": "Starbucks",
+            "amount": 550,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Food",
+            "createdAt": 1780795978750
+          },
+          {
+            "id": 68,
+            "date": "2026-05-09",
+            "description": "Mobile Recharge",
+            "amount": 1916,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1778330494621
+          },
+          {
+            "id": 69,
+            "date": "2026-05-16",
+            "description": "Electricity",
+            "amount": 1988,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1778901790123
+          },
+          {
+            "id": 70,
+            "date": "2026-05-14",
+            "description": "Consultation",
+            "amount": 484,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1778779861971
+          },
+          {
+            "id": 71,
+            "date": "2026-05-22",
+            "description": "Internet",
+            "amount": 2798,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1779442651341
+          },
+          {
+            "id": 72,
+            "date": "2026-06-22",
+            "description": "Consultation",
+            "amount": 273,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1782160390862
+          },
+          {
+            "id": 73,
+            "date": "2026-05-15",
+            "description": "Fuel",
+            "amount": 232,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1778883579429
+          },
+          {
+            "id": 74,
+            "date": "2026-05-28",
+            "description": "Gaming",
+            "amount": 1377,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Entertainment",
+            "createdAt": 1780008061352
+          },
+          {
+            "id": 75,
+            "date": "2026-06-16",
+            "description": "Internet",
+            "amount": 1901,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1781624130516
+          },
+          {
+            "id": 76,
+            "date": "2026-05-16",
+            "description": "Internet",
+            "amount": 2100,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Bills",
+            "createdAt": 1778916160394
+          },
+          {
+            "id": 77,
+            "date": "2026-05-19",
+            "description": "Netflix",
+            "amount": 1014,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Entertainment",
+            "createdAt": 1779219390199
+          },
+          {
+            "id": 78,
+            "date": "2026-05-29",
+            "description": "Fuel",
+            "amount": 239,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Transport",
+            "createdAt": 1780086130534
+          },
+          {
+            "id": 79,
+            "date": "2026-05-14",
+            "description": "Monthly Rent",
+            "amount": 15000,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Rent",
+            "createdAt": 1778726873335
+          },
+          {
+            "id": 80,
+            "date": "2026-05-22",
+            "description": "Vitamins",
+            "amount": 1345,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1779416597680
+          },
+          {
+            "id": 81,
+            "date": "2026-05-12",
+            "description": "Amazon",
+            "amount": 1796,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Shopping",
+            "createdAt": 1778573206473
+          },
+          {
+            "id": 82,
+            "date": "2026-05-15",
+            "description": "Vitamins",
+            "amount": 456,
+            "type": "debit",
+            "accountId": 1,
+            "category": "Healthcare",
+            "createdAt": 1778877954394
+          }
+        ]
+      },
+      {
+        "tableName": "savingGoals",
+        "inbound": true,
+        "rows": [
+          {
+            "id": 1,
+            "name": "Emergency Fund",
+            "targetAmount": 100000,
+            "currentAllocated": 25000,
+            "deadline": "2026-12-31"
+          },
+          {
+            "id": 2,
+            "name": "New Laptop",
+            "targetAmount": 80000,
+            "currentAllocated": 15000,
+            "deadline": "2026-09-15"
+          },
+          {
+            "id": 3,
+            "name": "Goa Trip",
+            "targetAmount": 20000,
+            "currentAllocated": 5000,
+            "deadline": "2026-08-01"
+          }
+        ]
+      },
+      {
+        "tableName": "subscriptions",
+        "inbound": true,
+        "rows": [
+          {
+            "id": 1,
+            "name": "Netflix",
+            "amount": 649,
+            "frequency": "monthly",
+            "nextDueDate": "2026-06-28",
+            "category": "Entertainment",
+            "status": "active",
+            "autoDetected": false
+          },
+          {
+            "id": 2,
+            "name": "Spotify",
+            "amount": 119,
+            "frequency": "monthly",
+            "nextDueDate": "2026-07-05",
+            "category": "Entertainment",
+            "status": "active",
+            "autoDetected": false
+          },
+          {
+            "id": 3,
+            "name": "Broadband",
+            "amount": 999,
+            "frequency": "monthly",
+            "nextDueDate": "2026-06-25",
+            "category": "Bills",
+            "status": "active",
+            "autoDetected": false
+          }
+        ]
+      },
+      {
+        "tableName": "monthSetups",
+        "inbound": true,
+        "rows": [
+          {
+            "id": 1,
+            "monthYear": "2026-05",
+            "openingBalance": 10000,
+            "monthlyBudget": 40000,
+            "accountId": 1,
+            "categoryBudgets": {
+              "Food": 10000,
+              "Shopping": 5000,
+              "Transport": 3000
+            },
+            "committedExpenses": [
+              {
+                "name": "Rent",
+                "category": "Rent",
+                "amount": 15000,
+                "isPaid": true,
+                "dueDay": 5
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "monthYear": "2026-06",
+            "openingBalance": 12000,
+            "monthlyBudget": 45000,
+            "accountId": 1,
+            "categoryBudgets": {
+              "Food": 12000,
+              "Shopping": 6000,
+              "Transport": 4000
+            },
+            "committedExpenses": [
+              {
+                "name": "Rent",
+                "category": "Rent",
+                "amount": 15000,
+                "isPaid": false,
+                "dueDay": 5
+              },
+              {
+                "name": "Internet",
+                "category": "Bills",
+                "amount": 999,
+                "isPaid": false,
+                "dueDay": 10
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
