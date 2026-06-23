@@ -87,17 +87,18 @@ export function AccountsSection({ spendingAcc, savingsAcc }: any) {
   );
 }
 
-export function CustomizationSection({
+export function PreferencesSection({
   theme,
   handleThemeChange,
   themeOptions,
   setIsCreatePresetOpen,
+  setIsMonthSetupOpen,
 }: any) {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
-        CUSTOMIZATION
+        PREFERENCES
       </h3>
       <div className="glass-card divide-y divide-black/5 dark:divide-white/5 relative z-20">
         <div
@@ -138,6 +139,28 @@ export function CustomizationSection({
               </div>
               <div className="font-sans text-xs text-(--text-muted) mt-0.5">
                 Edit your one-tap shortcuts
+              </div>
+            </div>
+          </div>
+          <ChevronRight size={16} className="text-(--text-muted)" />
+        </div>
+
+        <div
+          onClick={() => setIsMonthSetupOpen(true)}
+          className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
+        >
+          <div className="flex items-center gap-3.5">
+            <Calendar
+              size={20}
+              strokeWidth={1.5}
+              className="text-(--text-secondary) shrink-0"
+            />
+            <div>
+              <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
+                Month Setup
+              </div>
+              <div className="font-sans text-xs text-(--text-muted) mt-0.5">
+                Review or edit current month details
               </div>
             </div>
           </div>
@@ -196,8 +219,7 @@ export function CustomizationSection({
   );
 }
 
-export function DataBackupSection({
-  setIsMonthSetupOpen,
+export function StorageDataSection({
   setIsExportOpen,
   onBackup,
   onRestoreClick,
@@ -205,31 +227,9 @@ export function DataBackupSection({
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
-        DATA & BACKUPS
+        STORAGE & DATA
       </h3>
       <div className="glass-card overflow-hidden divide-y divide-black/5 dark:divide-white/5">
-        <div
-          onClick={() => setIsMonthSetupOpen(true)}
-          className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
-        >
-          <div className="flex items-center gap-3.5">
-            <Calendar
-              size={20}
-              strokeWidth={1.5}
-              className="text-(--text-secondary) shrink-0"
-            />
-            <div>
-              <div className="font-sans text-[0.9375rem] font-medium text-(--text)">
-                Month Setup
-              </div>
-              <div className="font-sans text-xs text-(--text-muted) mt-0.5">
-                Review or edit current month details
-              </div>
-            </div>
-          </div>
-          <ChevronRight size={16} className="text-(--text-muted)" />
-        </div>
-
         <div
           onClick={() => setIsExportOpen(true)}
           className="p-4 flex items-center justify-between cursor-pointer text-left w-full hover:bg-black/2 dark:hover:bg-white/2 active:opacity-80 transition-all"
@@ -302,7 +302,6 @@ export function DataBackupSection({
 
 export function AboutSection() {
   const navigate = useNavigate();
-  const FEEDBACK_FORM_URL = "https://forms.gle/Uhrat9TGnRzYr3p69";
 
   return (
     <div className="flex flex-col gap-2">
@@ -375,7 +374,20 @@ export function AboutSection() {
           </div>
           <ChevronRight size={16} className="text-(--text-muted)" />
         </div>
+      </div>
+    </div>
+  );
+}
 
+export function SupportSection() {
+  const FEEDBACK_FORM_URL = "https://forms.gle/Uhrat9TGnRzYr3p69";
+
+  return (
+    <div className="flex flex-col gap-2">
+      <h3 className="text-[11px] font-semibold text-(--text-muted) uppercase tracking-[0.06em] px-1 mb-1">
+        SUPPORT
+      </h3>
+      <div className="glass-card overflow-hidden divide-y divide-black/5 dark:divide-white/5">
         <div
           onClick={() =>
             window.open(FEEDBACK_FORM_URL, "_blank", "noopener,noreferrer")

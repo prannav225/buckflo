@@ -21,8 +21,9 @@ import { PixelArtAvatar } from "../components/ui/PixelArtAvatar";
 import { evaluatePersona } from "../utils/personaEvaluator";
 import {
   AccountsSection,
-  CustomizationSection,
-  DataBackupSection,
+  PreferencesSection,
+  StorageDataSection,
+  SupportSection,
   AboutSection,
   DangerZoneSection,
 } from "../components/profile/ProfileSections";
@@ -241,15 +242,15 @@ export function ProfilePage() {
 
         <AccountsSection spendingAcc={spendingAcc} savingsAcc={savingsAcc} />
 
-        <CustomizationSection
+        <PreferencesSection
           theme={theme}
           handleThemeChange={handleThemeChange}
           themeOptions={themeOptions}
           setIsCreatePresetOpen={setIsCreatePresetOpen}
+          setIsMonthSetupOpen={setIsMonthSetupOpen}
         />
 
-        <DataBackupSection
-          setIsMonthSetupOpen={setIsMonthSetupOpen}
+        <StorageDataSection
           setIsExportOpen={setIsExportOpen}
           onBackup={handleBackup}
           onRestoreClick={() => fileInputRef.current?.click()}
@@ -262,6 +263,8 @@ export function ProfilePage() {
           accept="*/*, .json, application/json, text/plain"
           onChange={handleFileChange}
         />
+
+        <SupportSection />
 
         <AboutSection />
 
