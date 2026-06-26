@@ -9,6 +9,27 @@ export interface ChangelogEntry {
 // Ensure the latest version is always the first item in the array.
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "3.0.0",
+    date: "2026-06-26",
+    title: "Persona System, Smart Transactions & UI Overhaul",
+    features: [
+      "Published the official Android APK directly on the landing page for easy installation",
+      "Introduced Spending Persona system with pixel art avatars and monthly summary integration",
+      "Implemented Smart Transactions with keyword-based category learning and suggestions",
+      "Redesigned home screen widgets with updated layout, new assets, and improved configuration settings",
+      "Added animated theme transitions using the View Transitions API for a cinematic feel",
+      "Added mock data generator for testing and demonstration purposes",
+      "Implemented cross-platform safe area support for better native alignment",
+    ],
+    fixes: [
+      "Reorganized profile sections into Preferences, StorageData, and Support categories",
+      "Updated global layout and typography styles for improved readability",
+      "Replaced custom toast checkmark icons with standardized Lucide icons",
+      "Added strict validation to ensure only .json files are accepted for database restoration",
+      "Disabled native Android WebView scrollbars for a cleaner look",
+    ],
+  },
+  {
     version: "2.3.0",
     date: "2026-06-14",
     title: "True Native Experience & Live Updates",
