@@ -996,6 +996,283 @@ body.sheet-open .page-header {
   transition: opacity 0.3s ease;
 }
 
+/* ─── Hero Install Button ────────────────────────────────────────────────────── */
+
+.hero-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--r-pill);
+  padding: 10px 20px 10px 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: var(--glass-shadow);
+  outline: none;
+  text-decoration: none;
+  color: var(--text);
+}
+.hero-install-btn:active {
+  transform: scale(0.97);
+}
+@media (hover: hover) {
+  .hero-install-btn:hover {
+    box-shadow: var(--glass-shadow-lg);
+    background: var(--bg-glass-strong);
+  }
+}
+
+.hero-install-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: #fff;
+}
+.hero-install-btn-icon--android {
+  background: linear-gradient(135deg, #3ddc84 0%, #2da362 100%);
+}
+.hero-install-btn-icon--ios {
+  background: linear-gradient(135deg, #007aff 0%, #0057cc 100%);
+}
+.hero-install-btn-icon--desktop {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+}
+
+.hero-install-btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 1px;
+}
+.hero-install-btn-label {
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+}
+.hero-install-btn-sub {
+  font-family: "Inter", sans-serif;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+/* ─── iOS Install Guide Overlay ──────────────────────────────────────────────── */
+
+@keyframes ios-guide-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ios-step-desc {
+  from {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 40px;
+    margin-top: 4px;
+  }
+}
+
+.ios-install-guide {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  background: var(--bg-surface);
+  border: var(--glass-border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--glass-shadow-lg), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  padding: 16px;
+  width: 300px;
+  z-index: 100;
+  animation: ios-guide-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+:root.dark .ios-install-guide {
+  box-shadow: var(--glass-shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.ios-install-guide-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-glass);
+  border: var(--glass-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  outline: none;
+  z-index: 2;
+}
+.ios-install-guide-close:hover {
+  background: var(--bg-glass-strong);
+  color: var(--text);
+}
+
+.ios-install-guide-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-right: 20px;
+}
+
+.ios-install-guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.ios-install-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  text-align: left;
+  outline: none;
+  width: 100%;
+}
+
+.ios-install-step--active {
+  background: var(--bg-glass);
+  border-color: var(--border);
+}
+
+.ios-install-step--done {
+  opacity: 0.55;
+}
+
+.ios-install-step-num {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent)/10;
+  font-family: "Inter", sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.ios-install-step--active .ios-install-step-num {
+  background: var(--accent);
+  color: #fff;
+}
+
+.ios-install-step-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ios-install-step-icon-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ios-step-desc-enter {
+  animation: ios-step-desc 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.ios-install-guide-nav {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ios-install-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 16px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-family: "Inter", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+  outline: none;
+}
+.ios-install-nav-btn:active {
+  transform: scale(0.96);
+}
+.ios-install-nav-btn--done {
+  background: var(--credit);
+}
+
+/* ─── iOS Chrome / Non-Safari Guide ──────────────────────────────────────────── */
+
+.ios-chrome-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ios-chrome-guide-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--accent)/6;
+  border: 1px solid var(--accent)/12;
+}
+
+.ios-chrome-copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-family: "Inter", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+  outline: none;
+}
+.ios-chrome-copy-btn:active {
+  transform: scale(0.96);
+}
+
 /* ─── Landing Page — Typography & Sections ──────────────────────────────────── */
 
 .landing-eyebrow {
